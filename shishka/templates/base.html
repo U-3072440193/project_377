@@ -9,21 +9,51 @@
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'images/favicon.ico'%}" type="image/x-icon"/>
-    <!-- Icon - font-awesome -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-    <!-- Mumble UI -->
-    <link rel="stylesheet" href="{% static 'uikit/styles/uikit.css' %}"/>
-    <!-- Dev Search UI -->
-    <link rel="stylesheet" href="{% static 'styles/app.css' %}"/>
+    <!-- Общие стили -->
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
 
-    <title>DevSearch - Connect with Developers!</title>
+    <title>Шишка</title>
 </head>
 
 <body>
+<!-- Header / Navigation -->
+<header class="site-header">
+    <div class="container">
+        <!-- Логотип -->
+        <a href="#" class="logo">Shishka</a>
 
+        <!-- Навигация -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="#">Boards</a></li>
+                <li><a href="#">Tasks</a></li>
+                <li><a href="#">Users</a></li>
+            </ul>
+        </nav>
+
+        <!-- Пользователь -->
+        <div class="user-menu">
+            {% if user.is_authenticated %}
+            <span>Hello, {{ user.username }}</span>
+            <a href="#">Logout</a>
+            {% else %}
+            <a href="#">Login</a>
+            <a href="#">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+<!-- Main content -->
 {% block content %}
-
 {% endblock %}
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="container">
+        <p>&copy; 2025 Шишкой по голове.</p>
+    </div>
+</footer>
 </body>
 
 </html>

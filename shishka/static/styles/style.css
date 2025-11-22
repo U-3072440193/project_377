@@ -1,0 +1,88 @@
+/* style.css */
+
+/* Сброс отступов и шрифты */
+body, h1, h2, h3, h4, h5, h6, p, ul, li, a {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Общий фон и текст */
+body {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Header */
+.site-header {
+    background-color: #333;
+    color: white;
+    padding: 15px 0;
+}
+
+/* Контейнер внутри header */
+.site-header .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Логотип */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+/* Навигация */
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.main-nav ul li a:hover {
+    color: #ffcc00;
+}
+
+/* Пользовательский блок */
+.user-menu a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.user-menu a:hover {
+    color: #ffcc00;
+}
+
+/* Main */
+main.home {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Footer */
+.site-footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 40px;
+}
