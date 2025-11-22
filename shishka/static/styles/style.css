@@ -9,8 +9,15 @@ body, h1, h2, h3, h4, h5, h6, p, ul, li, a {
 
 /* Общий фон и текст */
 body {
+    display: flex;
+    flex-direction: column;
     background-color: #f5f5f5;
     color: #333;
+}
+
+html, body {
+    height: 100%; /* важно */
+    margin: 0;
 }
 
 /* Header */
@@ -37,6 +44,13 @@ body {
     color: white;
     text-decoration: none;
 }
+
+.site-header .logo img {
+    height: 40px; 
+    width: auto;
+    display: block; 
+}
+
 
 /* Навигация */
 .main-nav ul {
@@ -76,6 +90,7 @@ main.home {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+     flex: 1; /* растягивает main на всё доступное пространство */
 }
 
 /* Footer */
@@ -86,3 +101,4 @@ main.home {
     padding: 15px 0;
     margin-top: 40px;
 }
+
