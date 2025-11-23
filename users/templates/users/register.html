@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+{%if page == 'register' %}
+<main class="login-register">
+    <div class="inner">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/logo.svg' %}" alt="Логотип" class="logo">
+        </a>
+        <h2>Регистрация</h2>
+        {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+        <p class="error">{{ error }}</p>
+        {% endfor %}
+        {% endif %}
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-acc">
+                <label>{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.errors %}
+                {% for error in field.errors %}
+                <p class="error">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+            <input type="submit" value="Зарегистрироваться">
+        </form>
+
+
+        <p>Войти в аккаунт <a href="{%url 'login'%}">Логин</a></p>
+    </div>
+</main>
+{%else%}
+<main class="login-register">
+    <div class="inner">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/logo.svg' %}" alt="Логотип" class="logo">
+        </a>
+        <h2>Вход</h2>
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Логин" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <input type="submit" value="Login">
+        </form>
+        <a href="{%url 'register' %}">Зарегистрироваться</a>
+    </div>
+</main>
+{%endif%}
+
+{% endblock %}

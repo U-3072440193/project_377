@@ -20,14 +20,14 @@
 <header class="site-header">
     <div class="container">
         <!-- Логотип -->
-        <a href="{% url 'index' %}" class="logo">
-            <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo"/>
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo" />
         </a>
 
         <!-- Навигация -->
         <nav class="main-nav">
             <ul>
-                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'home' %}">Home</a></li>
                 <li><a href="#">Boards</a></li>
                 <li><a href="#">Tasks</a></li>
                 <li><a href="#">Users</a></li>
@@ -36,16 +36,29 @@
 
         <!-- Пользователь -->
         <div class="user-menu">
-            {% if user.is_authenticated %}
+            {% if request.user.is_authenticated %}
             <span>Hello, {{ user.username }}</span>
-            <a href="#">Logout</a>
+            <a href="{%url 'logout'%}">Logout</a>
             {% else %}
-            <a href="#">Login</a>
-            <a href="#">Sign Up</a>
+            <a href="{%url 'login'%}">Login/Sign Up</a>
+
             {% endif %}
         </div>
     </div>
 </header>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <p>{{ message }}</p>
+        <button class="alert-close">⨯</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
 <!-- Main content -->
 {% block content %}
 {% endblock %}
@@ -57,5 +70,7 @@
     </div>
 </footer>
 </body>
+<script src="{% static 'uikit/app.js'%}"></script>
+
 
 </html>
