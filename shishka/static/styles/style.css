@@ -247,3 +247,62 @@ main.home {
     box-sizing: border-box; /* чтобы padding не ломал ширину */
 }
 
+main.profile {
+    flex: 1; /* растягиваем на доступное пространство */
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* расстояние между элементами */
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* расстояние между аватаром и именем */
+}
+
+.user-link {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* между аватаром и именем */
+    text-decoration: none;
+    color: inherit;
+    font-weight: 500;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logout-btn {
+    padding: 4px 8px;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+
+.login-btn {
+    padding: 4px 8px;
+    
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+

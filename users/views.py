@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from .forms import CustomForm
+from django.contrib.auth.decorators import login_required
+from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
 
 
 def login_user(request):
@@ -54,3 +57,9 @@ def register_user(request):
         'form': form
     }
     return render(request, 'users/register.html', context)
+
+
+@login_required
+def user_profile(request):
+    profile = request.user  # сам User
+    return render(request, "users/profile.html", {"profile": profile})

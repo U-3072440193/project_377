@@ -21,7 +21,7 @@
     <div class="container">
         <!-- Логотип -->
         <a href="{% url 'home' %}" class="logo">
-            <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo" />
+            <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo"/>
         </a>
 
         <!-- Навигация -->
@@ -37,13 +37,22 @@
         <!-- Пользователь -->
         <div class="user-menu">
             {% if request.user.is_authenticated %}
-            <span>Hello, {{ user.username }}</span>
-            <a href="{%url 'logout'%}">Logout</a>
+            <div class="user-info">
+                <a href="{% url 'profile' %}" class="user-link">
+                    {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="avatar"/>
+                    {% else %}
+                    <img src="{% static 'images/user.png' %}" alt="{{ request.user.username }}" class="avatar"/>
+                    {% endif %}
+                    <span class="username">{{ request.user.username }}</span>
+                </a>
+                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            </div>
             {% else %}
-            <a href="{%url 'login'%}">Login/Sign Up</a>
-
+            <a href="{% url 'login' %}" class="login-btn">Login/Sign Up</a>
             {% endif %}
         </div>
+
     </div>
 </header>
 
