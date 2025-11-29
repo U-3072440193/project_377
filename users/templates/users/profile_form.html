@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="{% static 'styles/profile.css' %}">
 {% endblock %}
 {% block content %}
+
+
 <main class="profile">
 
     <div class="container-prof">
@@ -11,25 +13,33 @@
             <div class="profile-window">
                 <h1>{{ profile.user.username }}</h1>
                 <img src="{{ profile.avatar.url }}" alt="Аватар">
-                <a href="{%url 'edit-profile'%}" class="btn edit">Редактировать профиль</a>
 
             </div>
         </div>
 
         <div class="profile-field">
-            <h1>Мой профиль</h1>
-            <p>Имя пользователя: {{ profile.user.username }}</p>
-            <p>Имя: {{ profile.first_name }}</p>
-            <p>Фамилия: {{ profile.last_name }}</p>
-            <p>Email: {{ profile.email }}</p>
-            <p>О себе: {{ profile.bio }}</p>
-            <p>Ссылка соцсети: {{ profile.social_media_link }}</p>
+            <div class="container-prof">
+                <form action="{%url 'edit-profile'%}" method="post" enctype="multipart/form-data">
+                    {%csrf_token%}
+                    {% for field in form %}
+                    <div class="form-edit">
+                        <label for="formInput#text">{{ field.label }}: </label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <input type="submit" value="submit" class="btn edit">
+
+                </form>
+
+            </div>
 
         </div>
     </div>
 
 
 </main>
+
+
 
 
 {% endblock %}

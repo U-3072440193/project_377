@@ -11,6 +11,7 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" type="image/x-icon"/>
     <!-- Общие стили -->
     <link rel="stylesheet" href="{% static 'styles/style.css' %}">
+    {% block profile %}{% endblock %}
 
     <title>Шишка</title>
 </head>
@@ -31,6 +32,9 @@
                 <li><a href="#">Boards</a></li>
                 <li><a href="#">Tasks</a></li>
                 <li><a href="#">Users</a></li>
+                {% if request.user.is_authenticated %}
+                <li><a href="#">Мои доски</a></li>
+                {% endif %}
             </ul>
         </nav>
 
@@ -46,10 +50,10 @@
                     {% endif %}
                     <span class="username">{{ request.user.username }}</span>
                 </a>
-                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+                <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
             </div>
             {% else %}
-            <a href="{% url 'login' %}" class="login-btn">Login/Sign Up</a>
+            <a href="{% url 'login' %}" class="login-btn">Войти</a>
             {% endif %}
         </div>
 
@@ -79,7 +83,7 @@
     </div>
 </footer>
 </body>
-<script src="{% static 'uikit/app.js'%}"></script>
+<script src="{% static 'js/app.js'%}"></script>
 
 
 </html>

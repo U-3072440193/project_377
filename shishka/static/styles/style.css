@@ -89,17 +89,12 @@ main.home, .login-register {
     justify-content: center; /* центрирование по горизонтали */
     align-items: center;     /* центрирование по вертикали */
     width: 90%;
-    max-width: 1200px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
 /* Контент внутри home */
-main.home {
-    background-color: white;
-    border-radius: 10px;
-    padding: 40px 20px;
-    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-}
+
 
 /* Footer */
 .site-footer {
@@ -179,7 +174,9 @@ main.home {
 .alert-close:hover {
     opacity: 0.8;
 }
-/* -------------------------------------- */
+/* Регистрация */
+
+
 .login-register .inner {
     background-color: white;
     border-radius: 10px;
@@ -247,16 +244,7 @@ main.home {
     box-sizing: border-box; /* чтобы padding не ломал ширину */
 }
 
-main.profile {
-    flex: 1; /* растягиваем на доступное пространство */
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-}
+
 
 .user-menu {
     display: flex;
