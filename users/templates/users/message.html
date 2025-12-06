@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/inbox.css' %}">
+<link rel="stylesheet" href="{% static 'styles/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="profile">
+
+    <div class="container-prof">
+
+        <div class="container-email">
+            <div class="email-view">
+                <div class="email-header">
+                    <h2 class="email-subject">{{ message.subject }}</h2>
+                    <div class="email-info">
+                        <span class="email-sender">
+                            От: {% if message.sender %}{{ message.sender.username }}{% else %}Неизвестно{% endif %}
+                        </span>
+                        <span class="email-date">{{ message.created|date:"d.m.Y H:i" }}</span>
+                    </div>
+                </div>
+
+                <div class="email-body">
+                    <p>{{ message.body }}</p>
+                </div>
+
+                <div class="email-actions">
+                    {% if message.sender %}
+                    <!-- Добавляем id к кнопке -->
+                    <button id="reply-btn" class="btn compose">Ответить</button>
+                    {% endif %}
+                    <a href="{% url 'inbox' %}" class="btn compose">Назад в Inbox</a>
+                </div>
+                <div id="reply" style="display:none; margin-top:20px;">
+                    <form action="{% url 'create-message' message.sender.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="subject" placeholder="Тема" required>
+                        <textarea name="body" rows="5" placeholder="Напишите сообщение..." required></textarea>
+                        <button type="submit" class="btn compose">Отправить</button>
+                    </form>
+                </div>
+
+
+            </div>
+
+        </div>
+</div>
+</main>
+<script>
+const replyBtn = document.getElementById('reply-btn');
+if (replyBtn) {
+    replyBtn.addEventListener('click', function() {
+        const replyForm = document.getElementById('reply');
+        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+    });
+}
+</script>
+
+{% endblock %}

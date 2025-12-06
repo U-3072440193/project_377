@@ -7,7 +7,7 @@
     width: 90%;
     max-width: 900px;
     margin: 20px auto;
-           /* центрирование по горизонтали */
+           
 }
 
 /* Блок с картинкой */
@@ -26,26 +26,7 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-/* Блок с полем профиля */
-.profile-field {
-    flex: 1;                  /* занимает всё оставшееся место */
-    background-color: #fff;
-    padding: 20px;
-    
-}
 
-.profile-field h1 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 24px;
-    color: #333;
-}
-
-.profile-field p {
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #555;
-}
 main.profile {
     flex: 1; /* растягиваем на доступное пространство */
     display: flex;
@@ -59,11 +40,15 @@ main.profile {
    
 }
 
-/* Левый блок: имя над аватаркой */
+/* Левый блок: верхний */
+
+.profile-left{
+    min-width: 450px ;
+}
 .profile-left .profile-window {
     display: flex;
     flex-direction: column; /* сверху вниз */
-    align-items: center;    /* центр по горизонтали */
+        
     gap: 15px;              /* расстояние между именем и картинкой */
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -95,6 +80,23 @@ main.profile {
     text-decoration: none;
 }
 
+/* Левый блок: нижний */
+.profile-left .profile-info {
+    display: flex;
+    flex-direction: column; /* сверху вниз */
+    gap: 15px;              /* расстояние между именем и картинкой */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 15px;
+    padding: 10px;
+}
+
+.profile-left .profile-info h1,p{
+    padding: 10px 20px; 
+}
+.label {
+    font-weight: bold;
+}
 
 
 
@@ -149,7 +151,7 @@ input.btn.edit {
 }
 
 input.btn.edit:hover {
-    background-color: #0056b3;
+    background-color: #4CAF50;
 }
 
 /* Адаптив для мобильных */
@@ -163,4 +165,44 @@ input.btn.edit:hover {
     .profile-field {
         max-width: 100%;
     }
+}
+
+/* Правый столбик профиля */
+.profile-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.icon-table {
+    border-collapse: collapse;
+}
+
+.icon-table td {
+    width: 240px;
+    height: 140px;
+    padding: 10px;
+    text-align: center;
+    border: none;
+}
+
+.icon-table img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.icon-table img:hover {
+    transform: scale(1.1);
+}
+/* иконки справа */
+.icon {
+    transition: 0.3s; /* плавный переход */
+}
+
+.icon:hover {
+    filter: brightness(0.5) sepia(1) hue-rotate(180deg);
 }

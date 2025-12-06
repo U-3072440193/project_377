@@ -7,24 +7,39 @@
 <main class="profile">
 
     <div class="container-prof">
-        <div class="profile-field profile-left">
+        <div class="profile-left">
             <div class="profile-window">
                 <h1>{{ profile.user.username }}</h1>
                 <img src="{{ profile.avatar.url }}" alt="Аватар">
                 <a href="{%url 'edit-profile'%}" class="btn edit">Редактировать профиль</a>
-
+            </div>
+            <div class="profile-info">
+                <h1>Мой профиль</h1>
+                <p><span class="label"> Имя пользователя:</span> {{ profile.user.username }}</p>
+                <p><span class="label">Имя:</span> {{ profile.first_name }}</p>
+                <p><span class="label">Фамилия:</span> {{ profile.last_name }}</p>
+                <p><span class="label">Email:</span> {{ profile.email }}</p>
+                <p><span class="label">О себе:</span> {{ profile.bio }}</p>
+                <p>Ссылка соцсети: {{ profile.social_media_link }}</p>
             </div>
         </div>
 
-        <div class="profile-field">
-            <h1>Мой профиль</h1>
-            <p>Имя пользователя: {{ profile.user.username }}</p>
-            <p>Имя: {{ profile.first_name }}</p>
-            <p>Фамилия: {{ profile.last_name }}</p>
-            <p>Email: {{ profile.email }}</p>
-            <p>О себе: {{ profile.bio }}</p>
-            <p>Ссылка соцсети: {{ profile.social_media_link }}</p>
 
+        <div class="profile-right">
+            <table class="icon-table">
+                <tr>
+                    <td><a href="{%url 'inbox'%}"><img src="{% static 'images/post-icon.svg' %}" alt="" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
+                </tr>
+                <tr>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" alt="" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" alt="" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" alt="" class="icon"></a></td>
+                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
+                </tr>
+            </table>
         </div>
     </div>
 

@@ -9,6 +9,12 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('profile/', views.user_profile, name='profile'),
     path('edit-profile/', views.edit_profile, name='edit-profile'),
+    path('inbox/', views.inbox, name='inbox'),
+    path('message/<str:pk>/', views.view_message, name='message'),
+    path('inbox/<int:pk>/', views.create_message, name='create-message'),
+    path('new-message/', views.new_message, name='new-message'),
+    path('delete_message/<int:pk>/', views.delete_message, name='delete_message'),
+
 ]
 
 if settings.DEBUG:

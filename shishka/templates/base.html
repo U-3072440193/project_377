@@ -34,6 +34,7 @@
                 <li><a href="#">Users</a></li>
                 {% if request.user.is_authenticated %}
                 <li><a href="#">Мои доски</a></li>
+                <li><a href="{%url 'inbox'%}">Почта</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -77,11 +78,7 @@
 {% endblock %}
 
 <!-- Footer -->
-<footer class="site-footer">
-    <div class="container">
-        <p>&copy; 2025 Шишкой по голове.</p>
-    </div>
-</footer>
+
 </body>
 <script src="{% static 'js/app.js'%}"></script>
 

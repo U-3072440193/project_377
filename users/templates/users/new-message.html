@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/inbox.css' %}">
+<link rel="stylesheet" href="{% static 'styles/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-email">
+    <form method="post" class="email-compose">
+        {% csrf_token %}
+
+        <label for="recipient">Кому:</label>
+        <select name="recipient" id="recipient" required>
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="subject" placeholder="Тема" required>
+        <textarea name="body" placeholder="Сообщение" rows="5" required></textarea>
+
+        <button type="submit" class="btn compose">Отправить</button>
+    </form>
+</div>
+
+
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Profile
+from .models import Profile, Message
 from django.forms import ModelForm
 
 
@@ -10,7 +10,7 @@ class CustomForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username',  'email', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,7 +24,7 @@ class CustomForm(UserCreationForm):
 
         for name, field in self.fields.items():
             field.widget.attrs.update({
-                'class': 'input',  #класс
+                'class': 'input',  # класс
                 'placeholder': placeholders[name]  # плейсхолдер
             })
 
@@ -43,3 +43,9 @@ class ProfileForm(ModelForm):
             'social_media_link3',
             'email'
         ]
+
+
+class MessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = ['subject', 'body']

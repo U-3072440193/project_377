@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/inbox.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="profile">
+
+    <div class="container-prof">
+
+        <!-- Левый блок: аватар и профиль -->
+        <div class="profile-left">
+            <div class="profile-window">
+                <h1>{{ profile.user.username }}</h1>
+                <img src="{{ user.profile.avatar.url }}" alt="Аватар">
+                <a href="{% url 'profile' %}" class="btn edit">Мой профиль</a>
+            </div>
+        </div>
+
+        <!-- Правый блок: Inbox -->
+        <div class="profile-right inbox">
+
+            <h1>Почта</h1>
+            <a href="{% url 'new-message' %}" class="btn compose">Написать сообщение</a>
+            <h3>Непрочитанные: {{ unread }}</h3>
+
+            <ul class="emails-list">
+                {% for message in message_request %}
+                <li class="email {% if not message.is_read %}email--unread{% endif %}">
+                    <a href="{% url 'message' message.id %}">
+                        <span class="email-name">{{ message.name }}</span>
+                        <span class="email-subject">{{ message.subject }}</span>
+                        <span class="email-date">{{ message.created }}</span>
+                        <form method="post" action="{% url 'delete_message' message.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-message">x</button>
+                        </form>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+
+
+        </div>
+
+    </div>
+
+</main>
+{% endblock %}

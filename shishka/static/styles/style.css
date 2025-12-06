@@ -67,7 +67,7 @@ body {
 }
 
 .main-nav ul li a:hover {
-    color: #00910c;
+    color: #4CAF50;
 }
 
 /* Пользовательский блок */
@@ -79,7 +79,7 @@ body {
 }
 
 .user-menu a:hover {
-    color: #00910c;
+    color: #4CAF50;
 }
 
 /* Основной контент */
@@ -141,7 +141,7 @@ main.home, .login-register {
     margin: 20px auto;
 }
 
-/* Одно сообщение */
+/* Одно сообщение мессаджи */
 .message {
     display: flex;               /* элементы в одну строку */
     justify-content: space-between; /* текст слева, кнопка справа */
