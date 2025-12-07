@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from .models import Profile, Message
 from django.forms import ModelForm
+from django.core.exceptions import ValidationError
 
 
 class CustomForm(UserCreationForm):
@@ -44,8 +45,19 @@ class ProfileForm(ModelForm):
             'email'
         ]
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username:
+            # Проверяем, есть ли пользователь с таким ником, кроме текущего
+            if User.objects.filter(username=username).exclude(pk=self.instance.user.pk).exists():
+                raise ValidationError("Этот ник уже занят")
+        return username
+
 
 class MessageForm(ModelForm):
     class Meta:
         model = Message
-        fields = ['subject', 'body']
+        fields = ['subject', 'body', 'file']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'input'})
+        }

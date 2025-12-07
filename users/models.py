@@ -23,6 +23,7 @@ class Profile(models.Model):
 class Message(models.Model): #отправить пользователю сообщение
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     recipient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
+    file = models.FileField(upload_to='uploads/', blank=True, null=True)
     name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(max_length=200, blank=True)
     subject = models.CharField(max_length=200, blank=True)

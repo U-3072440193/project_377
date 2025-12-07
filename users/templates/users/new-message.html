@@ -8,22 +8,83 @@
 
 {% block content %}
 <div class="container-email">
-    <form method="post" class="email-compose">
+    <form method="post" class="email-compose" enctype="multipart/form-data">
         {% csrf_token %}
 
         <label for="recipient">Кому:</label>
-        <select name="recipient" id="recipient" required>
-            {% for user in users %}
-            <option value="{{ user.id }}">{{ user.username }}</option>
-            {% endfor %}
-        </select>
+        <input type="text" id="recipient" autocomplete="off" placeholder="Начните вводить имя..." required>
+        <input type="hidden" name="recipient_id" id="recipient_id">
+        <div id="suggestions" class="suggestions"></div>
 
         <input type="text" name="subject" placeholder="Тема" required>
         <textarea name="body" placeholder="Сообщение" rows="5" required></textarea>
+
+        <label for="file">Прикрепить файл:</label>
+        <input type="file" name="file" id="file">
 
         <button type="submit" class="btn compose">Отправить</button>
     </form>
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const input = document.getElementById("recipient"); //для блока ввода
+    const suggestions = document.getElementById("suggestions"); //для вылезающего списка юзров
+    const recipientIdField = document.getElementById("recipient_id"); //для скрытого поля, куда записываю айди
+
+
+    const searchUrl = "{% url 'search-users' %}"; //  тег  чтобы путь был точным
+
+    // при введени текста сработает:
+    input.addEventListener("input", function() {
+        const query = this.value.trim(); //значение в поле ввода без пробелов
+
+        if (!query) {
+            suggestions.innerHTML = "";
+            recipientIdField.value = "";
+            return; //если в поле пусто, очищаю, выхожу
+        }
+
+        fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)  //get запрос на сервак передаем введённый текст как параметр search, encodeURIComponent query — кодирует строку для URL
+            .then(response => response.json())
+            .then(data => {
+                let html = "";
+                if (data.length === 0) {
+                    html = '<div class="no-suggestions">Нет пользователей</div>';
+                } else {
+                    data.forEach(user => {
+                        html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">
+                                    ${user.username}
+                                 </div>`;
+                    });
+                }
+                suggestions.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Ошибка fetch:', err);
+            }); //если запрос не удался
+    });
+
+    // Клик по пользователю из списка
+    suggestions.addEventListener("click", function(e) {
+        const target = e.target;
+        if (target.classList.contains("suggest-item")) {    //клик был именно по элементу с классом suggest-item
+            input.value = target.dataset.name;  //забиваю имя выбранного пользователя в поле ввода
+            recipientIdField.value = target.dataset.id; //в скрытое поле для отправки на сервер
+            suggestions.innerHTML = "";
+        }
+    });
+
+    // Проверка перед сабмитом
+    document.querySelector('form.email-compose').addEventListener('submit', function(e) {
+        if (!recipientIdField.value) {
+            e.preventDefault();
+            alert('Вы должны выбрать получателя из списка');
+        }
+    });
+
+});
+</script>
 
 {% endblock %}

@@ -6,6 +6,7 @@ from django.contrib import messages
 from .forms import CustomForm, ProfileForm, MessageForm
 from django.shortcuts import get_object_or_404
 from .models import Message
+from django.http import JsonResponse  # для поиска юзеров
 
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
@@ -81,7 +82,11 @@ def edit_profile(request):
             messages.success(request, "Профиль обновлён")
             return redirect('profile')
         else:
-            messages.error(request, "Ошибка при обновлении профиля")
+            # Проходим по всем ошибкам формы и показываем их через messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+
     else:
         form = ProfileForm(instance=profile)
 
@@ -117,7 +122,7 @@ def create_message(request, pk):
     form = MessageForm()
 
     if request.method == "POST":
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user  # текущий залогиненный пользователь
@@ -133,11 +138,14 @@ def create_message(request, pk):
 
 @login_required(login_url='login')
 def new_message(request):
-    users = User.objects.exclude(id=request.user.id)  # всех кроме себя
     if request.method == "POST":
-        recipient_id = request.POST.get("recipient")
+        recipient_id = request.POST.get("recipient_id")
+        if not recipient_id:
+            messages.error(request, "Вы должны выбрать получателя из списка.")
+            return redirect('new-message')
+
         recipient = get_object_or_404(User, id=recipient_id)
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
@@ -149,13 +157,24 @@ def new_message(request):
             return redirect('inbox')
     else:
         form = MessageForm()
+
+    users = User.objects.exclude(id=request.user.id)
     context = {"users": users, "form": form}
     return render(request, 'users/new-message.html', context)
 
 
+@login_required(login_url='login')
 def delete_message(request, pk):
     message = get_object_or_404(Message, id=pk)
     if message.recipient == request.user:
         message.delete()
 
     return redirect('inbox')
+
+
+@login_required(login_url='login')
+def search_users(request):
+    search = request.GET.get('search', '') #  значение параметра ?search= из URL
+    users = User.objects.filter(username__icontains=search).exclude(id=request.user.id)[:10] # поиск юзеров кроме отправителя первые 10шт
+    data = list(users.values('id', 'username')) # преобразуем QuerySet в список словарей
+    return JsonResponse(data, safe=False)  #  JSON-ответ

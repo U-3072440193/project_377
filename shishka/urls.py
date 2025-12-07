@@ -20,14 +20,13 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-
     path('users/', include('users.urls')),
-]
+    path('api/', include('boards.urls')),
 
+]
 
 handler404 = 'shishka.views.page_404'
 if settings.DEBUG:
