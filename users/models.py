@@ -16,11 +16,15 @@ class Profile(models.Model):
     social_media_link2 = models.URLField(max_length=200, blank=True)
     social_media_link3 = models.URLField(max_length=200, blank=True)
 
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
+
     def __str__(self):
-        return self.user
+        return self.user.username
 
 
-class Message(models.Model): #отправить пользователю сообщение
+class Message(models.Model):  # отправить пользователю сообщение
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     recipient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
     file = models.FileField(upload_to='uploads/', blank=True, null=True)
@@ -35,4 +39,5 @@ class Message(models.Model): #отправить пользователю соо
         return self.subject
 
     class Meta:
-        ordering = ['is_read', '-created'] #по прочитанным+дата созд.
+        ordering = ['is_read', '-created']  # по прочитанным+дата созд.
+        verbose_name = "Сообщения"
