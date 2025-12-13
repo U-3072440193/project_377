@@ -10,3 +10,7 @@ class BoardListAPIView(APIView):
         boards = Board.objects.all()
         serializer = BoardSerializer(boards, many=True)
         return Response(serializer.data)
+
+
+def boards_page(request):
+    return render(request, 'boards/board.html')

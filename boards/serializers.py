@@ -25,9 +25,22 @@ class ColumnSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'avatar']  # avatar теперь виртуальное поле
+
+    def get_avatar(self, obj):
+        # проверяем, есть ли профиль
+        if hasattr(obj, 'profile') and obj.profile.avatar:
+            request = self.context.get('request')
+            avatar_url = obj.profile.avatar.url
+            # если нужно абсолютный URL для фронта:
+            if request is not None:
+                return request.build_absolute_uri(avatar_url)
+            return avatar_url
+        return None
 
 
 class BoardSerializer(serializers.ModelSerializer):

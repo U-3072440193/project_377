@@ -10,7 +10,7 @@ function Boards() {
   const [entitiesList, setEntitiesList] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}board/`)
+    fetch(`${process.env.REACT_APP_API_URL}boards/`)
       .then(response => response.json())
       .then(data => setEntitiesList(data))
       .catch(err => console.error(err));
