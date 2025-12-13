@@ -1,24 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Main from './components/Main';
+
+function Home() {
+  return <h1>Джанго шаблон</h1>;
+}
+
+function Boards() {
+  const [entitiesList, setEntitiesList] = useState([]);
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}board/`)
+      .then(response => response.json())
+      .then(data => setEntitiesList(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div>
+      <h1>Boards</h1>
+      <ul>
+        {entitiesList.map(board => (
+          <li key={board.id}>
+            {board.title} — Владелец: {board.owner.username}
+          </li>
+        ))}
+      </ul>
+      <ul>
+        {entitiesList.map(board => (
+          <li key={board.id}>{board.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function App() {
+  const user = null;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Main user={user} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/boards" element={<Boards />} />
+      </Routes>
+    </>
   );
 }
 

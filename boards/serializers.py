@@ -24,10 +24,16 @@ class ColumnSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+
 class BoardSerializer(serializers.ModelSerializer):
     columns = ColumnSerializer(many=True, read_only=True)
+    owner = UserSerializer(read_only=True)
 
     class Meta:
         model = Board
         fields = '__all__'
-
