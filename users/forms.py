@@ -44,6 +44,21 @@ class ProfileForm(ModelForm):
             'social_media_link3',
             'email'
         ]
+        labels = {
+            'username': 'Ник',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'avatar': 'Аватар',
+            'bio': 'О себе',
+            'social_media_link': 'Ссылка соц. сети 1',
+            'social_media_link2': 'Ссылка соц. сети 2',
+            'social_media_link3': 'Ссылка соц. сети 3',
+            'email': 'Email',
+        }
+
+        widgets = {
+            'avatar': forms.FileInput(attrs={'class': 'avatar-hidden-input'}),
+        }
 
     def clean_username(self):
         username = self.cleaned_data.get('username')

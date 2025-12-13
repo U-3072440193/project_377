@@ -7,6 +7,7 @@ class Board(models.Model):
     title = models.CharField(max_length=200, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    hidden = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -52,6 +53,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    position = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.title

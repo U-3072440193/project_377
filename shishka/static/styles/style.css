@@ -136,15 +136,19 @@ main.home, .login-register {
 
 /* Контейнер сообщений */
 .messages {
+    position: fixed;         /* фиксируем контейнер относительно окна */
+    top: 20px;               /* отступ сверху */
+    left: 50%;               /* по центру */
     width: 90%;
     max-width: 600px;
-    margin: 20px auto;
+    z-index: 9999;           /* поверх всего */
+    pointer-events: none;    /* чтобы не блокировать контент под сообщениями */
 }
-
-/* Одно сообщение мессаджи */
+/* Одно сообщение  */
 .message {
-    display: flex;               /* элементы в одну строку */
-    justify-content: space-between; /* текст слева, кнопка справа */
+    pointer-events: auto;    /* чтобы кнопка закрытия работала */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
     margin-bottom: 10px;
@@ -152,7 +156,10 @@ main.home, .login-register {
     color: #fff;
     font-size: 16px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0.95;
 }
+
+
 
 /* Цвета по тегам сообщений */
 .message.error { background-color: #e74c3c; }

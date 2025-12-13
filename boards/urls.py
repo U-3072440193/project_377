@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # временно пусто
+    path('board/', views.BoardListAPIView.as_view(), name='board'),
 ]
