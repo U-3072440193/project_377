@@ -32,6 +32,7 @@ CORS_ALLOWED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,10 +42,9 @@ INSTALLED_APPS = [
     'boards.apps.BoardsConfig',
     'tasks.apps.TasksConfig',
     'users.apps.UsersConfig',
-    'corsheaders',
     'rest_framework',
 ]
-
+CORS_ALLOW_CREDENTIALS = True  # при использовании сессии, авторизации, куков
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -112,7 +112,7 @@ TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

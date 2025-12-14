@@ -1,52 +1,47 @@
 from rest_framework import serializers
-from .models import *
+from .models import Board, Column, Task
+from django.contrib.auth.models import User
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'
-
-
-class TaskSerializer(serializers.ModelSerializer):
-    comments = CommentSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Task
-        fields = '__all__'
-
-
-class ColumnSerializer(serializers.ModelSerializer):
-    tasks = TaskSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Column
-        fields = '__all__'
-
-
+# Сериализатор пользователя (для owner)
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar']  # avatar теперь виртуальное поле
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'avatar']
 
     def get_avatar(self, obj):
-        # проверяем, есть ли профиль
+        # obj — это экземпляр User
+        # здесь возвращаем путь к аватару или None
         if hasattr(obj, 'profile') and obj.profile.avatar:
-            request = self.context.get('request')
-            avatar_url = obj.profile.avatar.url
-            # если нужно абсолютный URL для фронта:
-            if request is not None:
-                return request.build_absolute_uri(avatar_url)
-            return avatar_url
+            return obj.profile.avatar.url  #  аватар из модели Profile
         return None
 
 
+# Сериализатор задачи
+class TaskSerializer(serializers.ModelSerializer):
+    creator = UserSerializer(read_only=True)  # информация о создателе задачи
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated']
+
+
+# Сериализатор колонки
+class ColumnSerializer(serializers.ModelSerializer):
+    tasks = TaskSerializer(many=True, read_only=True)  # вложенные задачи
+
+    class Meta:
+        model = Column
+        fields = ['id', 'title', 'position', 'tasks']
+
+
+# Сериализатор доски
 class BoardSerializer(serializers.ModelSerializer):
-    columns = ColumnSerializer(many=True, read_only=True)
-    owner = UserSerializer(read_only=True)
+    columns = ColumnSerializer(many=True, read_only=True)  # вложенные колонки
+    owner = UserSerializer(read_only=True)  # владелец доски
 
     class Meta:
         model = Board
-        fields = '__all__'
+        fields = ['id', 'title', 'owner', 'created', 'updated', 'columns']
