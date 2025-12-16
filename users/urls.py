@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
@@ -15,6 +15,7 @@ urlpatterns = [
     path('new-message/', views.new_message, name='new-message'),
     path('delete_message/<int:pk>/', views.delete_message, name='delete_message'),
     path('search-users/', views.search_users, name='search-users'),
+    path('captcha/', include('captcha.urls')),
 
 ]
 

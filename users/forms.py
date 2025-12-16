@@ -4,10 +4,12 @@ from django import forms
 from .models import Profile, Message
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
+from captcha.fields import CaptchaField
 
 
 class CustomForm(UserCreationForm):
     email = forms.EmailField(required=True)
+    captcha = CaptchaField()
 
     class Meta:
         model = User
@@ -21,6 +23,7 @@ class CustomForm(UserCreationForm):
             'email': 'Email',
             'password1': 'Пароль',
             'password2': 'Подтверждение пароля',
+            'captcha': 'Введите текст с картинки',
         }
 
         for name, field in self.fields.items():
@@ -42,7 +45,8 @@ class ProfileForm(ModelForm):
             'social_media_link',
             'social_media_link2',
             'social_media_link3',
-            'email'
+            'email',
+            'email_notifications',
         ]
         labels = {
             'username': 'Ник',
@@ -54,6 +58,7 @@ class ProfileForm(ModelForm):
             'social_media_link2': 'Ссылка соц. сети 2',
             'social_media_link3': 'Ссылка соц. сети 3',
             'email': 'Email',
+            'email_notifications': 'Получать уведомления на почту',
         }
 
         widgets = {

@@ -5,7 +5,7 @@ from .models import *
 from .serializers import *
 
 
-class BoardListAPIView(APIView):
+class BoardListAPIView(APIView): # отправка json в реакт
     def get(self, request):
         boards = Board.objects.all()
         serializer = BoardSerializer(boards, many=True)

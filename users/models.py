@@ -15,6 +15,10 @@ class Profile(models.Model):
     social_media_link = models.URLField(max_length=200, blank=True)
     social_media_link2 = models.URLField(max_length=200, blank=True)
     social_media_link3 = models.URLField(max_length=200, blank=True)
+    email_notifications = models.BooleanField(
+        default=True,
+        verbose_name="Получать уведомления на почту"
+    )
 
     class Meta:
         verbose_name = "Профиль"

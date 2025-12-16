@@ -10,6 +10,8 @@ from django.http import JsonResponse  # для поиска юзеров
 
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def login_user(request):
@@ -153,6 +155,13 @@ def new_message(request):
             message.name = request.user.username
             message.email = request.user.email
             message.save()
+            send_mail( # отправка почты на реальный почтовый ящик. !!! Требуется настроить отправку SMTP на яндекс, мейл,гугл либо удалить email_notifications, либо обработать ошибку!!! ОТПРАВКА ПОКА НЕ РАБОТАЕТ
+                subject=f"Новое сообщение от {request.user.username}",
+                message=message.body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[recipient.email],
+                fail_silently=False,
+            )
             messages.success(request, "Сообщение отправлено")
             return redirect('inbox')
     else:
