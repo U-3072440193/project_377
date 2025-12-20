@@ -11,7 +11,9 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" type="image/x-icon"/>
     <!-- Общие стили -->
     <link rel="stylesheet" href="{% static 'styles/style.css' %}">
+
     {% block profile %}{% endblock %}
+    {% block styles %}{% endblock %}
 
     <title>Шишка</title>
 </head>
@@ -29,7 +31,7 @@
         <nav class="main-nav">
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'boards-page' %}">Boards</a></li>
+                <li><a href="{% url 'new-board' %}">Создать доску</a></li>
                 <li><a href="#">Tasks</a></li>
                 <li><a href="#">Users</a></li>
                 {% if request.user.is_authenticated %}

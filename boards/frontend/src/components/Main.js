@@ -1,38 +1,110 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import Column from "./Column";
+import "./Main.css";
 
-function Main({ user }) {
+function Main({ user, board }) {
+  const [columns, setColumns] = useState([]);
+  const [newColumnTitle, setNewColumnTitle] = useState(""); // новое состояние для новой колонки
+  const [showInput, setShowInput] = useState(false); // для скрытия поля ввода колонки
+  const handleAddClick = () => {
+    setShowInput(true); // показать поле и кнопку
+  };
+
+  useEffect(() => {
+    if (board) {
+      setColumns(board.columns);
+    }
+  }, [board]);
+
+  if (!board) return <p>Загрузка доски...</p>;
+
+  const addColumn = () => {
+    if (!newColumnTitle.trim()) return;
+    fetch(`${process.env.REACT_APP_API_URL}boards/${board.id}/columns/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // если используешь токен:
+      // 'Authorization': `Token ${userToken}`
+    },
+    body: JSON.stringify({ title: newColumnTitle })
+  })
+    .then(res => res.json())
+    .then(data => {
+      setColumns([...columns, data]); // добавляем колонку из ответа сервера
+      setNewColumnTitle('');
+      setShowInput(false);
+    })
+    .catch(err => console.error(err));
+    const newCol = { id: Date.now(), title: newColumnTitle, tasks: [] };
+    setColumns([...columns, newCol]);
+    setNewColumnTitle("");
+    setShowInput(false); // скрыть поле после добавления
+  };
+
+  const removeColumn = (colId) => {
+  fetch(`${process.env.REACT_APP_API_URL}columns/${colId}/`, {
+    method: 'DELETE',
+    headers: {
+      // Authorization если нужно
+    }
+  })
+  .then(() => {
+    setColumns(columns.filter(col => col.id !== colId));
+  })
+  .catch(err => console.error(err));
+};
+
   return (
-    <header className="site-header">
-      <div className="container">
-        <Link to="/" className="logo">
-          <img src="http://127.0.0.1:8000/static/images/logo.svg" alt="Shishka Logo" />
-        </Link>
-
-        <nav className="main-nav">
-          <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/boards">Boards</Link></li>
-            <li><Link to="/tasks">Tasks</Link></li>
-            <li><Link to="/users">Users</Link></li>
-          </ul>
-        </nav>
-
-        <div className="user-menu">
-          {user ? (
-            <div className="user-info">
-              <Link to="/profile" className="user-link">
-                <img src={user.avatar || "/default-avatar.png"} alt={user.username} className="avatar" />
-                <span className="username">{user.username}</span>
-              </Link>
-              <Link to="/logout" className="logout-btn">Выйти</Link>
+    <div className="main">
+      <div className="tool-bar">
+        <div className="board-actions">
+          <div className="inn-board">
+            <h1>{board.title}</h1>
+            <p>Дата создания: {board.created}</p>
+          </div>
+          <div className="actions">
+            <img
+              src="/icons/add-column.svg"
+              alt="Добавить колонку"
+              className="add-column-icon"
+              onClick={handleAddClick}
+            />
+            <div className="add-column-form">
+              {showInput && (
+                <div className="add-column-form">
+                  <input
+                    type="text"
+                    placeholder="Название колонки"
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    autoFocus
+                  />
+                  <button onClick={addColumn}>Добавить</button>
+                </div>
+              )}
             </div>
-          ) : (
-            <Link to="/login" className="login-btn">Войти</Link>
-          )}
+          </div>
+        </div>
+        <div className="user">
+          <p>Создатель: {board.owner.username}</p>
+          <img
+            src={`http://127.0.0.1:8000${board.owner.avatar}`}
+            alt="avatar"
+            width="100"
+          />
         </div>
       </div>
-    </header>
+
+      <h3>Колонки:</h3>
+      <div className="columns-container">
+        <ul>
+          {columns.map((col) => (
+            <Column key={col.id} column={col} removeColumn={removeColumn} />
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 

@@ -172,11 +172,13 @@ input.btn.edit:hover {
     flex: 1;
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: flex-start;
 }
 
 .icon-table {
     border-collapse: collapse;
+    width: 100%;
 }
 
 .icon-table td {
@@ -207,3 +209,44 @@ input.btn.edit:hover {
     filter: brightness(0.5) sepia(1) hue-rotate(180deg);
 }
 
+.boards{
+    display: flex;
+    flex-direction: column; /* сверху вниз */
+    gap: 15px;              /* расстояние между именем и картинкой */
+    border-radius: 10px;
+    margin: 15px;
+    padding: 10px;
+}
+.board-container{
+    display: flex;             /* делаем flex-контейнером */
+    flex-direction: row;       /* по горизонтали */
+    justify-content: space-between; /* название слева, дата справа */
+    align-items: center;       /* выравниваем по вертикали */
+    
+    width: 400px;      
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.delete-board {
+    padding: 2px; /* сброс паддинга */
+}
+
+.delete-message {
+    background: none;      /* убираем фон */
+    border: none;          /* убираем рамку */
+    color: #333;           /* цвет крестика */
+    font-weight: bold;     
+    font-size: 16px;       /* размер крестика */
+    cursor: pointer;       /* курсор указателя при наведении */
+    padding: 1px;            /* убираем внутренние отступы */
+    margin: 0;             /* убираем внешние отступы */
+    line-height: 1;        /* чтобы текст был ровно по центру */
+    box-shadow: none
+}
+
+.delete-message:hover {
+    color: red;            /* цвет при наведении, если нужно */
+}

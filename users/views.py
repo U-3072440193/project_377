@@ -12,6 +12,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from boards.models import Board
 
 
 def login_user(request):
@@ -67,8 +68,11 @@ def register_user(request):
 @login_required(login_url='login')
 def user_profile(request):
     profile = request.user.profile  # сам User
+    boards = Board.objects.filter(
+        owner=request.user).order_by('-created')
     context = {
-        "profile": profile
+        "profile": profile,
+        "boards": boards,
     }
     return render(request, "users/profile.html", context)
 
@@ -155,7 +159,8 @@ def new_message(request):
             message.name = request.user.username
             message.email = request.user.email
             message.save()
-            send_mail( # отправка почты на реальный почтовый ящик. !!! Требуется настроить отправку SMTP на яндекс, мейл,гугл либо удалить email_notifications, либо обработать ошибку!!! ОТПРАВКА ПОКА НЕ РАБОТАЕТ
+            send_mail(
+                # отправка почты на реальный почтовый ящик. !!! Требуется настроить отправку SMTP на яндекс, мейл,гугл либо удалить email_notifications, либо обработать ошибку!!! ОТПРАВКА ПОКА НЕ РАБОТАЕТ
                 subject=f"Новое сообщение от {request.user.username}",
                 message=message.body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
@@ -183,7 +188,8 @@ def delete_message(request, pk):
 
 @login_required(login_url='login')
 def search_users(request):
-    search = request.GET.get('search', '') #  значение параметра ?search= из URL
-    users = User.objects.filter(username__icontains=search).exclude(id=request.user.id)[:10] # поиск юзеров кроме отправителя первые 10шт
-    data = list(users.values('id', 'username')) # преобразуем QuerySet в список словарей
-    return JsonResponse(data, safe=False)  #  JSON-ответ
+    search = request.GET.get('search', '')  # значение параметра ?search= из URL
+    users = User.objects.filter(username__icontains=search).exclude(id=request.user.id)[
+            :10]  # поиск юзеров кроме отправителя первые 10шт
+    data = list(users.values('id', 'username'))  # преобразуем QuerySet в список словарей
+    return JsonResponse(data, safe=False)  # JSON-ответ

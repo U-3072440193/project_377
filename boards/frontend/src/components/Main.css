@@ -1,0 +1,95 @@
+.main {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f5f7;
+  min-height: 100vh;
+  max-width: 1200px;
+
+}
+
+.tool-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  justify-content: space-between;
+}
+
+/* Левая часть - информация о доске */
+.board-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* расстояние между инфо доски и иконками */
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.add-column-icon,.remove-column-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.add-column-icon:hover {
+  transform: scale(1.1);
+}
+.remove-column-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Правая часть - блок пользователя */
+ .user {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* аватар по центру */
+  gap: 5px;
+}
+
+/* Аватар */
+.user img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+
+ul {
+  display: flex;
+  gap: 15px;
+  list-style: none;
+  padding: 0;
+  overflow-x: auto;
+}
+
+ul::-webkit-scrollbar {
+  height: 8px;
+}
+
+ul::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+ul::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.columns-container{
+    display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'styles/new-board-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="board-form">
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-edit">
+                <label>{{ field.label }}</label>
+                {{ field }}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn edit">Создать доску</button>
+    </form>
+</main>
+{% endblock %}
