@@ -9,6 +9,11 @@ function Main({ user, board }) {
   const handleAddClick = () => {
     setShowInput(true); // показать поле и кнопку
   };
+  
+  const currentUser = window.currentUser;
+  
+
+  
 
   useEffect(() => {
     if (board) {
@@ -17,25 +22,29 @@ function Main({ user, board }) {
   }, [board]);
 
   if (!board) return <p>Загрузка доски...</p>;
+  // проверяем, есть ли доска и владелец
+  const isOwner =
+  board && board.owner && currentUser && Number(board.owner.id) === Number(currentUser.id);
+  
 
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
     fetch(`${process.env.REACT_APP_API_URL}boards/${board.id}/columns/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // если используешь токен:
-      // 'Authorization': `Token ${userToken}`
-    },
-    body: JSON.stringify({ title: newColumnTitle })
-  })
-    .then(res => res.json())
-    .then(data => {
-      setColumns([...columns, data]); // добавляем колонку из ответа сервера
-      setNewColumnTitle('');
-      setShowInput(false);
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // если используешь токен:
+        // 'Authorization': `Token ${userToken}`
+      },
+      body: JSON.stringify({ title: newColumnTitle }),
     })
-    .catch(err => console.error(err));
+      .then((res) => res.json())
+      .then((data) => {
+        setColumns([...columns, data]); // добавляем колонку из ответа сервера
+        setNewColumnTitle("");
+        setShowInput(false);
+      })
+      .catch((err) => console.error(err));
     const newCol = { id: Date.now(), title: newColumnTitle, tasks: [] };
     setColumns([...columns, newCol]);
     setNewColumnTitle("");
@@ -43,17 +52,17 @@ function Main({ user, board }) {
   };
 
   const removeColumn = (colId) => {
-  fetch(`${process.env.REACT_APP_API_URL}columns/${colId}/`, {
-    method: 'DELETE',
-    headers: {
-      // Authorization если нужно
-    }
-  })
-  .then(() => {
-    setColumns(columns.filter(col => col.id !== colId));
-  })
-  .catch(err => console.error(err));
-};
+    fetch(`${process.env.REACT_APP_API_URL}columns/${colId}/`, {
+      method: "DELETE",
+      headers: {
+        // Authorization если нужно
+      },
+    })
+      .then(() => {
+        setColumns(columns.filter((col) => col.id !== colId));
+      })
+      .catch((err) => console.error(err));
+  };
 
   return (
     <div className="main">
@@ -100,7 +109,7 @@ function Main({ user, board }) {
       <div className="columns-container">
         <ul>
           {columns.map((col) => (
-            <Column key={col.id} column={col} removeColumn={removeColumn} />
+            <Column key={col.id} column={col} removeColumn={removeColumn} isOwner={isOwner}/>
           ))}
         </ul>
       </div>

@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-from .froms import BoardForm, ColumnForm
+# from rest_framework.permissions import AllowAny #разрешен доступ всем, только для разработки!! удалить после финишной отладке
+from .forms import BoardForm, ColumnForm
 from .models import *
 from .serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
 
 
 class BoardListAPIView(APIView):  # отправка json в реакт
@@ -46,6 +47,8 @@ class ColumnCreateAPIView(APIView):
 class ColumnDeleteAPIView(APIView):
     def delete(self, request, pk):
         column = get_object_or_404(Column, id=pk)
+        if column.board.owner != request.user:
+            return Response({"detail": "Forbidden"}, status=403)
         column.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -73,3 +76,34 @@ def delete_board(request, pk):
     board = get_object_or_404(Board, id=pk, owner=request.user)
     board.delete()
     return redirect('profile')
+
+
+# -----------------таски----------------------
+class TaskCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, column_id):
+        column = get_object_or_404(Column, id=column_id)
+        title = request.data.get("title")
+        if not title:
+            return Response({"error": "Title is required"}, status=400)
+
+        task = Task.objects.create(
+            column=column,
+            title=title,
+            position=column.tasks.count() + 1,
+            creator=request.user
+        )
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=201)
+
+
+class TaskDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        task = get_object_or_404(Task, id=pk)
+        if task.creator != request.user:
+            return Response(status=403)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

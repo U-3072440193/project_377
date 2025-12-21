@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-
+<script>
+  window.currentUser = {
+    id: {{ request.user.id|default:'null' }},
+    username: "{{ request.user.username|escapejs }}",
+  };
+</script>
 <main class="singleProject my-md">
-<!-- React будет рендерить доску сюда -->
+    <!-- React будет рендерить доску сюда -->
     <div id="board-root" data-board-id="{{ board_id }}"></div>
-
+    <div>{{ request.user.username }}</div>
 </main>
+
+
+
+
 {% endblock %}
