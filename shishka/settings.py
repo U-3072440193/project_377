@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-+^whocmr+&6f(%r^+@fh_r@odazx3k*o%3ap90!8afp!v^co+x
 DEBUG = True
 
 ALLOWED_HOSTS = []
+# Разрешаем межсайтовые запросы для домена, на котором находится React приложени
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 # Application definition
@@ -45,7 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'captcha',
 ]
-CORS_ALLOW_CREDENTIALS = True  # при использовании сессии, авторизации, куков
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -131,3 +133,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+
+# Чтобы куки работали с JS
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = False  # False для HTTP в разработке
+SESSION_COOKIE_SECURE = False  # False для HTTP в разработке
+CSRF_COOKIE_DOMAIN = "localhost"
+SESSION_COOKIE_DOMAIN = "localhost"
+
+CORS_ALLOW_CREDENTIALS = True  # при использовании сессии, авторизации, куков
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}

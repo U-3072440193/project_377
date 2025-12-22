@@ -24,7 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('users/', include('users.urls')),
-    path('', include('boards.urls')), #для коннекта с React путь api
+    path('boards/', include('boards.urls')),
+    path('api/', include('boards.api_urls')),  # для коннекта с React путь api
 
 ]
 
