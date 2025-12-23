@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
-
+from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 import json
@@ -119,14 +119,25 @@ class TaskDeleteAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# -----------------сессии и передача в реакт токенов----------------------
+# -----------------сессии и передача в реакт токенов----------------------  https://habr.com/ru/articles/804615/
 
-# Получение CSRF
-@ensure_csrf_cookie
+# Создаёт уникальный CSRF-токен и вставляет в cookie браузеру
 def get_csrf(request):
-    response = JsonResponse({"detail": "CSRF cookie set"})
-    response["Access-Control-Allow-Credentials"] = "true"
+    response = JsonResponse({'detail': 'CSRF cookie set'})
+    response['X-CSRFToken'] = get_token(request)
     return response
+
+
+@ensure_csrf_cookie  # <- Принудительная отправка CSRF cookie
+def session_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'isAuthenticated': False})
+
+    return JsonResponse({'isAuthenticated': True, 'username': request.user.username, 'user_id': request.user.id})
+
+
+def user_info(request):
+    return JsonResponse({'username': request.user.username})
 
 
 # Проверка сессии
@@ -162,3 +173,5 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return JsonResponse({'detail': 'Вы вышли'})
+
+

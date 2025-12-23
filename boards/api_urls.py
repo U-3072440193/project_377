@@ -22,4 +22,6 @@ urlpatterns = [
     path('session/', session_view),
     path('login/', login_view),
     path('logout/', logout_view),
+
+
 ]

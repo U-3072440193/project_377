@@ -1,4 +1,4 @@
-// Column.js
+/* // Column.js
 import React, { useState, useEffect } from "react";
 import Task from "./Task";
 import "./Column.css";
@@ -89,4 +89,4 @@ function Column({ column, removeColumn, isOwner, csrfToken }) {
   );
 }
 
-export default Column;
+export default Column; */

@@ -24,11 +24,9 @@ SECRET_KEY = 'django-insecure-+^whocmr+&6f(%r^+@fh_r@odazx3k*o%3ap90!8afp!v^co+x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-# Разрешаем межсайтовые запросы для домена, на котором находится React приложени
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
 ]
 
 # Application definition
@@ -109,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-Ru'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'Europe/Moscow'
 
@@ -133,21 +131,43 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 
-# Чтобы куки работали с JS
-CSRF_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SECURE = False  # False для HTTP в разработке
-SESSION_COOKIE_SECURE = False  # False для HTTP в разработке
-CSRF_COOKIE_DOMAIN = "localhost"
-SESSION_COOKIE_DOMAIN = "localhost"
+# ------------------------------------------------------------------------------- https://habr.com/ru/articles/804615/
 
-CORS_ALLOW_CREDENTIALS = True  # при использовании сессии, авторизации, куков
+# Поскольку Django и React - разные источники, ставим Lax
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Чтобы cookie не были доступны из JS, нужен атрибут HttpOnly
+CSRF_COOKIE_HTTPONLY = False  # в продакшене поменять на тру
+SESSION_COOKIE_HTTPONLY = True
+
+# Домены, которым мы доверяем
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+
+# Когда приложение заимеет production окружение и https соединение
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+
+# Время жизни сессии в секундах. По умолчанию 2 недели = 1209600
+# SESSION_COOKIE_AGE = 120 <- для примера 120 секунд
+
+# Чтобы убивать сессию при закрытии браузера
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Разрешаем межсайтовые запросы для домена, на котором находится React приложение
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
+# Разрешаем заголовки для межсайтовых запросов
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
+# Разрешаем отправлять cookie при межсайтовых запросах на разрешённые домены:
+CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
     ]
 }
