@@ -15,6 +15,19 @@ from django.views.decorators.http import require_POST
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
+from django.contrib.sessions.models import Session
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+
+def json_login_required(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Вы не авторизованы'}, status=401)
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
 
 
 class BoardListAPIView(APIView):  # отправка json в реакт
@@ -22,6 +35,14 @@ class BoardListAPIView(APIView):  # отправка json в реакт
     def get(self, request, pk):
         board = get_object_or_404(Board, id=pk)
         serializer = BoardSerializer(board)
+        return Response(serializer.data)
+
+
+class UserAPIView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"isAuthenticated": False}, status=401)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
     # def get(self, request, pk):
@@ -35,10 +56,13 @@ class BoardListAPIView(APIView):  # отправка json в реакт
 
 def boards_page(request, pk):
     board = get_object_or_404(Board, id=pk)
-    return render(request, 'boards/board.html', {
-        'board_id': board.id,
-        'user_id': request.user.id,
-        'username': request.user.username,
+    user_data = {
+        "user_id": request.user.id,
+        "username": request.user.username,
+    }
+    return render(request, "boards/board.html", {
+        "board": board,
+        "user_data": user_data,
     })
 
 
@@ -55,6 +79,8 @@ class ColumnCreateAPIView(APIView):
 
 
 class ColumnDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # <- обязательно!
+    
     def delete(self, request, pk):
         column = get_object_or_404(Column, id=pk)
         if column.board.owner != request.user:
@@ -122,12 +148,94 @@ class TaskDeleteAPIView(APIView):
 # -----------------сессии и передача в реакт токенов----------------------  https://habr.com/ru/articles/804615/
 
 # Создаёт уникальный CSRF-токен и вставляет в cookie браузеру
+# @ensure_csrf_cookie
+# def get_csrf(request):
+#     return JsonResponse({"detail": "CSRF cookie set"})
+#
+#
+# @ensure_csrf_cookie  # <- Принудительная отправка CSRF cookie
+# def session_view(request):
+#     if not request.user.is_authenticated:
+#         return JsonResponse({'isAuthenticated': False})
+#
+#     return JsonResponse({'isAuthenticated': True, 'username': request.user.username, 'user_id': request.user.id})
+#
+#
+# def user_info(request):
+#     return JsonResponse({'username': request.user.username})
+#
+#
+# # Проверка сессии
+# # @ensure_csrf_cookie
+# # def session_view(request):
+# #     if not request.user.is_authenticated:
+# #         return JsonResponse({"isAuthenticated": False})
+# #     return JsonResponse({
+# #         "isAuthenticated": True,
+# #         "username": request.user.username,
+# #         "user_id": request.user.id,
+# #     })
+#
+#
+# # Вход
+# @require_POST
+# def login_view(request):
+#     data = json.loads(request.body)
+#     username = data.get('username')
+#     password = data.get('password')
+#     if not username or not password:
+#         return JsonResponse({'detail': 'Введите логин и пароль'}, status=400)
+#
+#     user = authenticate(username=username, password=password)
+#     if user is None:
+#         return JsonResponse({'detail': 'Неверные данные'}, status=400)
+#
+#     login(request, user)  # создаётся сессия
+#     return JsonResponse({'detail': 'Успешно авторизованы'})
+#
+#
+# # Выход
+# def logout_view(request):
+#     logout(request)
+#     return JsonResponse({'detail': 'Вы вышли'})
+
+# Создаёт уникальный CSRF-токен и вставляет в cookie браузеру
 def get_csrf(request):
     response = JsonResponse({'detail': 'CSRF cookie set'})
     response['X-CSRFToken'] = get_token(request)
     return response
 
 
+@require_POST
+def login_view(request):
+    # Получаем авторизационные данные
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+
+    # Валидация
+    if username is None or password is None:
+        return JsonResponse({'detail': 'Пожалуйста предоставьте логин и пароль'}, status=400)
+
+    # Аутентификация пользоваля
+    user = authenticate(username=username, password=password)
+
+    if user is None:
+        return JsonResponse({'detail': 'Неверные данные'}, status=400)
+
+    # Создаётся сессия. session_id отправляется в куки
+    login(request, user)
+    return JsonResponse({'detail': 'Успешная авторизация'})
+
+
+# Сессия удаляется из БД и session_id на клиенте более недействителен
+@json_login_required
+def logout_view(request):
+    logout(request)
+    return JsonResponse({'detail': 'Вы успешно вышли'})
+
+
+# Узнать авторизован ли пользователь и получить его данные
 @ensure_csrf_cookie  # <- Принудительная отправка CSRF cookie
 def session_view(request):
     if not request.user.is_authenticated:
@@ -136,42 +244,17 @@ def session_view(request):
     return JsonResponse({'isAuthenticated': True, 'username': request.user.username, 'user_id': request.user.id})
 
 
+# Получение информации о пользователе
+@json_login_required
 def user_info(request):
     return JsonResponse({'username': request.user.username})
 
 
-# Проверка сессии
-@ensure_csrf_cookie
-def session_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"isAuthenticated": False})
-    return JsonResponse({
-        "isAuthenticated": True,
-        "username": request.user.username,
-        "user_id": request.user.id,
-    })
+# Удаление всех сессий из БД
+# Вы можете переделать так, чтобы отзывать сессию у определённого пользователя
+@json_login_required
+def kill_all_sessions(request):
+    sessions = Session.objects.all()
+    sessions.delete()
 
-
-# Вход
-@require_POST
-def login_view(request):
-    data = json.loads(request.body)
-    username = data.get('username')
-    password = data.get('password')
-    if not username or not password:
-        return JsonResponse({'detail': 'Введите логин и пароль'}, status=400)
-
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return JsonResponse({'detail': 'Неверные данные'}, status=400)
-
-    login(request, user)  # создаётся сессия
-    return JsonResponse({'detail': 'Успешно авторизованы'})
-
-
-# Выход
-def logout_view(request):
-    logout(request)
-    return JsonResponse({'detail': 'Вы вышли'})
-
-
+    return JsonResponse({'detail': 'Сессии успешно завершены'})

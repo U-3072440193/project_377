@@ -1,19 +1,21 @@
-/* 
 import React, { useState, useEffect } from "react";
 import Column from "./Column";
 import "./Main.css";
 
-function Main({ user, board }) {
+function Main({ user, board, csrfToken }) {
   const [columns, setColumns] = useState([]);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
+
+  console.log("user:", user);
+  console.log("csrfToken:", csrfToken);
 
   useEffect(() => {
     if (board) setColumns(board.columns || []);
   }, [board]);
 
   // Проверка: текущий пользователь — владелец доски
-  const isOwner = user && board.owner && user.id === board.owner.id;
+  const isOwner = user.id === board.owner.id;
 
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
@@ -26,8 +28,8 @@ function Main({ user, board }) {
       credentials: "include",
       body: JSON.stringify({ title: newColumnTitle }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setColumns([...columns, data]);
         setNewColumnTitle("");
         setShowInput(false);
@@ -38,14 +40,16 @@ function Main({ user, board }) {
   const removeColumn = (colId) => {
     fetch(`${process.env.REACT_APP_API_URL}columns/${colId}/`, {
       method: "DELETE",
+      headers: { "X-CSRFToken": csrfToken },
       credentials: "include",
     })
-      .then(() => setColumns(columns.filter(col => col.id !== colId)))
+      .then(() => setColumns(columns.filter((col) => col.id !== colId)))
       .catch(console.error);
   };
 
   return (
     <div className="main">
+      <div>{user.username}</div>
       <div className="tool-bar">
         <div className="board-actions">
           <div className="inn-board">
@@ -86,12 +90,13 @@ function Main({ user, board }) {
       <h3>Колонки:</h3>
       <div className="columns-container">
         <ul>
-          {columns.map(col => (
+          {columns.map((col) => (
             <Column
               key={col.id}
               column={col}
               removeColumn={removeColumn}
               isOwner={isOwner}
+              csrfToken={csrfToken}
             />
           ))}
         </ul>
@@ -101,4 +106,3 @@ function Main({ user, board }) {
 }
 
 export default Main;
- */

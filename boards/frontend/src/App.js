@@ -1,112 +1,150 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from 'axios';
+import Main from "./components/Main";
 
-const serverUrl = "http://localhost:8000/";
+const serverUrl = 'http://localhost:8000/'
 
-function App() {
-  const [board, setBoard] = useState(null);
-  const [csrfToken, setCsrfToken] = useState(null);
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [isAuth, setIsAuth] = useState(false);
-  const [username, setUsername] = useState("");
-  const [userId, setUserId] = useState(null);
-  const [loading, setLoading] = useState(true);
+const App = () => {
+    const [csrf, setCsrf] = useState('');
+    const [loginVal, setLoginVal] = useState('');
+    const [passwordVal, setPasswordVal] = useState('');
+    const [isAuth, setIsAuth] = useState(false);
+    const [username, setUsername] = useState('');
+    const [userId, setUserId] = useState(null);
+    const [error, setError] = useState('');
+    const [user, setUser] = useState(null);
+    const [board, setBoard] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  // Получаем CSRF и проверяем сессию при старте
-  useEffect(() => {
-    axios
-      .get(serverUrl + "api/csrf/", { withCredentials: true })
-      .then((res) => {
-        const token = res.headers["x-csrftoken"];
-        setCsrfToken(token);
-      })
-      .catch((err) => console.error("CSRF ERROR:", err))
-      .finally(() => {
+     // --- получаем CSRF токен сразу при монтировании ---
+    useEffect(() => {
+        getCSRF();
+    }, []);
+
+    useEffect(() => {
         getSession();
-      });
-  }, []);
+    }, []);
 
-  // Проверяем сессию
-  const getSession = () => {
-    axios
-      .get(serverUrl + "api/session/", { withCredentials: true })
-      .then((res) => {
-        if (res.data.isAuthenticated) {
-          setUserId(res.data.user_id);
-          setUsername(res.data.username);
-          setIsAuth(true);
-          getBoard();
-        } else {
-          setIsAuth(false);
-        }
-      })
-      .catch((err) => console.error("SESSION ERROR:", err))
-      .finally(() => setLoading(false));
-  };
+    const getSession = () => {
+        axios.get(serverUrl + 'api/session/', { withCredentials: true })
+            .then(res => {
+                if (res.data.isAuthenticated) {
+                    setUsername(res.data.username);
+                    setUserId(res.data.user_id);
+                    setIsAuth(true);
+                    fetchUserAndBoard(); // загружаем данные после подтвержденной сессии
+                } else {
+                    getCSRF();
+                }
+            })
+            .catch(err => console.error(err));
+    }
 
-  // Загружаем доску
-  const getBoard = () => {
-    axios
-      .get(serverUrl + "api/boards/7/", { withCredentials: true })
-      .then((res) => setBoard(res.data))
-      .catch((err) => console.error("BOARD ERROR:", err));
-  };
+    const getCSRF = () => {
+        axios.get(serverUrl + 'api/csrf/', { withCredentials: true })
+            .then(res => setCsrf(res.headers['x-csrftoken']))
+            .catch(err => console.error(err));
+    }
 
-  // Вход пользователя
-  const loginUser = () => {
-    axios
-      .post(
-        serverUrl + "api/login/",
-        { username: login, password: password },
-        {
-          withCredentials: true,
-          headers: { "X-CSRFToken": csrfToken },
-        }
-      )
-      .then(() => {
-        setIsAuth(true);
-        setLogin("");
-        setPassword("");
-        setError(null);
-        getSession();
-      })
-      .catch(() => setError("Неверные данные"));
-  };
+    const login = () => {
+        axios.post(serverUrl + 'api/login/', 
+            { username: loginVal, password: passwordVal },
+            { 
+                withCredentials: true,
+                headers: { 'X-CSRFToken': csrf }
+            }
+        )
+        .then(res => {
+            setLoginVal('');
+            setPasswordVal('');
+            setError('');
+            getSession(); // обновляем данные пользователя
+        })
+        .catch(err => setError('Неверные данные'));
+    }
 
-  if (loading) return <p>Проверка сессии...</p>;
-  if (!isAuth)
+    const logout = () => {
+        axios.get(serverUrl + 'api/logout/', { withCredentials: true })
+            .then(() => {
+                setIsAuth(false);
+                setUsername('');
+                setUserId(null);
+                setUser(null);
+                setBoard(null);
+                getCSRF();
+            })
+            .catch(err => console.error(err));
+    }
+
+    const fetchUserAndBoard = () => {
+        setLoading(true);
+        const fetchUser = axios.get(serverUrl + 'api/user/', { withCredentials: true });
+        const fetchBoard = axios.get(serverUrl + 'api/boards/7/', { withCredentials: true });
+
+        Promise.all([fetchUser, fetchBoard])
+            .then(([userRes, boardRes]) => {
+                setUser(userRes.data);
+                setBoard(boardRes.data);
+            })
+            .catch(err => console.error("Ошибка загрузки данных:", err))
+            .finally(() => setLoading(false));
+    }
+
     return (
-      <div>
-        <h2>Вход</h2>
-        <input
-          placeholder="Логин"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-        />
-        <input
-          placeholder="Пароль"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={loginUser}>Войти</button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    );
+        <div style={{ padding: 20 }}>
+            <div>
+                Вы - {isAuth ? username : 'не авторизованы'}
+            </div>
 
-  if (!board) return <p>Загрузка доски...</p>;
+            {!isAuth ? (
+                <form onSubmit={e => { e.preventDefault(); login(); }}>
+                    <input type="text" value={loginVal} onChange={e => setLoginVal(e.target.value)} placeholder="Логин" />
+                    <input type="password" value={passwordVal} onChange={e => setPasswordVal(e.target.value)} placeholder="Пароль" />
+                    {error && <div>{error}</div>}
+                    <button type="submit">Войти</button>
+                </form>
+            ) : (
+                <button onClick={logout}>Выйти</button>
+            )}
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>👤 Текущий пользователь</h2>
-      <pre>{JSON.stringify({ userId, username }, null, 2)}</pre>
+            {/* --- Блок пользователя и доски --- */}
+            {isAuth && loading && <p>Загрузка данных...</p>}
 
-      <h2>📋 Доска</h2>
-      <pre>{JSON.stringify(board, null, 2)}</pre>
-    </div>
-  );
+            {isAuth && !loading && (
+                <>
+                    {user ? (
+                        <div>
+                            <h2>👤 Пользователь</h2>
+                            <p>Имя: {user.username}</p>
+                            <p>Email: {user.email}</p>
+                            {user.avatar && <img src={`${serverUrl}${user.avatar}`} alt="avatar" width={50} />}
+                        </div>
+                    ) : <p>Пользователь не найден</p>}
+
+                    {board ? (
+                        <div>
+                            <h2>📋 Доска: {board.title}</h2>
+                            <p>Владелец: {board.owner.username}</p>
+                            <h3>Колонки:</h3>
+                            <ul>
+                                {board.columns.map(col => (
+                                    <li key={col.id}>
+                                        <strong>{col.title}</strong> (позиция: {col.position})
+                                        <ul>
+                                            {col.tasks.map(task => (
+                                                <li key={task.id}>{task.title}</li>
+                                            ))}
+                                        </ul>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : <p>Доска не найдена</p>}
+                    <Main board={board} user={user} csrfToken={csrf}/>
+                </>
+            )}
+        </div>
+    )
 }
 
 export default App;
