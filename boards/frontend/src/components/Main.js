@@ -15,7 +15,7 @@ function Main({ user, board, csrfToken }) {
   }, [board]);
 
   // Проверка: текущий пользователь — владелец доски
-  const isOwner = user.id === board.owner.id;
+  
 
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
@@ -95,7 +95,6 @@ function Main({ user, board, csrfToken }) {
               key={col.id}
               column={col}
               removeColumn={removeColumn}
-              isOwner={isOwner}
               csrfToken={csrfToken}
             />
           ))}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Task from "./Task";
 import "./Column.css";
@@ -24,9 +23,9 @@ function Column({ column, removeColumn, isOwner, csrfToken }) {
       credentials: "include",
       body: JSON.stringify({ title: newTaskTitle }),
     })
-      .then(res => res.json())
-      .then(data => {
-        setTasks(prev => [...prev, data]);
+      .then((res) => res.json())
+      .then((data) => {
+        setTasks((prev) => [...prev, data]);
         setNewTaskTitle("");
         setShowInput(false);
       })
@@ -41,30 +40,32 @@ function Column({ column, removeColumn, isOwner, csrfToken }) {
         "X-CSRFToken": csrfToken,
       },
     })
-      .then(() => setTasks(prev => prev.filter(t => t.id !== taskId)))
+      .then(() => setTasks((prev) => prev.filter((t) => t.id !== taskId)))
       .catch(console.error);
   };
 
   return (
     <div className="column">
       <div className="column-header">
-        <h4>{column.title}</h4>
-        {isOwner && removeColumn && (
-          <button
-            className="remove-column-btn"
-            onClick={() => removeColumn(column.id)}
-          >
-            ×
-          </button>
-        )}
+        <div className="column-inner">
+          <div className="col-name">{column.title}</div>
+          {removeColumn && (
+            <button
+              className="remove-column-btn"
+              onClick={() => removeColumn(column.id)}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="tasks">
-        {tasks.map(task => (
+        {tasks.map((task) => (
           <Task
             key={task.id}
             task={task}
-            onDelete={() => removeTask(task.id)}
+            removeTask={removeTask}
           />
         ))}
       </div>
@@ -89,4 +90,4 @@ function Column({ column, removeColumn, isOwner, csrfToken }) {
   );
 }
 
-export default Column; 
+export default Column;

@@ -33,10 +33,11 @@
   color: #555; /* серый текст для описания */
 }
 
-.task h5 {
+.task {
   
   padding: 10px;          /* внутренние отступы */
-
+  display: flex;
+  justify-content: space-between;
   background: #0d6929;
   color: #ffffff;
   border-radius: 8px 8px 0 0;  /* скругление только сверху */

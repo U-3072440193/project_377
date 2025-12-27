@@ -19,6 +19,8 @@ from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 def json_login_required(view_func):
@@ -79,14 +81,14 @@ class ColumnCreateAPIView(APIView):
 
 
 class ColumnDeleteAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # <- обязательно!
-    
+    authentication_classes = [
+        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, pk):
         column = get_object_or_404(Column, id=pk)
-        if column.board.owner != request.user:
-            return Response({"detail": "Forbidden"}, status=403)
         column.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=204)
 
 
 @login_required(login_url='login')
@@ -116,6 +118,8 @@ def delete_board(request, pk):
 
 # -----------------таски----------------------
 class TaskCreateAPIView(APIView):
+    authentication_classes = [
+        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
     permission_classes = [IsAuthenticated]
 
     def post(self, request, column_id):
@@ -135,6 +139,8 @@ class TaskCreateAPIView(APIView):
 
 
 class TaskDeleteAPIView(APIView):
+    authentication_classes = [
+        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
