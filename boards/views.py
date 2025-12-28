@@ -3,12 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 # from rest_framework.permissions import AllowAny #разрешен доступ всем, только для разработки!! удалить после финишной отладке
 from .forms import BoardForm, ColumnForm
-from .models import *
+from .models import Board, BoardPermit, Column, Task, Comment
 from .serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
-from rest_framework.permissions import IsAuthenticated
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
@@ -18,7 +17,6 @@ from django.http import JsonResponse
 from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -149,6 +147,35 @@ class TaskDeleteAPIView(APIView):
             return Response(status=403)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------
+
+
+@login_required(login_url='login')
+def my_boards(request):
+    user = request.user
+
+    owned_boards = Board.objects.filter(owner=user)
+    permitted_boards = Board.objects.filter(
+        boardpermit__user=user
+    ).exclude(owner=user)
+
+    boards = owned_boards | permitted_boards
+
+    context = {
+        'boards': boards.distinct()
+    }
+
+    return render(request, 'boards/my-boards.html', context)
+
+
+@login_required
+def search_users_for_board(request):
+    query = request.GET.get('search', '').strip()
+    users = User.objects.filter(username__icontains=query)[:10]
+    data = [{'id': u.id, 'username': u.username} for u in users]
+    return JsonResponse(data, safe=False)
 
 
 # -----------------сессии и передача в реакт токенов----------------------  https://habr.com/ru/articles/804615/

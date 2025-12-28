@@ -30,7 +30,7 @@
                 <tr>
                     <td><a href="{%url 'inbox'%}"><img src="{% static 'images/post-icon.svg' %}" alt=""
                                                        class="icon"></a></td>
-                    <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
+                    <td><a href="{%url 'my-boards'%}"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
                     <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
                     <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
                 </tr>
@@ -41,20 +41,20 @@
                     <td><a href="#"><img src="{% static 'images/post-icon.svg' %}" class="icon"></a></td>
                 </tr>
             </table>
-            <div class="boards">
-                <h2>Мои доски</h2>
-                {% for board in boards %}
-                <div class="board-container">
-                    <a href="{% url 'boards-page' board.id %}" class="board">{{board.title}}</a>
-                    <div class="board">{{board.created}}</div>
-                    <form method="post" action="{% url 'delete_board' board.id %}" style="display:inline;" class="delete-board">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-message">x</button>
-                    </form>
-                </div>
+<!--            <div class="boards">-->
+<!--                <h2>Мои доски</h2>-->
+<!--                {% for board in boards %}-->
+<!--                <div class="board-container">-->
+<!--                    <a href="{% url 'boards-page' board.id %}" class="board">{{board.title}}</a>-->
+<!--                    <div class="board">{{board.created}}</div>-->
+<!--                    <form method="post" action="{% url 'delete_board' board.id %}" style="display:inline;" class="delete-board">-->
+<!--                        {% csrf_token %}-->
+<!--                        <button type="submit" class="delete-message">x</button>-->
+<!--                    </form>-->
+<!--                </div>-->
 
-                {% endfor %}
-            </div>
+<!--                {% endfor %}-->
+<!--            </div>-->
         </div>
     </div>
 

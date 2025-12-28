@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Board, Column, Task
+from .models import Board, Column, Task, BoardPermit
 from django.contrib.auth.models import User
 
 
@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         # obj — это экземпляр User
         # здесь возвращаем путь к аватару или None
         if hasattr(obj, 'profile') and obj.profile.avatar:
-            return obj.profile.avatar.url  #  аватар из модели Profile
+            return obj.profile.avatar.url  # аватар из модели Profile
         return None
 
 
@@ -45,3 +45,10 @@ class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
         fields = ['id', 'title', 'owner', 'created', 'updated', 'columns']
+
+
+# Сериализатор допусков
+class PermitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BoardPermit
+        fields = ['user', 'role']

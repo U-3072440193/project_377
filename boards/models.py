@@ -13,11 +13,16 @@ class Board(models.Model):
         return self.title
 
 
-class BoardMember(models.Model):
+class BoardPermit(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['board', 'user'], name='unique_board_user')
+        ] # добавление юзера 1 раз, если у него нет доступа
+
     ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('editor', 'Editor'),
-        ('viewer', 'Viewer'),
+        ('owner', 'owner'),
+        ('member', 'member'),
+        ('viewer', 'viewer'),
     ]
 
     board = models.ForeignKey(Board, on_delete=models.CASCADE)

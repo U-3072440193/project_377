@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/my-boards.css' %}">
+{% endblock %}
+{% block content %}
+<main>
+    <div class="boards">
+    <h2>Мои доски</h2>
+    {% for board in boards %}
+    <div class="board-container">
+    <a href="{% url 'boards-page' board.id %}" class="board-title">{{board.title}}</a>
+    <form method="post" class="email-compose" data-board-id="{{ board.id }}">
+        {% csrf_token %}
+        <label for="recipient-{{ board.id }}">Поиск:</label>
+        <input type="text" id="recipient-{{ board.id }}" autocomplete="off" placeholder="Начните вводить имя..." required>
+        <input type="hidden" name="recipient_id" id="recipient_id-{{ board.id }}">
+        <div id="suggestions-{{ board.id }}" class="suggestions"></div>
+        <button type="submit" class="btn compose">Отправить</button>
+    </form>
+   <div class="board-created">{{board.created}}</div>
+    <form method="post" action="{% url 'delete_board' board.id %}" style="display:inline;" class="delete-board">
+        {% csrf_token %}
+        <button type="submit" class="delete-board">x</button>
+    </form>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.email-compose').forEach(form => {
+        const boardId = form.dataset.boardId;
+        const input = document.getElementById(`recipient-${boardId}`);
+        const suggestions = document.getElementById(`suggestions-${boardId}`);
+        const recipientIdField = document.getElementById(`recipient_id-${boardId}`);
+        const searchUrl = "{% url 'search-users-for-board' %}";
+
+        input.addEventListener("input", function() {
+            const query = this.value.trim();
+            if (!query) {
+                suggestions.innerHTML = "";
+                recipientIdField.value = "";
+                return;
+            }
+            fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    let html = "";
+                    if (data.length === 0) html = '<div class="no-suggestions">Нет пользователей</div>';
+                    else data.forEach(user => {
+                        html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">${user.username}</div>`;
+                    });
+                    suggestions.innerHTML = html;
+                });
+        });
+
+        suggestions.addEventListener("click", function(e) {
+            const target = e.target;
+            if (target.classList.contains("suggest-item")) {
+                input.value = target.dataset.name;
+                recipientIdField.value = target.dataset.id;
+                suggestions.innerHTML = "";
+            }
+        });
+
+        form.addEventListener("submit", function(e) {
+            if (!recipientIdField.value) {
+                e.preventDefault();
+                alert('Вы должны выбрать получателя из списка');
+            }
+        });
+    });
+});
+
+</script>
+    {% endfor %}
+</div>
+</main>
+
+{% endblock %}

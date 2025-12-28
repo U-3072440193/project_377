@@ -1,0 +1,46 @@
+main {
+    display: flex;           
+    justify-content: center; 
+    
+}
+
+.board-container {
+    display: flex;
+    justify-content: space-between;
+    border-radius: 10px 0 10px 0; /* скругляем только левую часть */
+    overflow: hidden; /* чтобы фон .board-title не вылезал за скругления */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 15px;
+    padding: 0; /* padding убираем, чтобы фон тянулся */
+}
+
+.board-title {
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0; /* чтобы не сжималась */
+    border-radius: 10px 0 10px;
+    margin-right: 10px;
+    
+}
+.email-compose{
+    margin: 10px;
+}
+.board-created{
+    margin: 10px;
+    color: #4CAF50;
+    font-style: italic;
+}
+.delete-board {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: 0.2s;
+    border: none; /* если это button */
+    cursor: pointer;
+}
