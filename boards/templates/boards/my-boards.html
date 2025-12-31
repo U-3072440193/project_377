@@ -1,80 +1,178 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block profile %}
-<link rel="stylesheet" href="{% static 'styles/my-boards.css' %}">
-{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block profile %}
+<link rel="stylesheet" href="{% static 'styles/my-boards.css' %}" />
+{% endblock %} {% block content %}
 <main>
-    <div class="boards">
+  <div class="board-container" data-board-id="{{ board.id }}">
+  <div class="boards">
     <h2>Мои доски</h2>
     {% for board in boards %}
     <div class="board-container">
-    <a href="{% url 'boards-page' board.id %}" class="board-title">{{board.title}}</a>
-    <form method="post" class="email-compose" data-board-id="{{ board.id }}">
+      <a href="{% url 'boards-page' board.id %}" class="board-title"
+        >{{board.title}}</a
+      >
+
+      <form
+        method="post"
+        class="email-compose"
+        data-board-id="{{ board.id }}"
+        action="{% url 'add-board-member' board.id %}"
+      >
         {% csrf_token %}
         <label for="recipient-{{ board.id }}">Поиск:</label>
-        <input type="text" id="recipient-{{ board.id }}" autocomplete="off" placeholder="Начните вводить имя..." required>
-        <input type="hidden" name="recipient_id" id="recipient_id-{{ board.id }}">
+        <input
+          type="text"
+          id="recipient-{{ board.id }}"
+          autocomplete="off"
+          placeholder="Начните вводить имя..."
+          required
+        />
+        <input
+          type="hidden"
+          name="recipient_id"
+          id="recipient_id-{{ board.id }}"
+        />
         <div id="suggestions-{{ board.id }}" class="suggestions"></div>
+        <label for="role-{{ board.id }}">Роль:</label>
+        <select name="role" id="role-{{ board.id }}" required>
+          <option value="member">Участник</option>
+          <option value="viewer">Только просмотр</option>
+          <option value="owner">Администратор</option>
+        </select>
         <button type="submit" class="btn compose">Отправить</button>
-    </form>
-   <div class="board-created">{{board.created}}</div>
-    <form method="post" action="{% url 'delete_board' board.id %}" style="display:inline;" class="delete-board">
+      </form>
+
+      <button type="button" class="toggle-users" data-board-id="{{ board.id }}">
+        Участники <span class="arrow">▼</span>
+      </button>
+
+      <div class="list-of-board-users" id="users-{{ board.id }}" hidden></div>
+
+      <div class="board-created">{{ board.created }}</div>
+      <form
+        method="post"
+        action="{% url 'delete_board' board.id %}"
+        style="display: inline"
+        class="delete-board"
+      >
         {% csrf_token %}
         <button type="submit" class="delete-board">x</button>
-    </form>
-
-</div>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</main>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll('.email-compose').forEach(form => {
-        const boardId = form.dataset.boardId;
-        const input = document.getElementById(`recipient-${boardId}`);
-        const suggestions = document.getElementById(`suggestions-${boardId}`);
-        const recipientIdField = document.getElementById(`recipient_id-${boardId}`);
-        const searchUrl = "{% url 'search-users-for-board' %}";
+  document.addEventListener("DOMContentLoaded", function () {
+    // === поиск пользователей ===
+    document.querySelectorAll(".email-compose").forEach((form) => {
+      const boardId = form.dataset.boardId?.trim();
+      const input = document.getElementById(`recipient-${boardId}`);
+      const suggestions = document.getElementById(`suggestions-${boardId}`);
+      const recipientIdField = document.getElementById(
+        `recipient_id-${boardId}`
+      );
+      if (!input || !suggestions || !recipientIdField) return;
 
-        input.addEventListener("input", function() {
-            const query = this.value.trim();
-            if (!query) {
-                suggestions.innerHTML = "";
-                recipientIdField.value = "";
-                return;
-            }
-            fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(data => {
-                    let html = "";
-                    if (data.length === 0) html = '<div class="no-suggestions">Нет пользователей</div>';
-                    else data.forEach(user => {
-                        html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">${user.username}</div>`;
-                    });
-                    suggestions.innerHTML = html;
-                });
-        });
+      const searchUrl = "{% url 'search-users-for-board' %}";
 
-        suggestions.addEventListener("click", function(e) {
-            const target = e.target;
-            if (target.classList.contains("suggest-item")) {
-                input.value = target.dataset.name;
-                recipientIdField.value = target.dataset.id;
-                suggestions.innerHTML = "";
-            }
-        });
+      input.addEventListener("input", function () {
+        const query = this.value.trim();
+        if (!query) {
+          suggestions.innerHTML = "";
+          recipientIdField.value = "";
+          return;
+        }
 
-        form.addEventListener("submit", function(e) {
-            if (!recipientIdField.value) {
-                e.preventDefault();
-                alert('Вы должны выбрать получателя из списка');
-            }
-        });
+        fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            let html = "";
+            if (!data.length)
+              html = '<div class="no-suggestions">Нет пользователей</div>';
+            else
+              data.forEach((user) => {
+                html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">
+                                    ${user.username}
+                                 </div>`;
+              });
+            suggestions.innerHTML = html;
+          });
+      });
+
+      suggestions.addEventListener("click", function (e) {
+        const item = e.target.closest(".suggest-item");
+        if (!item) return;
+        input.value = item.dataset.name;
+        recipientIdField.value = item.dataset.id;
+        suggestions.innerHTML = "";
+      });
+
+      form.addEventListener("submit", function (e) {
+        if (!recipientIdField.value) {
+          e.preventDefault();
+          alert("Вы должны выбрать пользователя из списка");
+        }
+      });
     });
-});
 
+    // === показ участников доски ===
+    document.querySelectorAll(".toggle-users").forEach((button) => {
+      const boardId = button.dataset.boardId;
+      const usersDiv = document.getElementById(`users-${boardId}`);
+      button.addEventListener("click", async () => {
+        usersDiv.hidden = !usersDiv.hidden;
+        if (!usersDiv.dataset.loaded) {
+          try {
+            const response = await fetch(`/api/boards/${boardId}/members/`);
+            const users = await response.json();
+            usersDiv.innerHTML = users
+              .map(
+                (user) => `
+                    <div class="board-user" data-user-id="${user.id}">
+                        <img src="${user.avatar}" alt="${user.username}" width="32" height="32">
+                        <span>${user.username} (${user.role})</span>
+                        <button class="remove-user" data-user-id="${user.id}">Х</button>
+                    </div>`
+              )
+              .join("");
+            usersDiv.querySelectorAll(".remove-user").forEach((btn) => {
+              btn.addEventListener("click", async () => {
+                const userId = btn.dataset.userId;
+                try {
+                  const response = await fetch(
+                    `/api/boards/${boardId}/remove-member/`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                      },
+                      body: JSON.stringify({ user_id: userId }),
+                    }
+                  );
+                  if (response.ok) {
+                    // Удаляем пользователя из DOM
+                    btn.closest(".board-user").remove();
+                  } else {
+                    alert("Не удалось удалить пользователя");
+                  }
+                } catch (error) {
+                  console.error(error);
+                  alert("Ошибка при удалении");
+                }
+              });
+            });
+
+            usersDiv.dataset.loaded = "true";
+          } catch (error) {
+            usersDiv.innerHTML = "<p>Не удалось загрузить участников</p>";
+            console.error(error);
+          }
+        }
+      });
+    });
+  });
 </script>
-    {% endfor %}
-</div>
-</main>
 
 {% endblock %}

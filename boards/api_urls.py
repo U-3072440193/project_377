@@ -12,6 +12,8 @@ from .views import (
     UserAPIView,
     user_info,
     kill_all_sessions,
+    board_members_api,
+    remove_board_member,
 
 )
 
@@ -29,5 +31,8 @@ urlpatterns = [
     path('logout/', logout_view),
     path('user_info/', user_info, name='api-userInfo'),
     path('kill_all_sessions/', kill_all_sessions, name='kill-all-sessions'),
+
+    path('boards/<int:board_id>/members/', board_members_api, name='board_members_api'),
+    path('boards/<int:board_id>/remove-member/', remove_board_member, name='remove-board-member'),
 
 ]

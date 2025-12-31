@@ -49,6 +49,9 @@ class BoardSerializer(serializers.ModelSerializer):
 
 # Сериализатор допусков
 class PermitSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    avatar = serializers.ImageField(source='user.profile.avatar', read_only=True)
+
     class Meta:
         model = BoardPermit
-        fields = ['user', 'role']
+        fields = ['user', 'role', 'username', 'avatar']

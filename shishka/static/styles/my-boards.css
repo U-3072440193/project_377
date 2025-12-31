@@ -44,3 +44,52 @@ main {
     border: none; /* если это button */
     cursor: pointer;
 }
+/* Полный сброс кнопок */
+button {
+    all: unset;          /* 🔥 убирает ВСЕ дефолтные стили */
+    cursor: pointer;
+}
+
+/* Конкретно для toggle-users */
+.toggle-users {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    color: inherit;
+}
+
+/* Стрелка */
+.toggle-users .arrow {
+    transition: transform 0.2s ease;
+}
+
+.toggle-users.open .arrow {
+    transform: rotate(180deg);
+}
+
+.list-of-board-users {
+    position: absolute;          /* поверх всех элементов */
+    background-color: rgba(255, 255, 255, 0.95); /* слегка прозрачный фон */
+    border: 1px solid #ccc;     /* граница */
+    border-radius: 8px;          /* закруглённые углы */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* тень для глубины */
+    padding: 10px;               /* внутренние отступы */
+    min-width: 200px;            /* минимальная ширина */
+    z-index: 1000;               /* поверх всего остального */
+    
+}
+
+.board-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.board-user img {
+    border-radius: 50%;   /* круглые аватарки */
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+}

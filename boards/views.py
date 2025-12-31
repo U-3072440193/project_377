@@ -13,12 +13,15 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 import json
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+import os
+from django.conf import settings
+from django.db import IntegrityError
 
 
 def json_login_required(view_func):
@@ -54,16 +57,24 @@ class UserAPIView(APIView):
     #     return Response(serializer.data)
 
 
+# def boards_page(request, pk):
+#     board = get_object_or_404(Board, id=pk)
+#     user_data = {
+#         "user_id": request.user.id,
+#         "username": request.user.username,
+#     }
+#     return render(request, "boards/board.html", {
+#         "board": board,
+#         "user_data": user_data,
+#     })
 def boards_page(request, pk):
     board = get_object_or_404(Board, id=pk)
     user_data = {
         "user_id": request.user.id,
         "username": request.user.username,
     }
-    return render(request, "boards/board.html", {
-        "board": board,
-        "user_data": user_data,
-    })
+    index_path = os.path.join(settings.BASE_DIR, 'boards', 'frontend', 'build', 'index.html')
+    return FileResponse(open(index_path, 'rb')) #открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
 
 
 class ColumnCreateAPIView(APIView):
@@ -176,6 +187,73 @@ def search_users_for_board(request):
     users = User.objects.filter(username__icontains=query)[:10]
     data = [{'id': u.id, 'username': u.username} for u in users]
     return JsonResponse(data, safe=False)
+
+
+@login_required
+def add_board_member(request, board_id):
+    if request.method == 'POST':
+        board = get_object_or_404(Board, id=board_id)
+        user_id = request.POST.get('recipient_id')
+        role = request.POST.get('role')
+
+        user = get_object_or_404(User, id=user_id)
+
+        try:
+            BoardPermit.objects.create(
+                board=board,
+                user=user,
+                role=role
+            )
+        except IntegrityError:
+            pass  # пользователь уже добавлен
+
+    return redirect('my-boards')
+
+
+def board_members_api(request, board_id):
+    board = get_object_or_404(Board, pk=board_id)
+    permits = BoardPermit.objects.filter(board=board)
+    data = []
+
+    for permit in permits:
+        user = permit.user
+        # безопасно получаем аватар из профиля
+        avatar_url = getattr(getattr(user, 'profile', None), 'avatar', None)
+        avatar_url = avatar_url.url if avatar_url else '/media/avatars/default/user.png'
+
+        data.append({
+            "id": user.id,
+            "username": user.username,
+            "role": permit.role,
+            "avatar": avatar_url,
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+@login_required
+@csrf_exempt  # если используешь fetch с CSRF, можно убрать csrf_exempt
+def remove_board_member(request, board_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        if not user_id:
+            return JsonResponse({'error': 'user_id required'}, status=400)
+
+        board = get_object_or_404(Board, id=board_id)
+        # проверяем, что текущий юзер – владелец или админ
+        if board.owner != request.user:
+            return JsonResponse({'error': 'Нет прав'}, status=403)
+
+        permit = get_object_or_404(BoardPermit, board=board, user_id=user_id)
+        permit.delete()
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 # -----------------сессии и передача в реакт токенов----------------------  https://habr.com/ru/articles/804615/

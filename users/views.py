@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from .forms import CustomForm, ProfileForm, MessageForm
 from django.shortcuts import get_object_or_404
-from .models import Message
+from .models import Message, Profile
 from django.http import JsonResponse  # для поиска юзеров
 
 from django.conf.urls.static import static
@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from boards.models import Board
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 def login_user(request):
@@ -193,3 +195,9 @@ def search_users(request):
             :10]  # поиск юзеров кроме отправителя первые 10шт
     data = list(users.values('id', 'username'))  # преобразуем QuerySet в список словарей
     return JsonResponse(data, safe=False)  # JSON-ответ
+
+
+@receiver(post_save, sender=User) # автосоздание профиля, если нет
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
