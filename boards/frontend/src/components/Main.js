@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Column from "./Column";
-import "./Main.css";
+import "./main.css";
+// ------------- для @dnd-kit старт----------------
+import {
+  DndContext, //контейнер, который управляет всей логикой drag’n’drop.
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+//import SortableColumn from "./SortableColumn"; // Обернём Column
+// ------------- для @dnd-kit енд----------------
 
 function Main({ user, board, csrfToken }) {
   const [columns, setColumns] = useState([]);
