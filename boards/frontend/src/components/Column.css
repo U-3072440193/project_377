@@ -1,21 +1,122 @@
- 
 .column {
   background-color: #fff;
   border-radius: 8px;
-  min-width: 200px;
-  max-width: 250px;
+  width: 300px;
+  min-width: 300px;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.column::-webkit-scrollbar {
+  width: 6px;
+}
+
+.column::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.column::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.column-header {
+  padding: 12px;
+  border-bottom: 2px solid #f0f0f0;
+  background: #333;
+  border-radius: 8px 8px 0 0;
 }
 
 .column-inner {
   display: flex;
-  margin: 0 0 10px 0;
-  padding: 10px;          /* внутренние отступы */
-  font-size: 16px;
-  color: white;
-  background: #333;
-  border-radius: 8px 8px 0 0;  /* скругление только сверху */
-  width: 100%;            /* растянуть по всей ширине колонки */
-  box-sizing: border-box; /* чтобы padding учитывался внутри ширины */
   justify-content: space-between;
+  align-items: center;
+}
+
+.col-name {
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-grow: 1;
+}
+
+.remove-column-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.remove-column-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tasks {
+  padding: 12px;
+  flex-grow: 1;
+  min-height: 100px;
+  overflow-y: auto;
+}
+
+.add-task {
+  padding: 12px;
+  border-top: 2px solid #f0f0f0;
+  background: #fafafa;
+  border-radius: 0 0 8px 8px;
+}
+
+.add-task button {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 2px dashed #ddd;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-task button:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+  color: #333;
+}
+
+.add-task input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.add-task input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* Стили для состояния перетаскивания */
+.column-over {
+  background-color: #f0f7ff !important;
+  border: 2px dashed #4CAF50 !important;
+}
+
+.task-ghost {
+  opacity: 0.4;
 }

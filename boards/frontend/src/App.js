@@ -222,7 +222,7 @@ const App = () => {
           ) : (
             <p>Доска не найдена</p>
           )}
-          <Main board={board} user={user} csrfToken={csrf} />
+          <Main board={board} user={user} csrfToken={csrf} members={members} removeMember={removeMember} serverUrl={serverUrl} />
         </>
       )}
     </div>

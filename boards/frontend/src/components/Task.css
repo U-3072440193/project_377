@@ -1,41 +1,80 @@
-/* Task.css */
-
 .task-container {
-  margin-bottom: 10px; /* отступ между тасками */
-}
-
-
-
-
-
-.task li {
-  list-style: none;  /* убираем маркеры */
-  margin: 5px 0;     /* отступы между заголовком и описанием */
-  word-wrap: break-word; /* перенос слов, если длинные */
-}
-
-.task li:first-child {
-  font-weight: bold; /* делаем заголовок жирным */
-  font-size: 14px;
-}
-
-.task li:last-child {
-  font-size: 12px;
-  color: #555; /* серый текст для описания */
+  margin-bottom: 10px;
 }
 
 .task {
-  
-  padding: 10px;          /* внутренние отступы */
+  background: #4CAF50;
+  padding: 12px;
   display: flex;
   justify-content: space-between;
-  background: #0d6929;
-  color: #ffffff;
-  border-radius: 8px 8px 0 0;  /* скругление только сверху */
-  width: 100%;            /* растянуть по всей ширине колонки */
-  box-sizing: border-box; /* чтобы padding учитывался внутри ширины */
+  align-items: center;
+  border-radius: 6px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   cursor: grab;
+  transition: all 0.2s;
+  min-height: 50px;
 }
+
+.task:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
 .task:active {
-  cursor: grabbing; /* курсор "хватка" при захвате */
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.drag-handle {
+  cursor: grab;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.task-name {
+  font-weight: 500;
+  word-break: break-word;
+  font-size: 14px;
+}
+
+.remove-task-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.remove-task-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Стиль для перетаскиваемой задачи */
+.sortable-task {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.sortable-task.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+/* Оверлей при перетаскивании */
+.task-overlay {
+  background: #4CAF50;
+  padding: 12px;
+  border-radius: 6px;
+  color: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  transform: rotate(0deg);
+  min-width: 200px;
 }

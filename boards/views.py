@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 # from rest_framework.permissions import AllowAny #разрешен доступ всем, только для разработки!! удалить после финишной отладке
 from .forms import BoardForm, ColumnForm
-from .models import Board, BoardPermit, Column, Task, Comment
+from .models import *
 from .serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -22,6 +22,8 @@ from rest_framework.permissions import IsAuthenticated
 import os
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import F
+from django.db import transaction
 
 
 def json_login_required(view_func):
@@ -158,6 +160,111 @@ class TaskDeleteAPIView(APIView):
             return Response(status=403)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TaskMoveView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        """
+        Перемещает задачу в другую колонку и/или меняет её позицию.
+        Пример JSON тела запроса:
+        {
+            "column": 2,          # ID новой колонки (обязательно)
+            "position": 0         # Новая позиция в колонке (0-based, опционально)
+        }
+        """
+        try:
+            task = Task.objects.select_for_update().get(pk=pk)
+            board = task.column.board
+
+            # Проверяем права пользователя
+            if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
+                return Response(
+                    {"error": "У вас нет прав для перемещения этой задачи"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            column_id = request.data.get('column')
+            position = request.data.get('position')
+
+            if column_id is None:
+                return Response(
+                    {"error": "Не указана колонка"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            new_column = get_object_or_404(Column, pk=column_id)
+
+            # Проверяем, что новая колонка в той же доске
+            if new_column.board != board:
+                return Response(
+                    {"error": "Колонка должна принадлежать той же доске"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Сохраняем старую колонку
+            old_column = task.column
+
+            with transaction.atomic():
+                # Если задача перемещается в другую колонку
+                if old_column.id != new_column.id:
+                    # 1. Удаляем задачу из старой колонки и корректируем позиции
+                    Task.objects.filter(
+                        column=old_column,
+                        position__gt=task.position
+                    ).update(position=F('position') - 1)
+
+                    # 2. Добавляем задачу в новую колонку
+                    task.column = new_column
+                    if position is not None:
+                        # Освобождаем место для новой задачи в новой колонке
+                        Task.objects.filter(
+                            column=new_column,
+                            position__gte=position
+                        ).update(position=F('position') + 1)
+                        task.position = position
+                    else:
+                        # Если позиция не указана, ставим в конец
+                        last_position = Task.objects.filter(
+                            column=new_column
+                        ).aggregate(models.Max('position'))['position__max'] or 0
+                        task.position = last_position + 1
+                else:
+                    # Перемещение внутри той же колонки
+                    if position is not None and position != task.position:
+                        old_position = task.position
+                        if position > old_position:
+                            # Перемещаем вниз
+                            Task.objects.filter(
+                                column=old_column,
+                                position__gt=old_position,
+                                position__lte=position
+                            ).update(position=F('position') - 1)
+                        else:
+                            # Перемещаем вверх
+                            Task.objects.filter(
+                                column=old_column,
+                                position__lt=old_position,
+                                position__gte=position
+                            ).update(position=F('position') + 1)
+                        task.position = position
+
+                task.save()
+                serializer = TaskSerializer(task)
+                return Response(serializer.data)
+
+        except Task.DoesNotExist:
+            return Response(
+                {"error": "Задача не найдена"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 # ---------------------------------------

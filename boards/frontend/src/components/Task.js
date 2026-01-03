@@ -1,5 +1,5 @@
 import React from "react";
-import "./Task.css";
+import "./task.css";
 
 function Task({ task, removeTask }) {
   return (

@@ -14,6 +14,7 @@ from .views import (
     kill_all_sessions,
     board_members_api,
     remove_board_member,
+    TaskMoveView,
 
 )
 
@@ -23,6 +24,8 @@ urlpatterns = [
     path('columns/<int:pk>/', ColumnDeleteAPIView.as_view()),
     path('columns/<int:column_id>/tasks/', TaskCreateAPIView.as_view()),
     path('tasks/<int:pk>/', TaskDeleteAPIView.as_view()),
+    path('tasks/<int:pk>/move/', TaskMoveView.as_view(), name='task-move'),
+
     path('user/', UserAPIView.as_view()),
 
     path('csrf/', get_csrf),
