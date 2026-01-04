@@ -1,20 +1,44 @@
 import React from "react";
-import "./task.css";
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-function Task({ task, removeTask }) {
+function Task({ task, removeTask, columnId, isMember }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ 
+      id: task.id,
+      data: {
+        type: "task",
+        task: task,
+        columnId: columnId
+      }
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    marginBottom: "8px",
+  };
+
   return (
     <div className="task-container">
-      <div className="task">
-        <div className="task-name">{task.title}</div>
-        {removeTask && (
+      <div ref={setNodeRef} style={style} className="sortable-task task">
+        <div {...attributes} {...listeners} className="drag-handle task-name">
+          {task.title}
+        </div>
+        {isMember() && removeTask && (
           <button
             className="remove-task-btn"
-            onClick={() => removeTask(task.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              removeTask(task.id);
+            }}
           >
             ×
           </button>
         )}
-        {task.description && <div className="task-description">{task.description}</div>}
       </div>
     </div>
   );

@@ -132,6 +132,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025  # ← ИЗМЕНИТЬ с 25 на 1025!
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+
 # ------------------------------------------------------------------------------- https://habr.com/ru/articles/804615/
 
 # Поскольку Django и React - разные источники, ставим Lax

@@ -193,7 +193,13 @@ const App = () => {
                       style={{ borderRadius: "50%" }}
                     />
                     {member.username} ({member.role}){/* Кнопка удаления */}
-                    <button onClick={() => removeMember(member.id)}>
+                    <button
+                      onClick={() => removeMember(member.id)}
+                      style={{
+                        display:
+                          userId === board.owner.id ? "inline-block" : "none",
+                      }}
+                    >
                       Удалить
                     </button>
                   </li>
@@ -222,7 +228,14 @@ const App = () => {
           ) : (
             <p>Доска не найдена</p>
           )}
-          <Main board={board} user={user} csrfToken={csrf} members={members} removeMember={removeMember} serverUrl={serverUrl} />
+          <Main
+            board={board}
+            user={user}
+            csrfToken={csrf}
+            members={members}
+            removeMember={removeMember}
+            serverUrl={serverUrl}
+          />
         </>
       )}
     </div>

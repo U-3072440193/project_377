@@ -1,58 +1,18 @@
 import React, { useState, useEffect } from "react";
 import "./task.css";
 import "./column.css";
+import Task from "./Task";
 import {
   useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
-// ---------------------- SortableTask ----------------------
-function SortableTask({ task, removeTask, columnId }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ 
-      id: task.id,
-      data: {
-        type: "task",
-        task: task,
-        columnId: columnId
-      }
-    });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    marginBottom: "8px",
-  };
 
-  return (
-    <div className="task-container">
-      <div ref={setNodeRef} style={style} className="sortable-task task">
-        <div {...attributes} {...listeners} className="drag-handle task-name">
-          {task.title}
-        </div>
-        {removeTask && (
-          <button
-            className="remove-task-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              removeTask(task.id);
-            }}
-          >
-            ×
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeTask, updateTask }) {
+function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeTask, updateTask,forPermit,isMember }) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -113,7 +73,8 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
       <div className="column-header">
         <div className="column-inner">
           <div className="col-name">{column.title}</div>
-          {removeColumn && (
+          
+          {forPermit && removeColumn && (
             <button
               className="remove-column-btn"
               onClick={() => removeColumn(column.id)}
@@ -121,6 +82,7 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
               ×
             </button>
           )}
+        
         </div>
       </div>
 
@@ -130,17 +92,18 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
           strategy={verticalListSortingStrategy}
         >
           {tasks.map((task) => (
-            <SortableTask 
+            <Task 
               key={task.id} 
               task={task} 
               removeTask={removeTaskHandler}
               columnId={column.id}
+              isMember={isMember}
             />
           ))}
         </SortableContext>
       </div>
 
-      <div className="add-task">
+      {isMember() && <div className="add-task">
         {!showInput ? (
           <button onClick={() => setShowInput(true)}>＋ Добавить задачу</button>
         ) : (
@@ -160,7 +123,7 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
             <button onClick={() => setShowInput(false)}>Отмена</button>
           </>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

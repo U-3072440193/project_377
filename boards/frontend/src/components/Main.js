@@ -16,12 +16,19 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
+
+
 function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   const [columns, setColumns] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showMember, setShowMember] = useState(false);
+  const isOwner = user.id === board.owner.id;
+  const isMember = () => {
+  return members.some(member => member.id === user.id || board.owner.id === user.id);
+  }; 
+  //const isMemberBool = isMember(); дописать  - для запрета перетаскивания не мемберами
 
   console.log("user:", user);
   console.log("csrfToken:", csrfToken);
@@ -261,7 +268,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
           <div className="inn-board">
             <h1>{board.title}</h1>
             <p>Дата создания: {board.created}</p>
-          </div>
+          </div>{user.id === board.owner.id && (
           <div className="actions">
             <img
               src={showInput ? "/icons/close.svg" : "/icons/add-column.svg"}
@@ -281,7 +288,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                 <button onClick={addColumn}>Добавить</button>
               </div>
             )}
-          </div>
+          </div>)}
         </div>
         <div className="member-container">
           <img
@@ -291,7 +298,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
             onClick={viewMember}
           />
           {showMember && board && members.length > 0 && (
-            <div>
+            <div className="members">
               <h3>Участники доски:</h3>
               <ul>
                 {members.map((member) => (
@@ -304,9 +311,10 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                       style={{ borderRadius: "50%" }}
                     />
                     {member.username} ({member.role})
-                    <button onClick={() => removeMember(member.id)}>
-                      Удалить
-                    </button>
+                    {user.id === board.owner.id && (
+                    <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
+                      х
+                    </button>)}
                   </li>
                 ))}
               </ul>
@@ -346,6 +354,8 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                 addTask={addTaskToColumn}
                 removeTask={removeTaskFromColumn}
                 updateTask={updateTaskInColumn}
+                forPermit={isOwner}
+                isMember={isMember}
               />
             ))}
           </SortableContext>

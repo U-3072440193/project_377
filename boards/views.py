@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 import os
 from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import F
+from django.db.models import F, Q
 from django.db import transaction
 
 
@@ -76,7 +76,8 @@ def boards_page(request, pk):
         "username": request.user.username,
     }
     index_path = os.path.join(settings.BASE_DIR, 'boards', 'frontend', 'build', 'index.html')
-    return FileResponse(open(index_path, 'rb')) #открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
+    return FileResponse(open(index_path,
+                             'rb'))  # открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
 
 
 class ColumnCreateAPIView(APIView):
@@ -179,7 +180,7 @@ class TaskMoveView(APIView):
             task = Task.objects.select_for_update().get(pk=pk)
             board = task.column.board
 
-            # Проверяем права пользователя
+            # Проверяем права пользователя!Временно! Права будут разделегированы между мемберами
             if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
                 return Response(
                     {"error": "У вас нет прав для перемещения этой задачи"},
@@ -210,13 +211,13 @@ class TaskMoveView(APIView):
             with transaction.atomic():
                 # Если задача перемещается в другую колонку
                 if old_column.id != new_column.id:
-                    # 1. Удаляем задачу из старой колонки и корректируем позиции
+                    #  Удаляем задачу из старой колонки и корректируем позиции
                     Task.objects.filter(
                         column=old_column,
                         position__gt=task.position
                     ).update(position=F('position') - 1)
 
-                    # 2. Добавляем задачу в новую колонку
+                    #  Добавляем задачу в новую колонку
                     task.column = new_column
                     if position is not None:
                         # Освобождаем место для новой задачи в новой колонке
