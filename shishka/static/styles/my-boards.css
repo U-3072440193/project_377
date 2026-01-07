@@ -1,95 +1,269 @@
 main {
-    display: flex;           
-    justify-content: center; 
-    
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f5f6f8;
 }
 
+.boards {
+    width: 100%;
+    max-width: 1100px;
+}
+
+.boards h2 {
+    margin-bottom: 20px;
+}
 .board-container {
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    border-radius: 10px 0 10px 0; /* скругляем только левую часть */
-    overflow: hidden; /* чтобы фон .board-title не вылезал за скругления */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin: 15px;
-    padding: 0; /* padding убираем, чтобы фон тянулся */
-}
-
-.board-title {
-    background-color: #333;
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    flex-shrink: 0; /* чтобы не сжималась */
-    border-radius: 10px 0 10px;
-    margin-right: 10px;
-    
+    gap: 12px;
+
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
-.email-compose{
-    margin: 10px;
-}
-.board-created{
-    margin: 10px;
-    color: #4CAF50;
-    font-style: italic;
-}
-.delete-board {
+.board-title {
     background-color: #333;
     color: #fff;
     text-decoration: none;
-    padding: 10px 20px;
+
+    padding: 10px 18px;
     border-radius: 8px;
-    transition: 0.2s;
-    border: none; /* если это button */
-    cursor: pointer;
+
+    font-weight: 600;
+    white-space: nowrap;
 }
-/* Полный сброс кнопок */
-button {
-    all: unset;          /* 🔥 убирает ВСЕ дефолтные стили */
+
+.board-title:hover {
+    background-color: #444;
+}
+.email-compose {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-left: auto;
+}
+
+.email-compose label {
+    font-size: 13px;
+    color: #555;
+}
+
+.email-compose input[type="text"],
+.email-compose select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+.email-compose button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #4CAF50;
+    color: white;
+    font-size: 13px;
+}
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    margin-top: 4px;
+    z-index: 10;
+    min-width: 180px;
+}
+
+.suggest-item {
+    padding: 6px 10px;
     cursor: pointer;
 }
 
-/* Конкретно для toggle-users */
+.suggest-item:hover {
+    background: #f0f0f0;
+}
+
+.no-suggestions {
+    padding: 6px 10px;
+    color: #999;
+}
 .toggle-users {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: bold;
-    color: inherit;
+
+    font-weight: 600;
+    color: #333;
 }
 
-/* Стрелка */
 .toggle-users .arrow {
     transition: transform 0.2s ease;
 }
-
-.toggle-users.open .arrow {
-    transform: rotate(180deg);
-}
-
 .list-of-board-users {
-    position: absolute;          /* поверх всех элементов */
-    background-color: rgba(255, 255, 255, 0.95); /* слегка прозрачный фон */
-    border: 1px solid #ccc;     /* граница */
-    border-radius: 8px;          /* закруглённые углы */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* тень для глубины */
-    padding: 10px;               /* внутренние отступы */
-    min-width: 200px;            /* минимальная ширина */
-    z-index: 1000;               /* поверх всего остального */
-    
+    position: absolute;
+    top: 100%;
+    right: 16px;
+
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 100;
 }
 
 .board-user {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    padding: 4px 0;
 }
 
 .board-user img {
-    border-radius: 50%;   /* круглые аватарки */
+    border-radius: 50%;
     width: 32px;
     height: 32px;
-    object-fit: cover;
 }
+.board-created {
+    font-size: 12px;
+    color: #4CAF50;
+    font-style: italic;
+}
+.permit {
+    margin-left: auto;
+}
+
+.delete-board button {
+    background: #d9534f;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.delete-board button:hover {
+    background: #c9302c;
+}
+.hidden {
+    display: none;
+}
+
+/* сброс кнопок — оставляем, но аккуратно */
+button {
+    all: unset;
+    cursor: pointer;
+}
+/* Стили для списка участников */
+    .list-of-board-users {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .board-user {
+        display: flex;
+        align-items: center;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        background-color: white;
+        border-radius: 4px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .board-user:last-child {
+        margin-bottom: 0;
+    }
+
+    .board-user img {
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+    }
+
+    .board-user .user-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .board-user strong {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .board-user .user-role {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+
+    .remove-user {
+        background: #dc3545;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .remove-user:hover {
+        background: #c82333;
+        transform: scale(1.1);
+    }
+
+    .loading-users,
+    .no-users,
+    .error-loading {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .toggle-users {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 10px 0;
+        transition: all 0.2s ease;
+    }
+
+    .toggle-users:hover {
+        background: #178d1b;
+    }
+
+    .toggle-users .arrow {
+        font-size: 10px;
+        margin-left: 5px;
+        transition: transform 0.3s ease;
+    }
+
+    .hidden {
+        display: none !important;
+    }

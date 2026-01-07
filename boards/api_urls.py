@@ -15,7 +15,11 @@ from .views import (
     board_members_api,
     remove_board_member,
     TaskMoveView,
-
+    TaskUpdateAPIView,
+    TaskFileUploadAPIView,
+    TaskFilesListAPIView,
+    TaskFileDeleteAPIView,
+    AddCommentAPIView,
 )
 
 urlpatterns = [
@@ -38,4 +42,9 @@ urlpatterns = [
     path('boards/<int:board_id>/members/', board_members_api, name='board_members_api'),
     path('boards/<int:board_id>/remove-member/', remove_board_member, name='remove-board-member'),
 
+    path('tasks/<int:pk>/description/', TaskUpdateAPIView.as_view(), name='task-update-description'),
+    path('tasks/<int:pk>/files/', TaskFilesListAPIView.as_view(), name='task-files-list'),  # GET список файлов
+    path('tasks/<int:pk>/files/upload/', TaskFileUploadAPIView.as_view(), name='task-file-upload'),
+    path('files/<int:file_id>/', TaskFileDeleteAPIView.as_view(), name='task-file-delete'),  # DELETE удаление файла
+    path('tasks/<int:task_id>/comments/', AddCommentAPIView.as_view(), name='add-comment'),
 ]

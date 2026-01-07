@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Board, Column, Task, BoardPermit
+from .models import Board, Column, Task, BoardPermit, TaskFile, Comment
 from django.contrib.auth.models import User
 
 
@@ -19,13 +19,50 @@ class UserSerializer(serializers.ModelSerializer):
         return None
 
 
+# Сериализатор комментов
+class CommentSerializer(serializers.ModelSerializer):
+    # Добавляем поле username пользователя
+    user_username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user_username', 'text', 'created']
+
+
 # Сериализатор задачи
 class TaskSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)  # информация о создателе задачи
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated']
+        fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated', 'files', 'comments',]
+
+
+# Сериализатор подгрузки файлов к задаче
+class TaskFileSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+    file_name = serializers.SerializerMethodField()
+    uploaded_by_username = serializers.ReadOnlyField(source='uploaded_by.username')
+
+    class Meta:
+        model = TaskFile
+        fields = ["id", "file", "file_url", "file_name", "uploaded_at", "uploaded_by", "uploaded_by_username"]
+
+    def get_file_url(self, obj):
+        """Возвращает полный URL файла"""
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
+
+    def get_file_name(self, obj):
+        """Возвращает только имя файла без пути"""
+        if obj.file:
+            return obj.file.name.split('/')[-1]  # Берем последнюю часть пути
+        return ""
 
 
 # Сериализатор колонки

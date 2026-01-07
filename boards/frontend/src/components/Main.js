@@ -16,8 +16,6 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-
-
 function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   const [columns, setColumns] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
@@ -26,8 +24,10 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   const [showMember, setShowMember] = useState(false);
   const isOwner = user.id === board.owner.id;
   const isMember = () => {
-  return members.some(member => member.id === user.id || board.owner.id === user.id);
-  }; 
+    return members.some(
+      (member) => member.id === user.id || board.owner.id === user.id
+    );
+  };
   //const isMemberBool = isMember(); дописать  - для запрета перетаскивания не мемберами
 
   console.log("user:", user);
@@ -249,6 +249,19 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
       )
     );
   };
+  // Функция для добавления комментария к задаче
+  const addCommentToTask = (taskId, newComment) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((col) => ({
+        ...col,
+        tasks: col.tasks.map((task) =>
+          task.id === taskId
+            ? { ...task, comments: [...(task.comments || []), newComment] }
+            : task
+        ),
+      }))
+    );
+  };
 
   const dropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -268,27 +281,29 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
           <div className="inn-board">
             <h1>{board.title}</h1>
             <p>Дата создания: {board.created}</p>
-          </div>{user.id === board.owner.id && (
-          <div className="actions">
-            <img
-              src={showInput ? "/icons/close.svg" : "/icons/add-column.svg"}
-              alt={showInput ? "Закрыть" : "Добавить колонку"}
-              className="add-column-icon"
-              onClick={toggleInput}
-            />
-            {showInput && (
-              <div className="add-column-form">
-                <input
-                  type="text"
-                  placeholder="Название колонки"
-                  value={newColumnTitle}
-                  onChange={(e) => setNewColumnTitle(e.target.value)}
-                  autoFocus
-                />
-                <button onClick={addColumn}>Добавить</button>
-              </div>
-            )}
-          </div>)}
+          </div>
+          {user.id === board.owner.id && (
+            <div className="actions">
+              <img
+                src={showInput ? "/icons/close.svg" : "/icons/add-column.svg"}
+                alt={showInput ? "Закрыть" : "Добавить колонку"}
+                className="add-column-icon"
+                onClick={toggleInput}
+              />
+              {showInput && (
+                <div className="add-column-form">
+                  <input
+                    type="text"
+                    placeholder="Название колонки"
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    autoFocus
+                  />
+                  <button onClick={addColumn}>Добавить</button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="member-container">
           <img
@@ -312,9 +327,13 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                     />
                     {member.username} ({member.role})
                     {user.id === board.owner.id && (
-                    <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
-                      х
-                    </button>)}
+                      <button
+                        className="remove-member-btn"
+                        onClick={() => removeMember(member.id)}
+                      >
+                        х
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -356,6 +375,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                 updateTask={updateTaskInColumn}
                 forPermit={isOwner}
                 isMember={isMember}
+                addCommentToTask={addCommentToTask}
               />
             ))}
           </SortableContext>

@@ -2,17 +2,24 @@ import React, { useState, useEffect } from "react";
 import "./task.css";
 import "./column.css";
 import Task from "./Task";
-import {
-  useDroppable,
-} from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-
-
-function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeTask, updateTask,forPermit,isMember }) {
+function Column({
+  column,
+  removeColumn,
+  csrfToken,
+  updateTasks,
+  addTask,
+  removeTask,
+  updateTask,
+  forPermit,
+  isMember,
+  addCommentToTask
+}) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -21,8 +28,8 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
     id: column.id,
     data: {
       type: "column",
-      column: column
-    }
+      column: column,
+    },
   });
 
   useEffect(() => {
@@ -65,15 +72,15 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
   };
 
   return (
-    <div 
-      ref={setNodeRef} 
-      className={`column ${isOver ? 'column-over' : ''}`}
-      style={isOver ? { backgroundColor: 'rgba(0, 200, 0, 0.1)' } : {}}
+    <div
+      ref={setNodeRef}
+      className={`column ${isOver ? "column-over" : ""}`}
+      style={isOver ? { backgroundColor: "rgba(0, 200, 0, 0.1)" } : {}}
     >
       <div className="column-header">
         <div className="column-inner">
           <div className="col-name">{column.title}</div>
-          
+
           {forPermit && removeColumn && (
             <button
               className="remove-column-btn"
@@ -82,7 +89,6 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
               ×
             </button>
           )}
-        
         </div>
       </div>
 
@@ -92,38 +98,45 @@ function Column({ column, removeColumn, csrfToken, updateTasks, addTask, removeT
           strategy={verticalListSortingStrategy}
         >
           {tasks.map((task) => (
-            <Task 
-              key={task.id} 
-              task={task} 
+            <Task
+              key={task.id}
+              task={task}
               removeTask={removeTaskHandler}
               columnId={column.id}
               isMember={isMember}
+              updateTask={updateTask}
+              csrfToken={csrfToken}
+              addCommentToTask={addCommentToTask}
             />
           ))}
         </SortableContext>
       </div>
 
-      {isMember() && <div className="add-task">
-        {!showInput ? (
-          <button onClick={() => setShowInput(true)}>＋ Добавить задачу</button>
-        ) : (
-          <>
-            <input
-              type="text"
-              placeholder="Название задачи"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') addTaskHandler();
-                if (e.key === 'Escape') setShowInput(false);
-              }}
-            />
-            <button onClick={addTaskHandler}>Добавить</button>
-            <button onClick={() => setShowInput(false)}>Отмена</button>
-          </>
-        )}
-      </div>}
+      {isMember() && (
+        <div className="add-task">
+          {!showInput ? (
+            <button onClick={() => setShowInput(true)}>
+              ＋ Добавить задачу
+            </button>
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="Название задачи"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addTaskHandler();
+                  if (e.key === "Escape") setShowInput(false);
+                }}
+              />
+              <button onClick={addTaskHandler}>Добавить</button>
+              <button onClick={() => setShowInput(false)}>Отмена</button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

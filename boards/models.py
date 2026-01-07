@@ -17,7 +17,7 @@ class BoardPermit(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['board', 'user'], name='unique_board_user')
-        ] # добавление юзера 1 раз, если у него нет доступа
+        ]  # добавление юзера 1 раз, если у него нет доступа
 
     ROLE_CHOICES = [
         ('owner', 'owner'),
@@ -68,6 +68,32 @@ class Task(models.Model):
             last_task = Task.objects.filter(column=self.column).order_by('-position').first()
             self.position = last_task.position + 1 if last_task else 1
         super().save(*args, **kwargs)
+
+
+def task_file_path(instance, filename):
+    """
+    Структура: task_files/user_id/board_id/task_id/filename
+    """
+    # Используем uploaded_by.id вместо task.creator.id
+    # потому что файл может загружать не создатель задачи
+    return f"task_files/{instance.uploaded_by.id}/{instance.task.column.board.id}/{instance.task.id}/{filename}"
+
+
+class TaskFile(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="files"
+    )
+    file = models.FileField(upload_to=task_file_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f"{self.file.name}"
 
 
 class Comment(models.Model):

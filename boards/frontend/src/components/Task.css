@@ -1,41 +1,41 @@
+/* task.css - полная версия с исправленными оверлеями */
 .task-container {
   margin-bottom: 10px;
+  border-radius: 6px;
+  overflow: visible;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  position: relative;
 }
 
-.task {
-  background: #4CAF50;
+.task-container:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Зеленое поле заголовка */
+.task-header {
   padding: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 6px;
   color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  cursor: grab;
-  transition: all 0.2s;
   min-height: 50px;
-}
-
-.task:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.task:active {
-  cursor: grabbing;
-  transform: scale(0.98);
+  background-color: #4CAF50 !important;
+  user-select: none;
+  border-radius: 6px 6px 0 0;
 }
 
 .drag-handle {
-  cursor: grab;
   flex-grow: 1;
   padding-right: 10px;
+  cursor: inherit;
 }
 
 .task-name {
   font-weight: 500;
   word-break: break-word;
   font-size: 14px;
+  cursor: inherit;
 }
 
 .remove-task-btn {
@@ -58,7 +58,433 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Стиль для перетаскиваемой задачи */
+/* Белая область контента */
+.task-content {
+  background: white;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Ряд кнопок */
+.task-buttons-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.task-buttons-row button {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  background: #f8f9fa;
+  color: #333;
+  font-weight: 500;
+}
+
+.task-buttons-row button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Стили для кнопки "Описание" */
+.description-btn {
+  border-color: #4CAF50;
+  background: #e8f5e9 !important;
+  color: #2e7d32 !important;
+}
+
+.description-btn:hover {
+  background: #c8e6c9 !important;
+  border-color: #2e7d32 !important;
+}
+
+/* Стили для кнопки "Файлы" */
+.files-btn {
+  border-color: #2196F3;
+  background: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+
+.files-btn:hover {
+  background: #bbdefb !important;
+  border-color: #1565c0 !important;
+}
+
+.files-btn.has-files {
+  font-weight: 600;
+}
+
+.files-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+  transition: transform 0.2s;
+}
+
+.files-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Выпадающий список файлов */
+.files-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 8px;
+}
+
+.files-dropdown-content {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Анимация появления выпадающего списка */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.file-upload-label {
+  display: block;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.upload-file-btn {
+  display: block;
+  padding: 8px 12px;
+  background: #2196F3;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.upload-file-btn:hover {
+  background: #1976D2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+/* Список файлов */
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 4px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+  border: 1px solid #e9ecef;
+}
+
+.file-item:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.file-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  text-decoration: none;
+  color: #495057;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-file-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 6px;
+  opacity: 0.7;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.delete-file-btn:hover {
+  opacity: 1;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.loading-files,
+.no-files {
+  text-align: center;
+  padding: 16px;
+  color: #6c757d;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Оверлей с описанием - ВОССТАНАВЛИВАЕМ СТАРЫЕ СТИЛИ */
+.description-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.description-content {
+  background: white;
+  border-radius: 8px;
+  width: 50%;
+  max-width: 800px;
+  height: 80vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10000;
+}
+
+.description-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px 8px 0 0;
+}
+
+.description-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.close-description-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.close-description-btn:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+.description-text {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.description-text img {
+  max-width: 100%;
+  height: auto;
+}
+
+.description-text ul,
+.description-text ol {
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.description-text li {
+  margin-bottom: 6px;
+}
+
+.description-actions {
+  padding: 16px 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+}
+
+.description-actions button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.edit-description-btn {
+  background: #007bff;
+  color: white;
+}
+
+.edit-description-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.close-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.close-btn:hover {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+/* Модальное окно с редактором TipTap - ВОССТАНАВЛИВАЕМ */
+.tiptap-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.tiptap-modal {
+  background: white;
+  border-radius: 8px;
+  width: 900px;
+  max-width: 90vw;
+  height: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: zoomIn 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10000;
+}
+
+.tiptap-header {
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+  background: #4CAF50;
+  border-radius: 8px 8px 0 0;
+  color: white;
+}
+
+.tiptap-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.tiptap-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Стиль для перетаскивания */
 .sortable-task {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
@@ -68,13 +494,273 @@
   transform: rotate(2deg);
 }
 
-/* Оверлей при перетаскивании */
-.task-overlay {
-  background: #4CAF50;
-  padding: 12px;
-  border-radius: 6px;
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .description-content {
+    width: 70%;
+  }
+}
+
+@media (max-width: 768px) {
+  .description-content,
+  .tiptap-modal {
+    width: 95%;
+    height: 90vh;
+  }
+  
+  .task-header {
+    padding: 10px;
+    min-height: 45px;
+  }
+  
+  .task-name {
+    font-size: 13px;
+  }
+  
+  .task-content {
+    padding: 10px;
+  }
+  
+  .task-buttons-row button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  .files-dropdown-content {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-buttons-row {
+    flex-direction: column;
+  }
+  
+  .description-content,
+  .tiptap-modal {
+    width: 98%;
+    height: 95vh;
+  }
+}
+
+/* Кнопка комментариев */
+.comments-btn {
+  border-color: #9c27b0;
+  background: #f3e5f5 !important;
+  color: #7b1fa2 !important;
+  flex: 0 1 auto !important;
+  min-width: 60px;
+}
+
+.comments-btn:hover {
+  background: #e1bee7 !important;
+  border-color: #7b1fa2 !important;
+}
+
+.comments-btn.active {
+  background: #e1bee7 !important;
+  border-color: #7b1fa2 !important;
+  font-weight: 600;
+}
+
+.comments-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+  transition: transform 0.2s;
+}
+
+.comments-arrow.open {
+  transform: rotate(180deg);
+}
+
+/*Список комментариев */
+.comment-item {
+  position: relative;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  
+  /* Скругление углов только с 3х сторон */
+  border-radius: 12px 12px 12px 0;
+}
+
+.comment-item:last-child {
+  margin-bottom: 0;
+}
+
+.comment-avatar {
+  position: absolute;
+  top: 16px;
+  left: -12px;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-  transform: rotate(0deg);
-  min-width: 200px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comment-content {
+  margin-left: 24px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #dee2e6;
+}
+
+.comment-author {
+  font-size: 14px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #212529;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Поле добавления комментария */
+.add-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #e9ecef;
+}
+
+.add-comment input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.add-comment input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.add-comment input::placeholder {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.add-comment button {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.add-comment button:hover {
+  background-color: #45a049;
+}
+
+.add-comment button:active {
+  transform: scale(0.98);
+}
+
+.add-comment button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Для состояния загрузки можно добавить */
+.add-comment button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.add-comment button.loading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Стили для строки кнопок, чтобы все помещалось */
+.task-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.task-buttons-row button {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .task-buttons-row {
+    flex-direction: column;
+  }
+  
+  .task-buttons-row button {
+    width: 100%;
+    min-width: unset;
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .add-comment {
+    margin-top: 16px;
+    padding: 16px 0;
+  }
 }

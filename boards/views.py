@@ -24,6 +24,13 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import F, Q
 from django.db import transaction
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
+def board_detail(request, board_id):  # передача номера доски! удалить если передача будет не через переменную window
+    board = get_object_or_404(Board, id=board_id)
+    return render(request, 'index.html', {'board': board})
 
 
 def json_login_required(view_func):
@@ -80,6 +87,7 @@ def boards_page(request, pk):
                              'rb'))  # открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
 
 
+# ----------------------------Колонки---------------------------------
 class ColumnCreateAPIView(APIView):
     def post(self, request, board_id):
         board = get_object_or_404(Board, id=board_id)
@@ -101,6 +109,9 @@ class ColumnDeleteAPIView(APIView):
         column = get_object_or_404(Column, id=pk)
         column.delete()
         return Response(status=204)
+
+
+# -----------------------Действия с бордами-------------------------------
 
 
 @login_required(login_url='login')
@@ -268,7 +279,142 @@ class TaskMoveView(APIView):
             )
 
 
+class TaskUpdateAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+
+        board = task.column.board
+
+        # Проверка прав
+        if board.owner != request.user and not BoardPermit.objects.filter(
+                board=board,
+                user=request.user
+        ).exists():
+            return Response(
+                {"error": "Нет прав на редактирование задачи"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        description = request.data.get("description")
+
+        if description is None:
+            return Response(
+                {"error": "description is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        task.description = description
+        task.save()
+
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=200)
+
+
+class TaskFileUploadAPIView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        board = task.column.board
+
+        # проверка прав
+        if board.owner != request.user and not BoardPermit.objects.filter(
+                board=board,
+                user=request.user
+        ).exists():
+            return Response({"error": "Нет прав"}, status=403)
+
+        uploaded_file = request.FILES.get("file")
+
+        if not uploaded_file:
+            return Response({"error": "Файл не передан"}, status=400)
+
+        task_file = TaskFile.objects.create(
+            task=task,
+            file=uploaded_file,
+            uploaded_by=request.user
+        )
+
+        serializer = TaskFileSerializer(task_file)
+        return Response(serializer.data, status=201)
+
+
+class TaskFilesListAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        """Получение списка файлов для конкретной задачи"""
+        task = get_object_or_404(Task, id=pk)
+        board = task.column.board
+
+        # Проверка прав на просмотр файлов
+        if board.owner != request.user and not BoardPermit.objects.filter(
+                board=board,
+                user=request.user
+        ).exists():
+            return Response(
+                {"error": "Нет прав на просмотр файлов"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Получаем файлы задачи с контекстом запроса для построения полных URL
+        files = task.files.all()
+        serializer = TaskFileSerializer(files, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+class TaskFileDeleteAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, file_id):
+        """Удаление файла"""
+        task_file = get_object_or_404(TaskFile, id=file_id)
+        board = task_file.task.column.board
+
+        # Проверка прав
+        if board.owner != request.user and not BoardPermit.objects.filter(
+                board=board,
+                user=request.user
+        ).exists():
+            return Response(
+                {"error": "Нет прав на удаление файла"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Удаляем файл
+        task_file.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # ---------------------------------------
+# -------------------Комменты--------------------
+class AddCommentAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id)
+        text = request.data.get("text")
+
+        if not text:
+            return Response({"error": "Text is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Создаем комментарий с полем user
+        comment = Comment.objects.create(
+            task=task,
+            user=request.user,  # ИЗМЕНЕНИЕ: user вместо creator
+            text=text,
+        )
+
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @login_required(login_url='login')
@@ -280,7 +426,7 @@ def my_boards(request):
         boardpermit__user=user
     ).exclude(owner=user)
 
-    boards = owned_boards | permitted_boards
+    boards = (owned_boards | permitted_boards).order_by('-created').distinct()
 
     context = {
         'boards': boards.distinct()
@@ -299,21 +445,38 @@ def search_users_for_board(request):
 
 @login_required
 def add_board_member(request, board_id):
-    if request.method == 'POST':
-        board = get_object_or_404(Board, id=board_id)
-        user_id = request.POST.get('recipient_id')
-        role = request.POST.get('role')
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
 
-        user = get_object_or_404(User, id=user_id)
+    board = get_object_or_404(Board, id=board_id)
 
-        try:
-            BoardPermit.objects.create(
-                board=board,
-                user=user,
-                role=role
-            )
-        except IntegrityError:
-            pass  # пользователь уже добавлен
+    #  ТОЛЬКО ВЛАДЕЛЕЦ
+    if request.user != board.owner:
+        return HttpResponseForbidden("You are not the board owner")
+
+    user_id = request.POST.get('recipient_id')
+    role = request.POST.get('role')
+
+    if not user_id or not role:
+        return HttpResponseBadRequest("Missing data")
+
+    # допустимые роли
+    ALLOWED_ROLES = {'member', 'viewer'}
+
+    # if role not in ALLOWED_ROLES:
+    #     return HttpResponseBadRequest("Invalid role")
+
+    user = get_object_or_404(User, id=user_id)
+
+    #  нельзя добавить owner
+    # if user == board.owner:
+    #     return HttpResponseBadRequest("Owner already exists")
+
+    BoardPermit.objects.get_or_create(
+        board=board,
+        user=user,
+        defaults={'role': role}
+    )
 
     return redirect('my-boards')
 
