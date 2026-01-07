@@ -197,7 +197,7 @@ def search_users(request):
     return JsonResponse(data, safe=False)  # JSON-ответ
 
 
-@receiver(post_save, sender=User) # автосоздание профиля, если нет
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+# @receiver(post_save, sender=User) # автосоздание профиля, если нет
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)

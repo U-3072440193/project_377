@@ -16,8 +16,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, FileResponse
 from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 import os
 from django.conf import settings
@@ -101,8 +101,7 @@ class ColumnCreateAPIView(APIView):
 
 
 class ColumnDeleteAPIView(APIView):
-    authentication_classes = [
-        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
@@ -122,6 +121,12 @@ def new_board(request):
             board = form.save(commit=False)  # сохранение без копирования в бд
             board.owner = request.user
             board.save()
+            # Автоматически добавляем владельца
+            BoardPermit.objects.get_or_create(
+                board=board,
+                user=request.user,
+                defaults={'role': 'owner'}
+            )
             return redirect('boards-page', pk=board.id)
     else:
         form = BoardForm()
@@ -141,8 +146,7 @@ def delete_board(request, pk):
 
 # -----------------таски----------------------
 class TaskCreateAPIView(APIView):
-    authentication_classes = [
-        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def post(self, request, column_id):
@@ -162,8 +166,7 @@ class TaskCreateAPIView(APIView):
 
 
 class TaskDeleteAPIView(APIView):
-    authentication_classes = [
-        BasicAuthentication]  # !!!!токен отсутствует или request не правильный, Django возвращает 403 Forbidden. Защита нарушена!!!Требуется проработка корректного приема CSRF от реакта
+    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
@@ -175,7 +178,7 @@ class TaskDeleteAPIView(APIView):
 
 
 class TaskMoveView(APIView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
@@ -280,7 +283,7 @@ class TaskMoveView(APIView):
 
 
 class TaskUpdateAPIView(APIView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
@@ -315,7 +318,7 @@ class TaskUpdateAPIView(APIView):
 
 class TaskFileUploadAPIView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
@@ -345,32 +348,35 @@ class TaskFileUploadAPIView(APIView):
 
 
 class TaskFilesListAPIView(APIView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
-        """Получение списка файлов для конкретной задачи"""
         task = get_object_or_404(Task, id=pk)
         board = task.column.board
 
-        # Проверка прав на просмотр файлов
-        if board.owner != request.user and not BoardPermit.objects.filter(
-                board=board,
-                user=request.user
-        ).exists():
-            return Response(
-                {"error": "Нет прав на просмотр файлов"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # Ясная проверка: владелец ИЛИ участник
+        is_owner = board.owner == request.user
+        has_permit = BoardPermit.objects.filter(board=board, user=request.user).exists()
 
-        # Получаем файлы задачи с контекстом запроса для построения полных URL
+        if not (is_owner or has_permit):
+            return Response({
+                "error": "Нет прав на просмотр файлов",
+                "debug": {
+                    "user": request.user.username,
+                    "is_owner": is_owner,
+                    "has_permit": has_permit,
+                    "required": "is_owner OR has_permit"
+                }
+            }, status=403)
+
         files = task.files.all()
         serializer = TaskFileSerializer(files, many=True, context={'request': request})
         return Response(serializer.data)
 
 
 class TaskFileDeleteAPIView(APIView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, file_id):
@@ -396,7 +402,7 @@ class TaskFileDeleteAPIView(APIView):
 # ---------------------------------------
 # -------------------Комменты--------------------
 class AddCommentAPIView(APIView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication] # SessionAuthentication возвращает запрос с  403! Нужен вариант решения!
     permission_classes = [IsAuthenticated]
 
     def post(self, request, task_id):
@@ -503,7 +509,7 @@ def board_members_api(request, board_id):
 
 
 @login_required
-@csrf_exempt  # если используешь fetch с CSRF, можно убрать csrf_exempt
+@csrf_exempt
 def remove_board_member(request, board_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=400)
@@ -640,3 +646,99 @@ def kill_all_sessions(request):
     sessions.delete()
 
     return JsonResponse({'detail': 'Сессии успешно завершены'})
+
+
+# ------------------отладка--------------------
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def debug_task_auth(request, task_id):
+    """Проверка прав для конкретной задачи"""
+    task = get_object_or_404(Task, id=task_id)
+    board = task.column.board
+
+    # Проверяем разные условия
+    is_owner = board.owner == request.user
+    has_permit = BoardPermit.objects.filter(board=board, user=request.user).exists()
+    user_is_creator = task.creator == request.user
+
+    return Response({
+        'task_id': task.id,
+        'task_title': task.title,
+        'board_id': board.id,
+        'board_title': board.title,
+        'current_user': {
+            'id': request.user.id,
+            'username': request.user.username,
+        },
+        'board_owner': {
+            'id': board.owner.id,
+            'username': board.owner.username,
+        },
+        'task_creator': {
+            'id': task.creator.id if task.creator else None,
+            'username': task.creator.username if task.creator else None,
+        },
+        'auth_checks': {
+            'is_authenticated': request.user.is_authenticated,
+            'is_board_owner': is_owner,
+            'has_board_permit': has_permit,
+            'is_task_creator': user_is_creator,
+            'can_access': is_owner or has_permit,
+        }
+    })
+
+
+@api_view(['GET'])
+def test_auth(request):
+    """Простейший тест аутентификации"""
+    return Response({
+        'is_authenticated': request.user.is_authenticated,
+        'user': request.user.username if request.user.is_authenticated else 'anonymous',
+        'session_key': request.session.session_key if hasattr(request, 'session') else 'no session',
+    })
+
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def debug_task_check(request, task_id):
+    """Проверка конкретной задачи и прав"""
+    task = get_object_or_404(Task, id=task_id)
+    board = task.column.board
+
+    # Полная проверка
+    is_owner = board.owner == request.user
+    has_permit = BoardPermit.objects.filter(board=board, user=request.user).exists()
+
+    print("=" * 50)
+    print(f"DEBUG: User: {request.user.username} (id: {request.user.id})")
+    print(f"DEBUG: Task: {task.title} (id: {task.id})")
+    print(f"DEBUG: Board: {board.title} (id: {board.id})")
+    print(f"DEBUG: Board owner: {board.owner.username} (id: {board.owner.id})")
+    print(f"DEBUG: Is owner: {is_owner}")
+    print(f"DEBUG: Has permit: {has_permit}")
+    print(f"DEBUG: Can access: {is_owner or has_permit}")
+    print("=" * 50)
+
+    return Response({
+        'task': {
+            'id': task.id,
+            'title': task.title,
+            'creator': task.creator.username if task.creator else None,
+        },
+        'board': {
+            'id': board.id,
+            'title': board.title,
+            'owner': board.owner.username,
+        },
+        'user': {
+            'id': request.user.id,
+            'username': request.user.username,
+        },
+        'checks': {
+            'is_owner': is_owner,
+            'has_permit': has_permit,
+            'can_access': is_owner or has_permit,
+        }
+    })

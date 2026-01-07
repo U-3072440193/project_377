@@ -12,6 +12,18 @@ class Board(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None  # проверяем, новая ли это доска
+        super().save(*args, **kwargs)
+
+        # Автоматически добавляем владельца как участника
+        if is_new:
+            BoardPermit.objects.get_or_create(
+                board=self,
+                user=self.owner,
+                defaults={'role': 'owner'}
+            )
+
 
 class BoardPermit(models.Model):
     class Meta:

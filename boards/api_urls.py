@@ -1,3 +1,5 @@
+'''Файл предназначен для путей передачи данных от джанго в реакт и обратно, включая отладочные пути и авторизацию'''
+
 from django.urls import path
 from .views import (
     BoardListAPIView,
@@ -20,6 +22,9 @@ from .views import (
     TaskFilesListAPIView,
     TaskFileDeleteAPIView,
     AddCommentAPIView,
+    debug_task_auth,
+    test_auth,
+    debug_task_check
 )
 
 urlpatterns = [
@@ -27,8 +32,6 @@ urlpatterns = [
     path('boards/<int:board_id>/columns/', ColumnCreateAPIView.as_view()),
     path('columns/<int:pk>/', ColumnDeleteAPIView.as_view()),
     path('columns/<int:column_id>/tasks/', TaskCreateAPIView.as_view()),
-    path('tasks/<int:pk>/', TaskDeleteAPIView.as_view()),
-    path('tasks/<int:pk>/move/', TaskMoveView.as_view(), name='task-move'),
 
     path('user/', UserAPIView.as_view()),
 
@@ -42,9 +45,15 @@ urlpatterns = [
     path('boards/<int:board_id>/members/', board_members_api, name='board_members_api'),
     path('boards/<int:board_id>/remove-member/', remove_board_member, name='remove-board-member'),
 
+    path('tasks/<int:pk>/', TaskDeleteAPIView.as_view()),
+    path('tasks/<int:pk>/move/', TaskMoveView.as_view(), name='task-move'),
     path('tasks/<int:pk>/description/', TaskUpdateAPIView.as_view(), name='task-update-description'),
     path('tasks/<int:pk>/files/', TaskFilesListAPIView.as_view(), name='task-files-list'),  # GET список файлов
     path('tasks/<int:pk>/files/upload/', TaskFileUploadAPIView.as_view(), name='task-file-upload'),
     path('files/<int:file_id>/', TaskFileDeleteAPIView.as_view(), name='task-file-delete'),  # DELETE удаление файла
     path('tasks/<int:task_id>/comments/', AddCommentAPIView.as_view(), name='add-comment'),
+    # Отладочные пути
+    path('debug-task-auth/<int:task_id>/', debug_task_auth, name='debug-task-auth'),
+    path('test-auth/', test_auth, name='test-auth'),
+    path('debug-task-check/<int:task_id>/', debug_task_check, name='debug-task-check'),
 ]

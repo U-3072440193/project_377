@@ -42,12 +42,18 @@ const App = () => {
       .catch((err) => console.error(err));
   };
 
-  const getCSRF = () => {
+ const getCSRF = () => {
     axios
-      .get(serverUrl + "api/csrf/", { withCredentials: true })
-      .then((res) => setCsrf(res.headers["x-csrftoken"]))
-      .catch((err) => console.error(err));
-  };
+        .get(serverUrl + "api/csrf/", { withCredentials: true })
+        .then((res) => {
+            const token = res.headers["x-csrftoken"];
+            console.log("CSRF токен получен:", token ? "ДА" : "НЕТ", token);
+            setCsrf(token || "");
+        })
+        .catch((err) => {
+            console.error("Ошибка получения CSRF:", err);
+        });
+};
 
   const login = () => {
     axios
