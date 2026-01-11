@@ -150,7 +150,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
       updateTaskColumn(activeId, overColumn.id);
     }
   };
-
+  // Функция для обновления задачи на сервере
   const updateTaskOrder = (taskId, newIndex, columnId) => {
     fetch(`${process.env.REACT_APP_API_URL}tasks/${taskId}/move/`, {
       method: "PATCH",
@@ -174,7 +174,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
       body: JSON.stringify({ column: newColumnId }),
     }).catch(console.error);
   };
-
+  // Функция для добавления колонки
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
 

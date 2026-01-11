@@ -6,15 +6,7 @@ from django.middleware.csrf import get_token
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.sessions.models import Session
-
-
-def json_login_required(view_func):
-    def wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'error': 'Вы не авторизованы'}, status=401)
-        return view_func(request, *args, **kwargs)
-
-    return wrapped_view
+from .utils import json_login_required
 
 
 # -----------------сессии и передача в реакт токенов----------------------  https://habr.com/ru/articles/804615/

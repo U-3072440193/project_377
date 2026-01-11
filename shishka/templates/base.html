@@ -32,10 +32,10 @@
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
                 <li><a href="{% url 'new-board' %}">Создать доску</a></li>
-                <li><a href="#">Tasks</a></li>
-                <li><a href="#">Users</a></li>
+                <li><a href="#">Здесь что-то будет</a></li>
+                <li><a href="#">И здесь может быть</a></li>
                 {% if request.user.is_authenticated %}
-                <li><a href="#">Мои доски</a></li>
+                <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
                 <li><a href="{%url 'inbox'%}">Почта</a></li>
                 {% endif %}
             </ul>

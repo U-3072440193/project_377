@@ -171,7 +171,7 @@ const App = () => {
         <>
           {user ? (
             <div>
-              <h2>👤 Пользователь</h2>
+              <h2> Пользователь</h2>
               <p>Имя: {user.username}</p>
               <p>Email: {user.email}</p>
               {user.avatar && (
@@ -215,7 +215,7 @@ const App = () => {
           )}
           {board ? (
             <div>
-              <h2>📋 Доска: {board.title}</h2>
+              <h2>Доска: {board.title}</h2>
               <p>Владелец: {board.owner.username}</p>
               <h3>Колонки:</h3>
               <ul>

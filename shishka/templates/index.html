@@ -2,33 +2,68 @@
 {% load static %}
 {% block content %}
 <div class="banner">
-    <img src="{% static 'images/image3.jpg'%}" alt="" class="home-banner">
+    <img src="{% static 'images/image2.jpg'%}" alt="" class="home-banner">
     <div class="banner-text">Шишка - отличный инструмент в командных проектах</div>
 </div>
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/index.css' %}">
+{% endblock %}
+<main class="home-page">
+    <section class="hero">
+        <div class="hero-content">
+            <!-- Замени на свою картинку или убери блок img -->
+            <div class="hero-image">
+                <img src="{% static 'images/kanban-illustration.png' %}" alt="Kanban Доска" style="max-width: 400px;">
+            </div>
+            <div class="hero-text">
+                <p class="tagline">Управляй проектами вместе с командой.<br>Интуитивные доски, живые задачи, простое общение.</p>
+                <div class="hero-buttons">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="btn btn-primary">Мой профиль</a>
 
-<main class="home">
-
-    <div>
-        <h1>Тестовое описание</h1>
-        <div>
-            Описание проекта:
-
-            Проект представляет собой интерактивную доску для визуализации и управлением рабочим процессом.
-
-            Ориентировочно проект будет разбиваться на несколько элементов:
-            home - домашная страница
-            users — управление пользователями, профилями и аутентификацией, личные кабинеты.
-            В перспективе добаление функции ведения переписок между пользователями через личный кабинет.
-
-            boards — модели досок и колонок.
-            Интреактивная модель на основе React без перезагрузки страницы. С возможностью перетаскивания задач
-            от доски к доске.Доска содежит колонки, колонки содержат задачи. Задачи с возможностью комментирования.
-            Цветовые индикаторы по приоритету.
-            tasks — задачи, комментарии, вложения и статус.
-            Комментирование с загрузкой и хранением файлов.
-            В перспективе добавление сторонних API с нейросетями(Подсказки при комментировании,автоматическое создание
-            задач из текста).
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline">Зарегистрироваться</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section class="features">
+        <h2>Что уже работает</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Интерактивные Kanban-доски</h3>
+                <p>Создавай колонки, задачи и перетаскивай их. Динамический интерфейс на React.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Профили и команды</h3>
+                <p>Персональные профили с аватарами и система добавления участников на доски.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Внутренняя почта</h3>
+                <p>Отправляй сообщения и файлы другим пользователям прямо в системе.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Гибкая архитектура</h3>
+                <p>Бэкенд на Django + REST API, фронтенд на React. Готово к масштабированию.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Что не работает?</h3>
+                <p>Всё остальное.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap">
+        <h2>Что в планах до финальной защиты</h2>
+        <ul>
+            <li><strong>Безопасность:</strong> Финализация проверок прав доступа ко всем операциям.</li>
+            <li><strong>Приглашения:</strong> Система запросов на вступление в доску с подтверждением.</li>
+            <li><strong>Рефакторинг:</strong> Разделение больших React-компонентов для удобства поддержки.</li>
+            <li><strong>UI/UX:</strong> Добавление иконок и улучшение визуальной согласованности.</li>
+        </ul>
+    </section>
 </main>
 {% endblock %}

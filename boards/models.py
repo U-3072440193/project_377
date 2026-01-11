@@ -93,7 +93,7 @@ def task_file_path(instance, filename):
     """
     Структура: task_files/user_id/board_id/task_id/filename
     """
-    # Используем uploaded_by.id вместо task.creator.id
+    # Используем uploaded_by.id
     # потому что файл может загружать не создатель задачи
     return f"task_files/{instance.uploaded_by.id}/{instance.task.column.board.id}/{instance.task.id}/{filename}"
 
@@ -116,7 +116,7 @@ class TaskFile(models.Model):
 
 
 class Comment(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.PROTECT, related_name='comments')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)

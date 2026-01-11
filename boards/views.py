@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from .forms import BoardForm
 from .models import Board, BoardPermit, User
 from .serializers import BoardSerializer, UserSerializer
-
+# компоненты view
 from .view_parts.utils import json_login_required
 from .view_parts.auth import *
 from .view_parts.debug import *

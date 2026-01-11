@@ -132,7 +132,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025  # ← ИЗМЕНИТЬ с 25 на 1025!
+EMAIL_PORT = 1025
 EMAIL_USE_TLS = False
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
@@ -172,11 +172,6 @@ CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Разрешаем отправлять cookie при межсайтовых запросах на разрешённые домены:
 CORS_ALLOW_CREDENTIALS = True
-# REST_FRAMEWORK = {
-#     "DEFAULT_AUTHENTICATION_CLASSES": [
-#         "rest_framework.authentication.SessionAuthentication",
-#     ]
-# }
 
 
 REST_FRAMEWORK = {
