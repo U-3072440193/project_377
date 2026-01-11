@@ -38,6 +38,9 @@ function Task({
     },
   });
 
+  const [showPriority, setShowPriority] = useState(false);
+  const [priority, setPriority] = useState(task.priority || "low");
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -218,6 +221,71 @@ function Task({
       alert("Не удалось добавить комментарий: " + err.message);
     }
   };
+    // Функция для изменения приоритета
+  const changePriority = async (newPriority) => {
+    if (!isMember()) return;
+    
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}tasks/${task.id}/priority/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            priority: newPriority,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Ошибка изменения приоритета");
+      }
+
+      const updatedTask = await response.json();
+      setPriority(newPriority);
+      if (updateTask) updateTask(columnId, updatedTask);
+      setShowPriority(false);
+    } catch (err) {
+      console.error("Ошибка изменения приоритета:", err);
+      alert("Не удалось изменить приоритет");
+    }
+  };
+
+  // Функция для получения цвета фона кнопки приоритета
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "low":
+        return "#4CAF50";
+      case "average":
+        return "#FFC107";
+      case "high":
+        return "#FF9800";
+      case "maximal":
+        return "#F44336";
+      default:
+        return "#6c757d";
+    }
+  };
+
+  // Функция для получения названия приоритета
+  const getPriorityName = (priority) => {
+    switch (priority) {
+      case "low":
+        return "Низкий";
+      case "average":
+        return "Средний";
+      case "high":
+        return "Высокий";
+      case "maximal":
+        return "Максимум";
+      default:
+        return "Не указан";
+    }
+  };
 
   return (
     <>
@@ -228,7 +296,7 @@ function Task({
           className="sortable-task task-header"
           style={{
             cursor: isDragging ? "grabbing" : "grab",
-            backgroundColor: "#4CAF50",
+            backgroundColor: getPriorityColor(priority), // Изменяем фон на цвет приоритета
           }}
         >
           <div {...attributes} {...listeners} className="drag-handle task-name">
@@ -285,12 +353,60 @@ function Task({
                   onClick={() => setShowComments(!showComments)}
                   title="Показать/скрыть комментарии"
                 >
-                  💬 {task.comments.length}
+                  Комментарии {task.comments.length}
                   <span className={`comments-arrow ${showComments ? "open" : ""}`}>
                     {showComments ? "▲" : "▼"}
                   </span>
                 </button>
               )}
+
+              {/* Кнопка приоритета */}
+              <div className="priority-container">
+                <button
+                  className="priority-btn"
+                  onClick={() => isMember() && setShowPriority(!showPriority)}
+                  title="Изменить приоритет"
+                  style={{
+                    backgroundColor: getPriorityColor(priority),
+                    color: priority === "average" ? "#212529" : "white",
+                    border: "none",
+                  }}
+                >
+                  {getPriorityName(priority)}
+                  <span className={`priority-arrow ${showPriority ? "open" : ""}`}>
+                    {showPriority ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {showPriority && isMember() && (
+                  <div className="priority-dropdown">
+                    <button
+                      className={`priority-item low ${priority === "low" ? "active" : ""}`}
+                      onClick={() => changePriority("low")}
+                    >
+                      Низкий
+                    </button>
+                    <button
+                      className={`priority-item average ${priority === "average" ? "active" : ""}`}
+                      onClick={() => changePriority("average")}
+                    >
+                      Средний
+                    </button>
+                    <button
+                      className={`priority-item high ${priority === "high" ? "active" : ""}`}
+                      onClick={() => changePriority("high")}
+                    >
+                      Высокий
+                    </button>
+                    <button
+                      className={`priority-item maximal ${priority === "maximal" ? "active" : ""}`}
+                      onClick={() => changePriority("maximal")}
+                    >
+                      Максимум
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Поле добавления комментария */}

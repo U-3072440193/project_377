@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'boards.apps.BoardsConfig',
-    'tasks.apps.TasksConfig',
     'users.apps.UsersConfig',
     'rest_framework',
     'captcha',

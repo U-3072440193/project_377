@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ColumnCreateAPIView, ColumnDeleteAPIView
+from .views import ColumnCreateAPIView, ColumnDeleteAPIView, TaskPriorityUpdateAPIView
 
 from django.urls import path
 from . import views
@@ -11,4 +11,5 @@ urlpatterns = [
     path('my-boards/', views.my_boards, name='my-boards'),
     path('search-users-for-board/', views.search_users_for_board, name='search-users-for-board'),
     path('boards/<int:board_id>/add-member/', views.add_board_member, name='add-board-member'),
+
 ]

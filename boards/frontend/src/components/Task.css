@@ -20,7 +20,7 @@
   align-items: center;
   color: white;
   min-height: 50px;
-  background-color: #4CAF50 !important;
+  background-color: #4CAF50;
   user-select: none;
   border-radius: 6px 6px 0 0;
 }
@@ -763,4 +763,171 @@
     margin-top: 16px;
     padding: 16px 0;
   }
+}
+
+/* Для приоритетов */
+/* task.css - добавление стилей для приоритетов */
+
+/* Контейнер для кнопки приоритета */
+.priority-container {
+  position: relative;
+}
+
+/* Кнопка приоритета */
+.priority-btn {
+  border-color: #6c757d !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  flex: 0 1 auto !important;
+  min-width: 100px;
+  position: relative;
+}
+
+.priority-btn:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6) !important;
+  border-color: #495057 !important;
+}
+
+.priority-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+  transition: transform 0.2s;
+}
+
+.priority-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Выпадающий список приоритетов */
+.priority-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: slideDown 0.2s ease-out;
+  min-width: 150px;
+}
+
+.priority-item {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.2s;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.priority-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  filter: brightness(110%);
+}
+
+/* Конкретные цвета для приоритетов */
+.priority-item.low {
+  background-color: #4CAF50 !important;
+}
+
+.priority-item.average {
+  background-color: #FFC107 !important;
+  color: #212529 !important;
+  text-shadow: none;
+}
+
+.priority-item.high {
+  background-color: #FF9800 !important;
+}
+
+.priority-item.maximal {
+  background-color: #F44336 !important;
+}
+
+/* Индикатор текущего приоритета в выпадающем списке */
+.priority-item::after {
+  content: "✓";
+  opacity: 0;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.priority-item.active::after {
+  opacity: 1;
+}
+
+/* Адаптивность для строки кнопок */
+@media (max-width: 768px) {
+  .task-buttons-row {
+    flex-direction: column;
+  }
+  
+  .priority-container {
+    width: 100%;
+  }
+  
+  .priority-btn {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .priority-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 300px;
+    z-index: 9999;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+  .priority-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  
+  .priority-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Анимация для выпадающего списка */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Закрытие выпадающего списка при клике вне его */
+.priority-dropdown::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
 }

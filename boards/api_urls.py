@@ -24,7 +24,8 @@ from .views import (
     AddCommentAPIView,
     debug_task_auth,
     test_auth,
-    debug_task_check
+    debug_task_check,
+    TaskPriorityUpdateAPIView
 )
 
 urlpatterns = [
@@ -50,10 +51,12 @@ urlpatterns = [
     path('tasks/<int:pk>/description/', TaskUpdateAPIView.as_view(), name='task-update-description'),
     path('tasks/<int:pk>/files/', TaskFilesListAPIView.as_view(), name='task-files-list'),  # GET список файлов
     path('tasks/<int:pk>/files/upload/', TaskFileUploadAPIView.as_view(), name='task-file-upload'),
-    path('files/<int:file_id>/', TaskFileDeleteAPIView.as_view(), name='task-file-delete'),  # DELETE удаление файла
+    path('files/<int:file_id>/', TaskFileDeleteAPIView.as_view(), name='task-file-delete'),
     path('tasks/<int:task_id>/comments/', AddCommentAPIView.as_view(), name='add-comment'),
+    path('tasks/<int:pk>/priority/', TaskPriorityUpdateAPIView.as_view(), name='task-priority-update'),
     # Отладочные пути
     path('debug-task-auth/<int:task_id>/', debug_task_auth, name='debug-task-auth'),
     path('test-auth/', test_auth, name='test-auth'),
     path('debug-task-check/<int:task_id>/', debug_task_check, name='debug-task-check'),
+
 ]

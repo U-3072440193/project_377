@@ -36,7 +36,8 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated', 'files', 'comments',]
+        fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated', 'files', 'comments',
+                  'priority', ]
 
 
 # Сериализатор подгрузки файлов к задаче

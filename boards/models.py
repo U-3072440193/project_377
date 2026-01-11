@@ -64,6 +64,12 @@ class Column(models.Model):
 
 
 class Task(models.Model):
+    PRIORITY = [
+        ('low', 'low'),
+        ('average', 'average'),
+        ('high', 'high'),
+        ('maximal', 'maximal'),
+    ]
     column = models.ForeignKey(Column, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -71,6 +77,7 @@ class Task(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     position = models.PositiveIntegerField(default=0)
+    priority = models.CharField(max_length=10, choices=PRIORITY, default='low')
 
     def __str__(self):
         return self.title
