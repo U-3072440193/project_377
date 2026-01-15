@@ -1,4 +1,3 @@
-// Task.js - полная версия с комментариями внизу
 import React, { useState, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
