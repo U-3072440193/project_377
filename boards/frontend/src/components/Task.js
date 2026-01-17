@@ -1,3 +1,4 @@
+// Task.js - полная версия с комментариями внизу
 import React, { useState, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -77,27 +78,30 @@ function Task({
 
   // Загрузка файла
   async function uploadFile(taskId, file) {
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}tasks/${taskId}/files/upload/`,
-      {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.error || `Ошибка ${response.status}: ${response.statusText}`
-      );
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}tasks/${taskId}/files/upload/`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "X-CSRFToken": csrfToken, 
+      },
+      body: formData,
     }
+  );
 
-    return response.json();
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.error || `Ошибка ${response.status}: ${response.statusText}`
+    );
   }
+
+  return response.json();
+}
 
   // Удаление файла
   const deleteFile = async (fileId) => {

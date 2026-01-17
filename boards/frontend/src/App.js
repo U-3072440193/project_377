@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Main from "./components/Main";
 
-// ИСПРАВЬТЕ ЭТУ СТРОКУ:
 const serverUrl = "http://127.0.0.1:8000/";
 
 const App = () => {
@@ -14,15 +13,43 @@ const App = () => {
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
+  const [boardId, setBoardId] = useState(null);
 
-  // Настройка axios для работы с CORS
+  // ОДИН useEffect для настройки axios
   useEffect(() => {
     axios.defaults.withCredentials = true;
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios.defaults.xsrfCookieName = "csrftoken";
+    
+    // Интерцептор для ВСЕХ запросов
+    axios.interceptors.request.use(config => {
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+        
+      if (csrfToken) {
+        config.headers['X-CSRFToken'] = csrfToken;
+        if (!csrf) setCsrf(csrfToken);
+      }
+      
+      return config;
+    });
+  }, [csrf]);
+
+  // Получаем board_id из URL
+  useEffect(() => {
+    const pathParts = window.location.pathname.split('/');
+    const id = pathParts[3];
+    console.log("Path parts:", pathParts, "Board ID from URL:", id);
+    
+    if (id && !isNaN(id)) {
+      setBoardId(parseInt(id, 10));
+    } else if (window.BOARD_ID) {
+      setBoardId(window.BOARD_ID);
+    }
   }, []);
 
-  // --- получаем CSRF токен и проверяем сессию ---
   useEffect(() => {
     getCSRF();
   }, []);
@@ -31,9 +58,6 @@ const App = () => {
     axios
       .get(serverUrl + "api/csrf/", { 
         withCredentials: true,
-        headers: {
-          'Accept': 'application/json',
-        }
       })
       .then((res) => {
         const token = res.headers["x-csrftoken"] || document.cookie
@@ -43,13 +67,10 @@ const App = () => {
         
         console.log("CSRF токен получен:", token ? "ДА" : "НЕТ");
         setCsrf(token || "");
-        
-        // После получения CSRF проверяем сессию
         getSession();
       })
       .catch((err) => {
         console.error("Ошибка получения CSRF:", err);
-        // Пробуем продолжить без CSRF
         getSession();
       });
   };
@@ -58,7 +79,6 @@ const App = () => {
     axios
       .get(serverUrl + "api/session/", { 
         withCredentials: true,
-        headers: csrf ? { "X-CSRFToken": csrf } : {}
       })
       .then((res) => {
         console.log("Данные сессии:", res.data);
@@ -66,9 +86,7 @@ const App = () => {
           setUsername(res.data.username);
           setUserId(res.data.user_id);
           setIsAuth(true);
-          fetchUserAndBoard(); // загружаем данные после подтвержденной сессии
         } else {
-          // Если не авторизован
           setIsAuth(false);
           setUsername("");
           setUserId(null);
@@ -87,7 +105,6 @@ const App = () => {
     axios
       .get(serverUrl + "api/logout/", { 
         withCredentials: true,
-        headers: csrf ? { "X-CSRFToken": csrf } : {}
       })
       .then(() => {
         setIsAuth(false);
@@ -96,7 +113,6 @@ const App = () => {
         setUser(null);
         setBoard(null);
         setMembers([]);
-        // Перезагружаем страницу для очистки состояния
         window.location.reload();
       })
       .catch((err) => {
@@ -106,17 +122,19 @@ const App = () => {
   };
 
   const fetchUserAndBoard = () => {
+    if (!boardId) {
+      console.error("Board ID не найден!");
+      return;
+    }
+    
     setLoading(true);
-    const headers = csrf ? { "X-CSRFToken": csrf } : {};
     
     const fetchUser = axios.get(serverUrl + "api/user/", {
       withCredentials: true,
-      headers
     });
     
-    const fetchBoard = axios.get(serverUrl + "api/boards/17/", {  // ИСПРАВЬТЕ ID ДОСКИ ЕСЛИ НУЖНО
+    const fetchBoard = axios.get(serverUrl + `api/boards/${boardId}/`, {
       withCredentials: true,
-      headers
     });
 
     Promise.all([fetchUser, fetchBoard])
@@ -127,11 +145,9 @@ const App = () => {
       })
       .catch((err) => {
         console.error("Ошибка загрузки данных:", err);
-        // Если ошибка 404 для доски, попробуем другую
         if (err.response?.status === 404) {
           axios.get(serverUrl + "api/boards/", {
             withCredentials: true,
-            headers
           })
           .then(res => {
             if (res.data.length > 0) {
@@ -144,18 +160,22 @@ const App = () => {
       .finally(() => setLoading(false));
   };
 
-  // --- загружаем участников после загрузки доски ---
+  useEffect(() => {
+    if (boardId && isAuth) {
+      fetchUserAndBoard();
+    }
+  }, [boardId, isAuth]);
+
   useEffect(() => {
     if (board?.id) {
       axios
         .get(`${serverUrl}api/boards/${board.id}/members/`, {
           withCredentials: true,
-          headers: csrf ? { "X-CSRFToken": csrf } : {}
         })
         .then((res) => setMembers(res.data))
         .catch((err) => console.error("Ошибка загрузки участников:", err));
     }
-  }, [board, csrf]);
+  }, [board]);
 
   const removeMember = (userId) => {
     if (!board) return;
@@ -165,20 +185,14 @@ const App = () => {
         { user_id: userId },
         {
           withCredentials: true,
-          headers: csrf ? { 
-            "X-CSRFToken": csrf,
-            'Content-Type': 'application/json'
-          } : {}
         }
       )
       .then((res) => {
-        // после успешного удаления обновляем список участников
         setMembers((prev) => prev.filter((m) => m.id !== userId));
       })
       .catch((err) => alert("Не удалось удалить участника"));
   };
 
-  // --- Рендеринг ---
   if (loading) {
     return (
       <div style={{ padding: 20 }}>

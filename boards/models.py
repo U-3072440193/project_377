@@ -8,6 +8,7 @@ class Board(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     hidden = models.BooleanField(default=True)
+    members = models.ManyToManyField(User, related_name='shared_boards', blank=True)
 
     def __str__(self):
         return self.title

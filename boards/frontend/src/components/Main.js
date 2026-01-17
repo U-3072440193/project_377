@@ -152,7 +152,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   };
   // Функция для обновления задачи на сервере
   const updateTaskOrder = (taskId, newIndex, columnId) => {
-    fetch(`${process.env.REACT_APP_API_URL}tasks/${taskId}/move/`, {
+    fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -164,7 +164,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   };
 
   const updateTaskColumn = (taskId, newColumnId) => {
-    fetch(`${process.env.REACT_APP_API_URL}tasks/${taskId}/move/`, {
+    fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -174,14 +174,23 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
       body: JSON.stringify({ column: newColumnId }),
     }).catch(console.error);
   };
+  // Убедитесь, что headers содержат CSRF токен
+const headers = {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': csrfToken
+};
+
+// И проверьте, что boardId правильный
+//console.log('Creating column for board:', boardId);
   // Функция для добавления колонки
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
 
-    fetch(`${process.env.REACT_APP_API_URL}boards/${board.id}/columns/`, {
+    fetch(`${serverUrl}api/boards/${board.id}/columns/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
       },
       credentials: "include",
       body: JSON.stringify({ title: newColumnTitle }),
@@ -196,7 +205,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
   };
 
   const removeColumn = (colId) => {
-    fetch(`${process.env.REACT_APP_API_URL}columns/${colId}/`, {
+    fetch(`${serverUrl}api/columns/${colId}/`, {
       method: "DELETE",
       headers: { "X-CSRFToken": csrfToken },
       credentials: "include",
@@ -284,12 +293,12 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
           </div>
           {user.id === board.owner.id && (
             <div className="actions">
-              <img
-                src={showInput ? "/icons/close.svg" : "/icons/add-column.svg"}
-                alt={showInput ? "Закрыть" : "Добавить колонку"}
+              <button
                 className="add-column-icon"
                 onClick={toggleInput}
-              />
+              >
+                {showInput ? "×" : "+"}
+              </button>
               {showInput && (
                 <div className="add-column-form">
                   <input
@@ -306,12 +315,12 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
           )}
         </div>
         <div className="member-container">
-          <img
-            src={showMember ? "/icons/close.svg" : "/icons/add-column.svg"}
-            alt={showMember ? "Закрыть" : "Показать участников"}
+          <button
             className="add-column-icon"
             onClick={viewMember}
-          />
+          >
+            {showMember ? "×" : "👥"}
+          </button>
           {showMember && board && members.length > 0 && (
             <div className="members">
               <h3>Участники доски:</h3>
@@ -331,7 +340,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                         className="remove-member-btn"
                         onClick={() => removeMember(member.id)}
                       >
-                        х
+                        ×
                       </button>
                     )}
                   </li>
@@ -343,7 +352,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
         <div className="user">
           <p>Создатель: {board.owner.username}</p>
           <img
-            src={`http://127.0.0.1:8000${board.owner.avatar}`}
+            src={`${serverUrl}${board.owner.avatar}`}
             alt="avatar"
             width="100"
           />
@@ -376,6 +385,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
                 forPermit={isOwner}
                 isMember={isMember}
                 addCommentToTask={addCommentToTask}
+                serverUrl={serverUrl}
               />
             ))}
           </SortableContext>
