@@ -28,3 +28,15 @@ class AddCommentAPIView(APIView):
 
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class DeleteCommentAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+
+    def delete(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if comment.user != request.user:
+            return Response(status=403)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

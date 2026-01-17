@@ -231,6 +231,7 @@ const App = () => {
           members={members}
           removeMember={removeMember}
           serverUrl={serverUrl}
+          username={username}
         />
       )}
     </div>

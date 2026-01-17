@@ -16,7 +16,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-function Main({ user, board, csrfToken, members, removeMember, serverUrl }) {
+function Main({ user, board, csrfToken, members, removeMember, serverUrl,username }) {
   const [columns, setColumns] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [newColumnTitle, setNewColumnTitle] = useState("");
@@ -386,6 +386,8 @@ const headers = {
                 isMember={isMember}
                 addCommentToTask={addCommentToTask}
                 serverUrl={serverUrl}
+                user={user}
+                username={username}
               />
             ))}
           </SortableContext>

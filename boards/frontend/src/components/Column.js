@@ -18,7 +18,9 @@ function Column({
   updateTask,
   forPermit,
   isMember,
-  addCommentToTask
+  addCommentToTask,
+  user,
+  username
 }) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -107,6 +109,8 @@ function Column({
               updateTask={updateTask}
               csrfToken={csrfToken}
               addCommentToTask={addCommentToTask}
+              user={user}
+              username={username}
             />
           ))}
         </SortableContext>
