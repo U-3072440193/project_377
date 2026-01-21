@@ -16,6 +16,7 @@ from .views import (
     kill_all_sessions,
     board_members_api,
     remove_board_member,
+    TaskRenameAPIView,
     TaskMoveView,
     TaskUpdateAPIView,
     TaskFileUploadAPIView,
@@ -26,7 +27,8 @@ from .views import (
     test_auth,
     debug_task_check,
     TaskPriorityUpdateAPIView,
-    DeleteCommentAPIView
+    DeleteCommentAPIView,
+    ColumnRenameAPIView
 )
 
 urlpatterns = [
@@ -47,6 +49,8 @@ urlpatterns = [
     path('boards/<int:board_id>/members/', board_members_api, name='board_members_api'),
     path('boards/<int:board_id>/remove-member/', remove_board_member, name='remove-board-member'),
 
+    path('columns/<int:pk>/rename/', ColumnRenameAPIView.as_view(), name='column-rename'),
+    path('tasks/<int:pk>/rename/', TaskRenameAPIView.as_view(), name='task-rename'),
     path('tasks/<int:pk>/', TaskDeleteAPIView.as_view()),
     path('tasks/<int:pk>/move/', TaskMoveView.as_view(), name='task-move'),
     path('tasks/<int:pk>/description/', TaskUpdateAPIView.as_view(), name='task-update-description'),

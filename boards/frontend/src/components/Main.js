@@ -15,9 +15,11 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import userIcon from "../assets/images/user.svg";
 
-function Main({ user, board, csrfToken, members, removeMember, serverUrl,username }) {
+function Main({ user, board, csrfToken, members, removeMember, serverUrl, username }) {
   const [columns, setColumns] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -28,17 +30,17 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
       (member) => member.id === user.id || board.owner.id === user.id
     );
   };
-  //const isMemberBool = isMember(); дописать  - для запрета перетаскивания не мемберами
 
   console.log("user:", user);
   console.log("csrfToken:", csrfToken);
-  // При добавлении колонки
+
   const toggleInput = () => {
     setShowInput(!showInput);
     if (showInput) {
-      setNewColumnTitle(""); // Очищаем поле при закрытии
+      setNewColumnTitle("");
     }
   };
+
   const viewMember = () => {
     setShowMember(!showMember);
   };
@@ -55,13 +57,11 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
     })
   );
 
-  // Обработчик начала перетаскивания
   const handleDragStart = (event) => {
     const { active } = event;
     setActiveTask(active.data.current?.task);
   };
 
-  // Обработчик завершения перетаскивания
   const handleDragEnd = (event) => {
     const { active, over } = event;
     setActiveTask(null);
@@ -71,7 +71,6 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
     const activeId = active.id;
     const overId = over.id;
 
-    // Находим исходную и целевую колонки
     const activeColumn = columns.find((col) =>
       col.tasks?.some((task) => task.id === activeId)
     );
@@ -82,7 +81,6 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
 
     if (!activeColumn || !overColumn) return;
 
-    // Если перетаскивание внутри одной колонки
     if (activeColumn.id === overColumn.id) {
       const oldIndex = activeColumn.tasks.findIndex(
         (task) => task.id === activeId
@@ -100,25 +98,19 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
           return col;
         });
         setColumns(newColumns);
-        // Здесь можно отправить обновление на сервер
         updateTaskOrder(activeId, newIndex, activeColumn.id);
       }
     }
-    // Если перетаскивание между колонками
     else {
-      // Находим задачу
       const task = activeColumn.tasks.find((task) => task.id === activeId);
 
-      // Удаляем задачу из исходной колонки
       const newActiveColumn = {
         ...activeColumn,
         tasks: activeColumn.tasks.filter((task) => task.id !== activeId),
       };
 
-      // Добавляем задачу в целевую колонку
       let newOverColumn;
 
-      // Если перетащили на другую задачу
       if (overId !== overColumn.id) {
         const overIndex = overColumn.tasks.findIndex(
           (task) => task.id === overId
@@ -130,7 +122,6 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
           tasks: newTasks,
         };
       }
-      // Если перетащили на саму колонку
       else {
         newOverColumn = {
           ...overColumn,
@@ -138,7 +129,6 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
         };
       }
 
-      // Обновляем состояние
       const newColumns = columns.map((col) => {
         if (col.id === activeColumn.id) return newActiveColumn;
         if (col.id === overColumn.id) return newOverColumn;
@@ -146,11 +136,10 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
       });
 
       setColumns(newColumns);
-      // Обновляем задачу на сервере
       updateTaskColumn(activeId, overColumn.id);
     }
   };
-  // Функция для обновления задачи на сервере
+
   const updateTaskOrder = (taskId, newIndex, columnId) => {
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
@@ -174,15 +163,48 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl,usernam
       body: JSON.stringify({ column: newColumnId }),
     }).catch(console.error);
   };
-  // Убедитесь, что headers содержат CSRF токен
-const headers = {
+
+  const headers = {
     'Content-Type': 'application/json',
     'X-CSRFToken': csrfToken
-};
+  };
 
-// И проверьте, что boardId правильный
-//console.log('Creating column for board:', boardId);
-  // Функция для добавления колонки
+  const updateTaskTitle = (taskId, newTitle) => {
+    console.log("Переименование задачи:", taskId, "->", newTitle);
+
+    fetch(`${serverUrl}api/tasks/${taskId}/rename/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      credentials: "include",
+      body: JSON.stringify({ title: newTitle }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Задача успешно переименована:", data);
+
+        setColumns((prev) =>
+          prev.map((col) => ({
+            ...col,
+            tasks: col.tasks.map((task) =>
+              task.id === taskId ? { ...task, title: newTitle } : task
+            ),
+          }))
+        );
+      })
+      .catch((error) => {
+        console.error("Error renaming task:", error);
+        alert("Ошибка при переименовании задачи: " + error.message);
+      });
+  };
+
   const addColumn = () => {
     if (!newColumnTitle.trim()) return;
 
@@ -214,7 +236,27 @@ const headers = {
       .catch(console.error);
   };
 
-  // Функция для обновления задач в колонке
+  const updateColumnTitle = (columnId, newTitle) => {
+    fetch(`${serverUrl}api/columns/${columnId}/rename/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      credentials: "include",
+      body: JSON.stringify({ title: newTitle }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setColumns((prev) =>
+          prev.map((col) =>
+            col.id === columnId ? { ...col, title: newTitle } : col
+          )
+        );
+      })
+      .catch(console.error);
+  };
+
   const updateTasksInColumn = (columnId, newTasks) => {
     setColumns((prev) =>
       prev.map((col) =>
@@ -223,7 +265,6 @@ const headers = {
     );
   };
 
-  // Функция для добавления задачи
   const addTaskToColumn = (columnId, newTask) => {
     setColumns((prev) =>
       prev.map((col) =>
@@ -232,7 +273,6 @@ const headers = {
     );
   };
 
-  // Функция для удаления задачи
   const removeTaskFromColumn = (columnId, taskId) => {
     setColumns((prev) =>
       prev.map((col) =>
@@ -243,22 +283,21 @@ const headers = {
     );
   };
 
-  // Функция для обновления задачи
   const updateTaskInColumn = (columnId, updatedTask) => {
     setColumns((prev) =>
       prev.map((col) =>
         col.id === columnId
           ? {
-              ...col,
-              tasks: col.tasks.map((task) =>
-                task.id === updatedTask.id ? updatedTask : task
-              ),
-            }
+            ...col,
+            tasks: col.tasks.map((task) =>
+              task.id === updatedTask.id ? updatedTask : task
+            ),
+          }
           : col
       )
     );
   };
-  // Функция для добавления комментария к задаче
+
   const addCommentToTask = (taskId, newComment) => {
     setColumns((prevColumns) =>
       prevColumns.map((col) => ({
@@ -284,17 +323,22 @@ const headers = {
 
   return (
     <div className="main">
-      <div>{user.username}</div>
       <div className="tool-bar">
         <div className="board-actions">
           <div className="inn-board">
             <h1>{board.title}</h1>
-            <p>Дата создания: {board.created}</p>
+            <p>Дата создания: {new Date(board.created).toLocaleString('ru-RU', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</p>
           </div>
           {user.id === board.owner.id && (
             <div className="actions">
               <button
-                className="add-column-icon"
+                className="add-column-btn"
                 onClick={toggleInput}
               >
                 {showInput ? "×" : "+"}
@@ -316,10 +360,10 @@ const headers = {
         </div>
         <div className="member-container">
           <button
-            className="add-column-icon"
+            className="member-btn"
             onClick={viewMember}
           >
-            {showMember ? "×" : "👥"}
+            {showMember ? "×" : <img className='userIcon' src={userIcon} alt="Пользователи" />}
           </button>
           {showMember && board && members.length > 0 && (
             <div className="members">
@@ -354,12 +398,11 @@ const headers = {
           <img
             src={`${serverUrl}${board.owner.avatar}`}
             alt="avatar"
-            width="100"
+            width="50"
+            height="50"
           />
         </div>
       </div>
-
-      <h3>Колонки:</h3>
 
       <DndContext
         sensors={sensors}
@@ -388,6 +431,8 @@ const headers = {
                 serverUrl={serverUrl}
                 user={user}
                 username={username}
+                updateColumn={updateColumnTitle}
+                updateTaskTitle={updateTaskTitle}
               />
             ))}
           </SortableContext>

@@ -7,6 +7,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import renameIcon from "../assets/images/rename_w.svg";
 
 function Column({
   column,
@@ -20,11 +21,17 @@ function Column({
   isMember,
   addCommentToTask,
   user,
-  username
+  username,
+  updateColumn,
+  updateTaskTitle
 }) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
+
+  // Состояние для переименования колонки
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState(column.title);
 
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -72,6 +79,19 @@ function Column({
       })
       .catch(console.error);
   };
+  
+  // Для переименовывания колонки
+  const handleRename = () => {
+    if (newColumnTitle.trim() && newColumnTitle !== column.title) {
+      updateColumn(column.id, newColumnTitle);
+    }
+    setIsRenaming(false);
+  };
+
+  const cancelRename = () => {
+    setNewColumnTitle(column.title);
+    setIsRenaming(false);
+  };
 
   return (
     <div
@@ -81,15 +101,52 @@ function Column({
     >
       <div className="column-header">
         <div className="column-inner">
-          <div className="col-name">{column.title}</div>
-
-          {forPermit && removeColumn && (
-            <button
-              className="remove-column-btn"
-              onClick={() => removeColumn(column.id)}
-            >
-              ×
-            </button>
+          {isRenaming ? (
+            // Поле ввода для переименования
+            <div className="rename-input-container">
+              <input
+                type="text"
+                value={newColumnTitle}
+                onChange={(e) => setNewColumnTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleRename();
+                  if (e.key === 'Escape') cancelRename();
+                }}
+                autoFocus
+                className="rename-input"
+              />
+              <button onClick={handleRename} className="rename-confirm-btn">
+                ✓
+              </button>
+              <button onClick={cancelRename} className="rename-cancel-btn">
+                ✕
+              </button>
+            </div>
+          ) : (
+            // Отображение названия колонки
+            <>
+              <div className="col-name">{column.title}</div>
+              {forPermit && updateColumn && (
+                <div className="column-header-buttons">
+                  <button
+                    className="rename-column-btn"
+                    onClick={() => setIsRenaming(true)}
+                    title="Переименовать"
+                  >
+                    <img className='renameIcon' src={renameIcon} alt="Переименовать"/>
+                  </button>
+                  {forPermit && removeColumn && (
+                    <button
+                      className="remove-column-btn"
+                      onClick={() => removeColumn(column.id)}
+                      title="Удалить колонку"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -111,6 +168,7 @@ function Column({
               addCommentToTask={addCommentToTask}
               user={user}
               username={username}
+              updateTaskTitle={updateTaskTitle}
             />
           ))}
         </SortableContext>

@@ -31,6 +31,35 @@ class TaskCreateAPIView(APIView):
         )
         serializer = TaskSerializer(task)
         return Response(serializer.data, status=201)
+    
+
+class TaskRenameAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+
+    def patch(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        board = task.column.board
+
+        # Проверка прав: либо владелец, либо участник
+        if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
+                return Response(
+                    {"error": "У вас нет прав для перемещения этой задачи"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        title = request.data.get("title")
+        if not title:
+            return Response(
+                {"error": "Title is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        task.title = title
+        task.save()
+
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=200)
 
 
 class TaskDeleteAPIView(APIView):

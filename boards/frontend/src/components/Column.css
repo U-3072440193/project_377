@@ -35,6 +35,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 32px;
 }
 
 .col-name {
@@ -44,25 +45,55 @@
   padding: 4px 8px;
   border-radius: 4px;
   flex-grow: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: calc(100% - 72px);
 }
 
-.remove-column-btn {
+/* ОБЩИЙ КОНТЕЙНЕР ДЛЯ КНОПОК КОЛОНКИ */
+.column-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.remove-column-btn,
+.rename-column-btn {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: white;
   width: 28px;
   height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  padding: 0;
+  flex-shrink: 0;
 }
 
-.remove-column-btn:hover {
+.remove-column-btn:hover,
+.rename-column-btn:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+.remove-column-btn {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.renameIcon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.renameIcon path {
+  fill: white;
 }
 
 .tasks {
@@ -119,4 +150,59 @@
 
 .task-ghost {
   opacity: 0.4;
+}
+
+/* Стили для переименования колонки */
+.rename-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.rename-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  color: #333;
+}
+
+.rename-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.rename-confirm-btn,
+.rename-cancel-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.rename-confirm-btn {
+  background: #28a745;
+  color: white;
+}
+
+.rename-confirm-btn:hover {
+  background: #218838;
+}
+
+.rename-cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.rename-cancel-btn:hover {
+  background: #c82333;
 }

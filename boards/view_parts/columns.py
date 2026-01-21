@@ -44,3 +44,31 @@ class ColumnDeleteAPIView(APIView):
         column = get_object_or_404(Column, id=pk)
         column.delete()
         return Response(status=204)
+    
+class ColumnRenameAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+
+    def patch(self, request, pk):
+        column = get_object_or_404(Column, pk=pk)
+        board = column.board
+
+        # Проверка прав: либо владелец, либо участник
+        if board.owner != request.user:
+            return Response(
+                {"error": "Нет прав на редактирование колонки"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        title = request.data.get("title")
+        if not title:
+            return Response(
+                {"error": "Title is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        column.title = title
+        column.save()
+
+        serializer = ColumnSerializer(column)
+        return Response(serializer.data, status=200)
