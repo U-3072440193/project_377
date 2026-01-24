@@ -43,75 +43,74 @@ class ChatFileSerializer(serializers.ModelSerializer):
 
 # Основной сериализатор сообщений
 class ChatMessageSerializer(serializers.ModelSerializer):
-    author = ChatUserSerializer(read_only=True)  # Полная информация об авторе
-    author_id = serializers.PrimaryKeyRelatedField(
-        source='author',
-        queryset=User.objects.all(),
-        write_only=True  # Только для создания, не отображается в ответе
-    )
-    attachment = ChatFileSerializer(read_only=True)  # Вложение если есть
-    
-    # Для отображения в чате
+    author = ChatUserSerializer(read_only=True)
+    attachment = ChatFileSerializer(read_only=True)
+
     created_display = serializers.SerializerMethodField()
     is_own = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = ChatMessage
         fields = [
-            'id', 'room', 'author', 'author_id', 'text',
-            'attachment', 'created', 'created_display',
-            'updated', 'is_edited', 'is_own'
+            'id',
+            'author',
+            'text',
+            'attachment',
+            'created',
+            'created_display',
+            'updated',
+            'is_edited',
+            'is_own',
         ]
-        read_only_fields = ['id', 'created', 'updated', 'is_edited']
-    
+        read_only_fields = [
+            'id',
+            'author',
+            'created',
+            'updated',
+            'is_edited',
+            'attachment',
+        ]
+
     def get_created_display(self, obj):
-        """Форматированное время для отображения в UI"""
         from django.utils.timesince import timesince
         import datetime
-        
+
         now = datetime.datetime.now(datetime.timezone.utc)
-        
+
         if (now - obj.created).days == 0:
-            # Сегодня: показываем время
             return obj.created.strftime('%H:%M')
         elif (now - obj.created).days == 1:
-            # Вчера
             return f"Вчера {obj.created.strftime('%H:%M')}"
         elif (now - obj.created).days < 7:
-            # За последнюю неделю
             return f"{obj.created.strftime('%A')} {obj.created.strftime('%H:%M')}"
         else:
-            # Ранее
             return obj.created.strftime('%d.%m.%Y %H:%M')
-    
+
     def get_is_own(self, obj):
-        """Определяет, принадлежит ли сообщение текущему пользователю"""
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.author_id == request.user.id
         return False
-    
+
     def validate_text(self, value):
-        """Валидация текста сообщения"""
-        if not value.strip() and not self.initial_data.get('attachment'):
+        if not value.strip():
             raise serializers.ValidationError(
-                "Сообщение не может быть пустым без вложения"
+                "Сообщение не может быть пустым"
             )
         if len(value) > 2000:
             raise serializers.ValidationError(
                 "Сообщение слишком длинное (максимум 2000 символов)"
             )
         return value
-    
+
     def create(self, validated_data):
-        """Создание сообщения с автозаполнением автора"""
-        # Автор берется из контекста запроса, если не указан явно
-        if 'author' not in validated_data:
-            request = self.context.get('request')
-            if request and request.user.is_authenticated:
-                validated_data['author'] = request.user
-        
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("Пользователь не авторизован")
+
+        validated_data['author'] = request.user
         return super().create(validated_data)
+
 
 
 # Сериализатор комнаты (для списка комнат)
