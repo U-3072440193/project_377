@@ -5,6 +5,7 @@
   min-height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
 }
 
 .tool-bar {
@@ -68,9 +69,27 @@
   background: rgba(76, 175, 80, 0.3);
 }
 
+/* Кнопка чата */
+.chat-toggle-button {
+  padding: 8px 15px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.chat-toggle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 /* Кнопка участников - унифицированная */
 .member-btn {
-  background: rgba(33, 150, 243, 0.2);
+  background: rgba(33, 243, 79, 0.2);
   border: none;
   width: 28px;
   height: 28px;
@@ -95,7 +114,7 @@
 }
 
 .userIcon path {
-  fill: #2196F3;
+  fill: #4caf50;
 }
 
 .add-column-form {
@@ -134,49 +153,11 @@
   background: #4CAF50;
 }
 
-/* Контейнер участников */
-.member-container {
-  position: relative;
+/* Контейнер для кнопок управления */
+.toolbar-controls {
   display: flex;
+  gap: 10px;
   align-items: center;
-}
-
-.members {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 10000;
-  min-width: 250px;
-}
-
-.members h3 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.members ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.members li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  margin: 4px 0;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.members li:hover {
-  background: #f5f5f5;
 }
 
 /* Правая часть - блок пользователя */
@@ -212,7 +193,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #dc3545;
+  color: #333;
   font-size: 16px;
   font-weight: bold;
   margin-left: auto;
@@ -222,7 +203,7 @@
 }
 
 .remove-member-btn:hover {
-  background: rgba(220, 53, 69, 0.3);
+  background: rgba(130, 130, 130, 0.3);
 }
 
 /* Контейнер для колонок */
@@ -256,7 +237,6 @@
 
 /* Оверлей для перетаскивания */
 .task-overlay {
-  
   color: white;
   padding: 12px;
   border-radius: 6px;
@@ -267,11 +247,145 @@
   transition: transform 0.1s ease;
 }
 
-/* Адаптивность для мобильных устройств */
+/* ==================== СТИЛИ ЧАТА ==================== */
+
+/* Оверлей для чата (фон) */
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Окно чата */
+.chat-window {
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Заголовок чата */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #333 0%, #4d4d4d 100%);
+  color: white;
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-chat-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.close-chat-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==================== СТИЛИ ПОПАПА УЧАСТНИКОВ ==================== */
+
+/* Попап участников */
+.members-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  padding: 20px;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.members-content {
+  position: relative;
+}
+
+.close-members-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
+}
+
+.members-content h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+  font-size: 18px;
+}
+
+.members-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.members-content li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.members-content li:last-child {
+  border-bottom: none;
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+
 @media (max-width: 768px) {
   .tool-bar {
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     align-items: flex-start;
   }
   
@@ -290,8 +404,30 @@
     padding: 5px 0 15px 0;
   }
   
-  .members {
-    right: auto;
-    left: 0;
+  .chat-window {
+    width: 95%;
+    height: 90vh;
+    max-height: 90vh;
   }
+  
+  .toolbar-controls {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .members-popup {
+    width: 90%;
+    max-width: 90%;
+  }
+}
+
+/* Удалите старые стили которые больше не нужны */
+.chat-fullview,
+.back-to-board-btn,
+.control-buttons,
+.member-container,
+.members {
+  display: none;
 }

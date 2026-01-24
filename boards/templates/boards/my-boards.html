@@ -1,80 +1,78 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block profile %}
-<link rel="stylesheet" href="{% static 'styles/my-boards.css' %}"/>
+<link rel="stylesheet" href="{% static 'styles/my-boards.css' %}" />
 {% endblock %}
 
 {% block content %}
 <main>
-    <div class="board-container" data-board-id="{{ board.id }}">
-        <div class="boards">
-            <h2>Мои доски</h2>
-            {% for board in boards %}
-            <div class="board-container"
-                 data-board-id="{{ board.id }}"
-                 data-board-owner-id="{{ board.owner.id }}">
-                <a href="{% url 'boards-page' board.id %}"
-                   class="board-title"
-                   style="{% if request.user != board.owner %}background-color: #8d8d8d{% endif %}"
-                >{{board.title}}</a>
-                <div class="{% if request.user != board.owner %}hidden{% endif %}">
-                    <form
-                        method="post"
-                        class="email-compose"
-                        data-board-id="{{ board.id }}"
-                        data-search-url="{% url 'search-users-for-board' %}"
-                        action="{% url 'add-board-member' board.id %}"
-                    >
-                    {% csrf_token %}
-                    <label for="recipient-{{ board.id }}">Поиск:</label>
-                    <input
-                            type="text"
-                            id="recipient-{{ board.id }}"
-                            autocomplete="off"
-                            placeholder="Начните вводить имя..."
-                            required
-                    />
-                    <input
-                            type="hidden"
-                            name="recipient_id"
-                            id="recipient_id-{{ board.id }}"
-                    />
-                    <div id="suggestions-{{ board.id }}" class="suggestions"></div>
-                    <label for="role-{{ board.id }}">Роль:</label>
-                    <select name="role" id="role-{{ board.id }}" required>
-                        <option value="member">Участник</option>
-                        <option value="viewer">Только просмотр</option>
-                        <option value="owner">Администратор</option>
-                    </select>
-                    <button type="submit" class="btn compose">Отправить</button>
-                </form>
-                </div>
+    <div class="boards">
+        <h2>Мои доски</h2>
+        {% for board in boards %}
+        <div class="board-container" data-board-id="{{ board.id }}" data-board-owner-id="{{ board.owner.id }}">
 
-                <button type="button"
-                        class="toggle-users"
-                        data-board-id="{{ board.id }}"
-                        data-current-user-id="{{ request.user.id }}">
-                    Участники <span class="arrow">▼</span>
-                </button>
+            <!-- Заголовок доски - теперь отдельный блок -->
+            <a href="{% url 'boards-page' board.id %}" class="board-title"
+                style="{% if request.user != board.owner %}background-color: #8d8d8d{% endif %}">
+                {{board.title}}
+            </a>
 
-                <div class="list-of-board-users" id="users-{{ board.id }}" hidden></div>
+            <!-- Основное содержимое -->
+            <div class="super-ultra-content">
+                <div class="board-supercontent">
+                    <div class="board-content">
+                        <div class="{% if request.user != board.owner %}hidden{% endif %} member-add">
+                            <form method="post" class="email-compose" data-board-id="{{ board.id }}"
+                                data-search-url="{% url 'search-users-for-board' %}"
+                                action="{% url 'add-board-member' board.id %}">
+                                {% csrf_token %}
+                                <label for="recipient-{{ board.id }}">Поиск:</label>
+                                <input type="text" id="recipient-{{ board.id }}" autocomplete="off"
+                                    placeholder="Начните вводить имя..." required />
+                                <input type="hidden" name="recipient_id" id="recipient_id-{{ board.id }}" />
+                                <div id="suggestions-{{ board.id }}" class="suggestions"></div>
+                                <label for="role-{{ board.id }}">Роль:</label>
+                                <select name="role" id="role-{{ board.id }}" required>
+                                    <option value="member">Участник</option>
+                                    <option value="viewer">Только просмотр</option>
+                                    <option value="owner">Администратор</option>
+                                </select>
+                                <button type="submit" class="btn compose">Отправить</button>
+                            </form>
+                        </div>
 
-                <div class="board-created">{{ board.created }}</div>
-                <div class="permit {% if request.user != board.owner %}hidden{% endif %}">
-                    <form
-                            method="post"
-                            action="{% url 'delete_board' board.id %}"
-                            style="display: inline"
-                            class="delete-board"
-                    >
-                        {% csrf_token %}
-                        <button type="submit" class="delete-board">x</button>
-                    </form>
+                        <button type="button" class="toggle-users" data-board-id="{{ board.id }}"
+                            data-current-user-id="{{ request.user.id }}">
+                            Участники <span class="arrow">▼</span>
+                        </button>
+
+                        <div class="list-of-board-users" id="users-{{ board.id }}" hidden></div>
+
+                    </div>
+                    <div class="board-created">{{ board.created }}</div>
                 </div>
 
             </div>
-            {% endfor %}
+            <!-- Кнопка выхода (для участников и зрителей, но не для владельца) -->
+            {% if request.user != board.owner %}
+            <div class="permit">
+                <form method="post" action="{% url 'exit_board' board.id %}" style="display: inline"
+                    class="exit-board-form">
+                    {% csrf_token %}
+                    <button type="submit" class="exit-board">Выйти</button>
+                </form>
+            </div>
+            {% endif %}
+            <!-- Кнопка удаления (только для владельца) -->
+            <div class="permit {% if request.user != board.owner %}hidden{% endif %}">
+                <form method="post" action="{% url 'delete_board' board.id %}" style="display: inline"
+                    class="delete-board-form">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-board">x</button>
+                </form>
+            </div>
         </div>
+        {% endfor %}
     </div>
 </main>
 

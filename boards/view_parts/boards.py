@@ -5,7 +5,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import os
 import json
-
+from django.contrib import messages
 from ..forms import BoardForm
 from ..models import Board, BoardPermit, User
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
@@ -191,6 +191,25 @@ def remove_board_member(request, board_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@login_required
+def exit_board(request, board_id):
+    board = get_object_or_404(Board, id=board_id)
+    
+    # Проверяем, что пользователь не владелец
+    if request.user == board.owner:
+        messages.error(request, "Владелец доски не может выйти из нее. Удалите доску или передайте права владения.")
+        return redirect('my-boards')
+    
+    # Проверяем, есть ли у пользователя разрешение на эту доску
+    try:
+        user_permit = BoardPermit.objects.get(board=board, user=request.user)
+        user_permit.delete()
+        messages.success(request, f"Вы вышли из доски '{board.title}'")
+    except BoardPermit.DoesNotExist:
+        messages.error(request, "Вы не являетесь участником этой доски")
+    
+    return redirect('my-boards')
 
 
 # Передача доски в реакт

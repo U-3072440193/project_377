@@ -11,5 +11,6 @@ urlpatterns = [
     path('my-boards/', views.my_boards, name='my-boards'),
     path('search-users-for-board/', views.search_users_for_board, name='search-users-for-board'),
     path('boards/<int:board_id>/add-member/', views.add_board_member, name='add-board-member'),
+    path('board/<int:board_id>/exit/', views.exit_board, name='exit_board'),
 
 ]

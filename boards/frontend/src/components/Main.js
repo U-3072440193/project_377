@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Column from "./Column";
+import Chat from "./Chat";
 import "./main.css";
 import {
   DndContext,
@@ -24,6 +25,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showMember, setShowMember] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const isOwner = user.id === board.owner.id;
   const isMember = () => {
     return members.some(
@@ -323,131 +325,165 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
 
   return (
     <div className="main">
-      <div className="tool-bar">
-        <div className="board-actions">
-          <div className="inn-board">
-            <h1>{board.title}</h1>
-            <p>Дата создания: {new Date(board.created).toLocaleString('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</p>
-          </div>
-          {user.id === board.owner.id && (
-            <div className="actions">
-              <button
-                className="add-column-btn"
-                onClick={toggleInput}
-              >
-                {showInput ? "×" : "+"}
-              </button>
-              {showInput && (
-                <div className="add-column-form">
-                  <input
-                    type="text"
-                    placeholder="Название колонки"
-                    value={newColumnTitle}
-                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                    autoFocus
-                  />
-                  <button onClick={addColumn}>Добавить</button>
+        {/* Тулбар - фиксированной высоты */}
+        <div className="tool-bar">
+            <div className="board-actions">
+                <div className="inn-board">
+                    <h1>{board.title}</h1>
+                    <p>Дата создания: {new Date(board.created).toLocaleString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</p>
                 </div>
-              )}
+                {user.id === board.owner.id && (
+                    <div className="actions">
+                        <button className="add-column-btn" onClick={toggleInput}>
+                            {showInput ? "×" : "+"}
+                        </button>
+                        {showInput && (
+                            <div className="add-column-form">
+                                <input
+                                    type="text"
+                                    placeholder="Название колонки"
+                                    value={newColumnTitle}
+                                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                                    autoFocus
+                                />
+                                <button onClick={addColumn}>Добавить</button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
-          )}
+            
+            {/* Кнопки управления - внутри тулбара */}
+            <div className="toolbar-controls">
+                {/* Кнопка чата */}
+                <button 
+                    className="chat-toggle-button"
+                    onClick={() => setShowChat(!showChat)}
+                >
+                    💬 Чат ({showChat ? 'скрыть' : 'показать'})
+                </button>
+                
+                {/* Кнопка участников */}
+                <button className="member-btn" onClick={viewMember}>
+                    {showMember ? "×" : <img className='userIcon' src={userIcon} alt="Пользователи" />}
+                </button>
+            </div>
+            
+            {/* Блок пользователя */}
+            <div className="user">
+                <p>Создатель: {board.owner.username}</p>
+                <img
+                    src={`${serverUrl}${board.owner.avatar}`}
+                    alt="avatar"
+                    width="50"
+                    height="50"
+                />
+            </div>
         </div>
-        <div className="member-container">
-          <button
-            className="member-btn"
-            onClick={viewMember}
-          >
-            {showMember ? "×" : <img className='userIcon' src={userIcon} alt="Пользователи" />}
-          </button>
-          {showMember && board && members.length > 0 && (
-            <div className="members">
-              <h3>Участники доски:</h3>
-              <ul>
-                {members.map((member) => (
-                  <li key={member.id}>
-                    <img
-                      src={`${serverUrl}${member.avatar}`}
-                      alt={member.username}
-                      width={32}
-                      height={32}
-                      style={{ borderRadius: "50%" }}
+
+        {/* Попап участников (абсолютный) */}
+        {showMember && board && members.length > 0 && (
+            <div className="members-popup">
+                <div className="members-content">
+                    <h3>Участники доски:</h3>
+                    <button className="close-members-btn" onClick={() => setShowMember(false)}>×</button>
+                    <ul>
+                        {members.map((member) => (
+                            <li key={member.id}>
+                                <img
+                                    src={`${serverUrl}${member.avatar}`}
+                                    alt={member.username}
+                                    width={32}
+                                    height={32}
+                                    style={{ borderRadius: "50%" }}
+                                />
+                                {member.username} ({member.role})
+                                {user.id === board.owner.id && (
+                                    <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
+                                        ×
+                                    </button>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        )}
+
+        {/* Чат - АБСОЛЮТНО позиционированный, поверх всего */}
+        {showChat && (
+            <div className="chat-overlay">
+                <div className="chat-window">
+                    <div className="chat-header">
+                        <h3>💬 Чат доски #{board.id}</h3>
+                        <button className="close-chat-btn" onClick={() => setShowChat(false)}>×</button>
+                    </div>
+                    <Chat
+                        boardId={board?.id}
+                        currentUser={{
+                            id: user?.id || 0,
+                            username: user?.username || 'Гость',
+                            avatar: user?.avatar || '/default-avatar.png'
+                        }}
+                        serverUrl={serverUrl}
+                        csrfToken={csrfToken}
+                        key={`chat-${board?.id}-${user?.id}`}
                     />
-                    {member.username} ({member.role})
-                    {user.id === board.owner.id && (
-                      <button
-                        className="remove-member-btn"
-                        onClick={() => removeMember(member.id)}
-                      >
-                        ×
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                </div>
             </div>
-          )}
-        </div>
-        <div className="user">
-          <p>Создатель: {board.owner.username}</p>
-          <img
-            src={`${serverUrl}${board.owner.avatar}`}
-            alt="avatar"
-            width="50"
-            height="50"
-          />
-        </div>
-      </div>
+        )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="columns-container">
-          <SortableContext
-            items={columns.map((col) => col.id)}
-            strategy={horizontalListSortingStrategy}
-          >
-            {columns.map((col) => (
-              <Column
-                key={col.id}
-                column={col}
-                removeColumn={removeColumn}
-                csrfToken={csrfToken}
-                updateTasks={updateTasksInColumn}
-                addTask={addTaskToColumn}
-                removeTask={removeTaskFromColumn}
-                updateTask={updateTaskInColumn}
-                forPermit={isOwner}
-                isMember={isMember}
-                addCommentToTask={addCommentToTask}
-                serverUrl={serverUrl}
-                user={user}
-                username={username}
-                updateColumn={updateColumnTitle}
-                updateTaskTitle={updateTaskTitle}
-              />
-            ))}
-          </SortableContext>
-        </div>
-
-        <DragOverlay dropAnimation={dropAnimation}>
-          {activeTask && (
-            <div className="task-overlay">
-              <div className="drag-handle task-name">{activeTask.title}</div>
+        {/* Основной контент - доска с колонками */}
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+        >
+            <div className="columns-container">
+                <SortableContext
+                    items={columns.map((col) => col.id)}
+                    strategy={horizontalListSortingStrategy}
+                >
+                    {columns.map((col) => (
+                        <Column
+                            key={col.id}
+                            column={col}
+                            removeColumn={removeColumn}
+                            csrfToken={csrfToken}
+                            updateTasks={updateTasksInColumn}
+                            addTask={addTaskToColumn}
+                            removeTask={removeTaskFromColumn}
+                            updateTask={updateTaskInColumn}
+                            forPermit={isOwner}
+                            isMember={isMember}
+                            addCommentToTask={addCommentToTask}
+                            serverUrl={serverUrl}
+                            user={user}
+                            username={username}
+                            updateColumn={updateColumnTitle}
+                            updateTaskTitle={updateTaskTitle}
+                        />
+                    ))}
+                </SortableContext>
             </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+
+            <DragOverlay dropAnimation={dropAnimation}>
+                {activeTask && (
+                    <div className="task-overlay">
+                        <div className="drag-handle task-name">{activeTask.title}</div>
+                    </div>
+                )}
+            </DragOverlay>
+        </DndContext>
     </div>
-  );
+);
 }
 
 export default Main;

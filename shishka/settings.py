@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rest_framework',
     'captcha',
+    'channels',
     'chat',
 ]
 
@@ -73,8 +74,25 @@ TEMPLATES = [
         },
     },
 ]
+#------------------Для чата----------------------------------
+#WSGI_APPLICATION = 'shishka.wsgi.application'
+#  ASGI-приложение вместо WSGI для redis
+ASGI_APPLICATION = 'shishka.asgi.application'
 
-WSGI_APPLICATION = 'shishka.wsgi.application'
+# Настройка брокера сообщений (Redis)
+CHANNEL_LAYERS = {
+    'default': {  # Имя подключения (может быть несколько)
+        #'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # Движок
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],  # Где искать Redis
+            # Можно добавить:
+            # "prefix": "chat_",  # Префикс ключей в Redis
+            # "timeout": 30,      # Таймаут соединения
+        },
+    },
+}
+#------------------------------------------------------------
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

@@ -25,8 +25,8 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('users/', include('users.urls')),
     path('boards/', include('boards.urls')),
-    path('api/', include('boards.api_urls')),  # для коннекта с React путь api
-    path('chat/', include('chat.urls')),
+    path('api/', include('boards.api_urls')),
+    path('api/chat/', include('chat.urls')),
 
 ]
 

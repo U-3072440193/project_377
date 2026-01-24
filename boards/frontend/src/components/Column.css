@@ -114,8 +114,8 @@
   width: 100%;
   padding: 10px;
   background: transparent;
-  border: 2px dashed #ddd;
-  color: #666;
+  border: 2px solid #ddd;
+  color: #4CAF50;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -128,7 +128,7 @@
 }
 
 .add-task input {
-  width: 100%;
+  width: 90%;
   padding: 10px;
   margin-bottom: 8px;
   border: 1px solid #ddd;

@@ -183,6 +183,7 @@ function Column({
           ) : (
             <>
               <input
+                className="add-task-placeholder"
                 type="text"
                 placeholder="Название задачи"
                 value={newTaskTitle}
