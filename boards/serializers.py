@@ -37,7 +37,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated', 'files', 'comments',
-                  'priority', ]
+                  'priority', 'deadline' ]
 
 
 # Сериализатор подгрузки файлов к задаче
@@ -82,7 +82,7 @@ class BoardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Board
-        fields = ['id', 'title', 'owner', 'created', 'updated', 'columns']
+        fields = ['id', 'title', 'owner', 'created', 'updated', 'columns','is_archived']
 
 
 # Сериализатор допусков

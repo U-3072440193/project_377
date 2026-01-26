@@ -14,6 +14,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [boardId, setBoardId] = useState(null);
+  const [isArchiveMode, setIsArchiveMode] = useState(false);
 
   // ОДИН useEffect для настройки axios
   useEffect(() => {
@@ -113,6 +114,7 @@ const App = () => {
         setUser(null);
         setBoard(null);
         setMembers([]);
+        setIsArchiveMode(false);// Сбрасываем режим архива
         window.location.reload();
       })
       .catch((err) => {
@@ -142,6 +144,10 @@ const App = () => {
         console.log("Данные пользователя и доски:", userRes.data, boardRes.data);
         setUser(userRes.data);
         setBoard(boardRes.data);
+        if (boardRes.data.is_archived) {
+          setIsArchiveMode(true);
+          console.log("📁 Доска находится в архиве. Включаем режим 'только чтение'");
+        }
       })
       .catch((err) => {
         console.error("Ошибка загрузки данных:", err);
@@ -232,6 +238,7 @@ const App = () => {
           removeMember={removeMember}
           serverUrl={serverUrl}
           username={username}
+          readOnly={isArchiveMode}
         />
       )}
     </div>

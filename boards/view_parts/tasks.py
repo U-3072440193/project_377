@@ -11,6 +11,9 @@ from ..models import *
 from ..serializers import *
 from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES
 
+from django.utils import timezone
+from datetime import datetime
+
 
 class TaskCreateAPIView(APIView):
     authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
@@ -333,5 +336,68 @@ class TaskPriorityUpdateAPIView(APIView):
         task.priority = priority
         task.save()
 
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=200)
+    
+
+class TaskDeadlineAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+
+    def patch(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+
+        board = task.column.board
+
+        # Проверка прав
+        if board.owner != request.user and not BoardPermit.objects.filter(
+                board=board,
+                user=request.user
+        ).exists():
+            return Response(
+                {"error": "Нет прав на редактирование задачи"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        deadline = request.data.get("deadline")
+
+        # Если deadline равен null или пустой строке - удаляем дедлайн
+        if deadline is None or deadline == "" or deadline == "null":
+            task.deadline = None
+        else:
+            try:
+                # Преобразуем строку в datetime
+                from django.utils.dateparse import parse_datetime
+                deadline_dt = parse_datetime(deadline)
+                
+                if not deadline_dt:
+                    # Если parse_datetime не сработал, пробуем parse_date
+                    from django.utils.dateparse import parse_date
+                    deadline_date = parse_date(deadline)
+                    if deadline_date:
+                        deadline_dt = timezone.make_aware(
+                            datetime.combine(deadline_date, datetime.min.time())
+                        )
+                    else:
+                        return Response(
+                            {"error": "Неверный формат даты. Используйте ISO формат: YYYY-MM-DDTHH:MM:SS"},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                
+                # Проверяем, что дедлайн в будущем (опционально)
+                if deadline_dt < timezone.now():
+                    return Response(
+                        {"error": "Дедлайн не может быть в прошлом"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                task.deadline = deadline_dt
+            except (ValueError, TypeError) as e:
+                return Response(
+                    {"error": f"Ошибка обработки даты: {str(e)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        task.save()
         serializer = TaskSerializer(task)
         return Response(serializer.data, status=200)

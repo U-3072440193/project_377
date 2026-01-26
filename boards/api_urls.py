@@ -28,7 +28,8 @@ from .views import (
     debug_task_check,
     TaskPriorityUpdateAPIView,
     DeleteCommentAPIView,
-    ColumnRenameAPIView
+    ColumnRenameAPIView,
+    TaskDeadlineAPIView
 )
 
 urlpatterns = [
@@ -59,6 +60,7 @@ urlpatterns = [
     path('files/<int:file_id>/', TaskFileDeleteAPIView.as_view(), name='task-file-delete'),
     path('tasks/<int:task_id>/comments/', AddCommentAPIView.as_view(), name='add-comment'),
     path('tasks/<int:pk>/priority/', TaskPriorityUpdateAPIView.as_view(), name='task-priority-update'),
+    path('tasks/<int:pk>/deadline/', TaskDeadlineAPIView.as_view(), name='task-deadline'),
     path('comments/<int:comment_id>/delete/', DeleteCommentAPIView.as_view(), name='delete-comment'),
     # Отладочные пути
     path('debug-task-auth/<int:task_id>/', debug_task_auth, name='debug-task-auth'),

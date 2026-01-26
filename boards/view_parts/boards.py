@@ -9,6 +9,7 @@ from django.contrib import messages
 from ..forms import BoardForm
 from ..models import Board, BoardPermit, User
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.db.models import Q
 
 # -------------------Для BoardListAPIView---------------
 from django.shortcuts import get_object_or_404
@@ -92,9 +93,11 @@ def my_boards(request):
     ).exclude(owner=user)
 
     boards = (owned_boards | permitted_boards).order_by('-created').distinct()
+    
 
     context = {
-        'boards': boards.distinct()
+        'boards': boards.distinct().filter(is_archived=False),
+        'archived_boards': boards.distinct().filter(is_archived=True),
     }
 
     return render(request, 'boards/my-boards.html', context)
@@ -221,3 +224,61 @@ class BoardListAPIView(APIView):  # отправка json в реакт
         board = get_object_or_404(Board, id=pk)
         serializer = BoardSerializer(board)
         return Response(serializer.data)
+
+
+#------------Архив------------
+@login_required
+def archive_board(request,board_id):
+    board = get_object_or_404(Board, id=board_id)
+    
+    # Проверяем, что пользователь - владелец
+    if request.user != board.owner:
+        messages.error(request, "Только владелец может архивировать доску")
+        return redirect('my-boards')
+    
+    # Переключаем состояние архивации
+    board.is_archived = not board.is_archived
+    board.save()
+    
+    if board.is_archived:
+        messages.success(request, f'Доска "{board.title}" перемещена в архив')
+    else:
+        messages.success(request, f'Доска "{board.title}" восстановлена из архива')
+    
+    return redirect('my-boards')
+
+@login_required
+def archived_boards(request):
+    archived_boards = Board.objects.filter(
+        Q(owner=request.user) | Q(members=request.user),
+        is_archived=True
+    ).distinct()
+    
+    return render(request, 'boards/archived-boards.html', {
+        'archived_boards': archived_boards
+    })
+
+@login_required
+def archive_board_view(request, board_id):
+    board = get_object_or_404(Board, id=board_id)
+    
+    # Проверяем доступ
+    if not (board.owner == request.user or 
+            board.boardpermit_set.filter(user=request.user).exists()):
+        return HttpResponseForbidden("Нет доступа к этой доске")
+    
+    # Проверяем, что доска действительно в архиве
+    if not board.is_archived:
+        messages.info(request, "Эта доска не находится в архиве")
+        return redirect('boards-page', pk=board.id)
+    
+    user_data = {
+        "user_id": request.user.id,
+        "username": request.user.username,
+    }
+    
+    return render(request, "boards/board.html", {
+        "board": board,
+        "user_data": user_data,
+        "is_archive_view": True,
+    })

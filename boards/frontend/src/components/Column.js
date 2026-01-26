@@ -23,7 +23,8 @@ function Column({
   user,
   username,
   updateColumn,
-  updateTaskTitle
+  updateTaskTitle,
+  readOnly=false,
 }) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -39,6 +40,7 @@ function Column({
       type: "column",
       column: column,
     },
+    disabled: readOnly,
   });
 
   useEffect(() => {
@@ -46,6 +48,7 @@ function Column({
   }, [column.tasks]);
 
   const addTaskHandler = () => {
+    if (readOnly) return;
     if (!newTaskTitle.trim()) return;
 
     fetch(`${process.env.REACT_APP_API_URL}columns/${column.id}/tasks/`, {
@@ -67,6 +70,7 @@ function Column({
   };
 
   const removeTaskHandler = (taskId) => {
+    if (readOnly) return;
     fetch(`${process.env.REACT_APP_API_URL}tasks/${taskId}/`, {
       method: "DELETE",
       credentials: "include",
@@ -82,6 +86,7 @@ function Column({
   
   // Для переименовывания колонки
   const handleRename = () => {
+    if (readOnly) return;
     if (newColumnTitle.trim() && newColumnTitle !== column.title) {
       updateColumn(column.id, newColumnTitle);
     }
@@ -89,6 +94,7 @@ function Column({
   };
 
   const cancelRename = () => {
+    if (readOnly) return;
     setNewColumnTitle(column.title);
     setIsRenaming(false);
   };
@@ -169,6 +175,7 @@ function Column({
               user={user}
               username={username}
               updateTaskTitle={updateTaskTitle}
+              readOnly={readOnly}
             />
           ))}
         </SortableContext>

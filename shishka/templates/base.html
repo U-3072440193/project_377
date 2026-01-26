@@ -30,11 +30,11 @@
         <!-- Навигация -->
         <nav class="main-nav">
             <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'new-board' %}">Создать доску</a></li>
-                <li><a href="#">Здесь что-то будет</a></li>
-                <li><a href="#">И здесь может быть</a></li>
+                <li><a href="{% url 'home' %}">Главная</a></li>
                 {% if request.user.is_authenticated %}
+                <li><a href="{% url 'new-board' %}">Создать доску</a></li>
+                <li><a href="{% url 'archive' %}">Мой архив</a></li>
+                <li><a href="#">Мой чат</a></li>
                 <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
                 <li><a href="{%url 'inbox'%}">Почта</a></li>
                 {% endif %}

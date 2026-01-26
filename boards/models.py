@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Board(models.Model):
@@ -9,6 +10,7 @@ class Board(models.Model):
     updated = models.DateTimeField(auto_now=True)
     hidden = models.BooleanField(default=True)
     members = models.ManyToManyField(User, related_name='shared_boards', blank=True)
+    is_archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
@@ -79,6 +81,7 @@ class Task(models.Model):
     updated = models.DateTimeField(auto_now=True)
     position = models.PositiveIntegerField(default=0)
     priority = models.CharField(max_length=10, choices=PRIORITY, default='low')
+    deadline = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -88,6 +91,12 @@ class Task(models.Model):
             last_task = Task.objects.filter(column=self.column).order_by('-position').first()
             self.position = last_task.position + 1 if last_task else 1
         super().save(*args, **kwargs)
+    
+    # Метод для проверки просроченности
+    def is_overdue(self):
+        if not self.deadline:
+            return False
+        return timezone.now() > self.deadline
 
 
 def task_file_path(instance, filename):

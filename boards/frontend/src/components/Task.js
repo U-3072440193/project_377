@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import TipTap from "./TipTap";
@@ -6,6 +6,7 @@ import renameIcon from "../assets/images/rename_w.svg";
 import textIcon from "../assets/images/text.svg";
 import commentIcon from "../assets/images/comment.svg";
 import fileIcon from "../assets/images/file.svg";
+import DeadlineButton from "./DeadlineButton";
 
 function Task({
   task,
@@ -17,7 +18,8 @@ function Task({
   addCommentToTask,
   user,
   username,
-  updateTaskTitle
+  updateTaskTitle,
+  readOnly = false
 }) {
   const [showEditor, setShowEditor] = useState(false);
   const [description, setDescription] = useState(task.description || "");
@@ -29,6 +31,7 @@ function Task({
   const [showComments, setShowComments] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
   const [priority, setPriority] = useState(task.priority || "low");
+  const [deadlineModalOpen, setDeadlineModalOpen] = useState(false);
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState(task.title);
@@ -61,6 +64,7 @@ function Task({
   }, [task.id]);
 
   const fetchFiles = async () => {
+    if (readOnly) return;
     try {
       setLoadingFiles(true);
       const response = await fetch(
@@ -85,6 +89,7 @@ function Task({
   };
 
   const handleRename = () => {
+    if (readOnly) return;
     if (newTaskTitle.trim() && newTaskTitle !== task.title) {
       if (updateTaskTitle) {
         updateTaskTitle(task.id, newTaskTitle);
@@ -101,6 +106,7 @@ function Task({
   };
 
   async function uploadFile(taskId, file) {
+    if (readOnly) return;
     const formData = new FormData();
     formData.append("file", file);
 
@@ -127,6 +133,7 @@ function Task({
   }
 
   const deleteFile = async (fileId) => {
+    if (readOnly) return;
     if (!window.confirm("Удалить этот файл?")) return;
 
     try {
@@ -153,6 +160,7 @@ function Task({
   };
 
   async function handleFileChange(e) {
+    if (readOnly) return;
     const file = e.target.files[0];
     if (!file) return;
 
@@ -169,6 +177,7 @@ function Task({
   }
 
   const saveDescription = (htmlContent) => {
+    if (readOnly) return;
     fetch(`${process.env.REACT_APP_API_URL}tasks/${task.id}/description/`, {
       method: "PATCH",
       headers: {
@@ -207,6 +216,7 @@ function Task({
   };
 
   const addCommentHandler = async () => {
+    if (readOnly) return;
     if (!newCommentTitle.trim()) return;
 
     try {
@@ -245,6 +255,7 @@ function Task({
   };
 
   const deleteCommentHandler = async (commentId) => {
+    if (readOnly) return;
     if (!window.confirm("Удалить этот комментарий?")) return;
 
     try {
@@ -282,6 +293,7 @@ function Task({
   };
 
   const changePriority = async (newPriority) => {
+    if (readOnly) return;
     if (!isMember()) return;
 
     try {
@@ -344,6 +356,13 @@ function Task({
     }
   };
 
+  // Обработка дедлайна
+  const handleDeadlineChange = (updatedTask) => {
+    if (updateTask) {
+      updateTask(columnId, updatedTask);
+    }
+  };
+
   return (
     <>
       <div className="task-container" style={style}>
@@ -380,7 +399,7 @@ function Task({
               <div {...attributes} {...listeners} className="drag-handle task-name">
                 {task.title}
               </div>
-              
+
               <div className="task-header-buttons">
                 {isMember() && updateTaskTitle && (
                   <button
@@ -394,7 +413,7 @@ function Task({
                     <img className='renameIcon' src={renameIcon} alt="Переименовать" />
                   </button>
                 )}
-                
+
                 {isMember() && removeTask && (
                   <button
                     className="remove-task-btn"
@@ -453,6 +472,16 @@ function Task({
                   </span>
                 </button>
               )}
+              
+              <div className="deadline">
+                <DeadlineButton
+                  taskId={task.id}
+                  initialDeadline={task.deadline}
+                  csrfToken={csrfToken}
+                  onDeadlineChange={handleDeadlineChange}
+                  readOnly={readOnly}
+                />
+              </div>
 
               <div className="priority-container">
                 <button

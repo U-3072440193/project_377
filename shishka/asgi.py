@@ -15,7 +15,7 @@ from django.core.asgi import get_asgi_application
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shishka.settings')
-django.setup()  #  Инициализируем Django
+django.setup()  #  Инициализация Django
 
 #  импортируем Channels и routing
 from channels.routing import ProtocolTypeRouter, URLRouter

@@ -18,7 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import userIcon from "../assets/images/user.svg";
 
-function Main({ user, board, csrfToken, members, removeMember, serverUrl, username }) {
+function Main({ user, board, csrfToken, members, removeMember, serverUrl, username, readOnly = false }) {
   const [columns, setColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
@@ -37,6 +37,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   console.log("csrfToken:", csrfToken);
 
   const toggleInput = () => {
+    if(readOnly){alert("Доска в архиве");return}
     setShowInput(!showInput);
     if (showInput) {
       setNewColumnTitle("");
@@ -55,16 +56,24 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+        enabled: !readOnly,
       },
     })
   );
 
   const handleDragStart = (event) => {
+    if (readOnly) {
+      event.preventDefault();
+      return;}
     const { active } = event;
     setActiveTask(active.data.current?.task);
   };
 
   const handleDragEnd = (event) => {
+    if (readOnly) {
+      event.preventDefault();
+      return;
+    }
     const { active, over } = event;
     setActiveTask(null);
 
@@ -143,6 +152,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskOrder = (taskId, newIndex, columnId) => {
+    if (readOnly) return;
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -155,6 +165,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskColumn = (taskId, newColumnId) => {
+    if (readOnly) return;
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -172,6 +183,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskTitle = (taskId, newTitle) => {
+    if (readOnly) return;
     console.log("Переименование задачи:", taskId, "->", newTitle);
 
     fetch(`${serverUrl}api/tasks/${taskId}/rename/`, {
@@ -208,6 +220,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addColumn = () => {
+    if (readOnly) return;
     if (!newColumnTitle.trim()) return;
 
     fetch(`${serverUrl}api/boards/${board.id}/columns/`, {
@@ -229,6 +242,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const removeColumn = (colId) => {
+    if (readOnly) return;
     fetch(`${serverUrl}api/columns/${colId}/`, {
       method: "DELETE",
       headers: { "X-CSRFToken": csrfToken },
@@ -239,6 +253,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateColumnTitle = (columnId, newTitle) => {
+    if (readOnly) return;
     fetch(`${serverUrl}api/columns/${columnId}/rename/`, {
       method: "PATCH",
       headers: {
@@ -260,6 +275,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTasksInColumn = (columnId, newTasks) => {
+    if (readOnly) return;
     setColumns((prev) =>
       prev.map((col) =>
         col.id === columnId ? { ...col, tasks: newTasks } : col
@@ -268,6 +284,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addTaskToColumn = (columnId, newTask) => {
+    if (readOnly) return;
     setColumns((prev) =>
       prev.map((col) =>
         col.id === columnId ? { ...col, tasks: [...col.tasks, newTask] } : col
@@ -276,6 +293,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const removeTaskFromColumn = (columnId, taskId) => {
+    if (readOnly) return;
     setColumns((prev) =>
       prev.map((col) =>
         col.id === columnId
@@ -286,6 +304,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskInColumn = (columnId, updatedTask) => {
+    if (readOnly) return;
     setColumns((prev) =>
       prev.map((col) =>
         col.id === columnId
@@ -301,6 +320,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addCommentToTask = (taskId, newComment) => {
+    if (readOnly) return;
     setColumns((prevColumns) =>
       prevColumns.map((col) => ({
         ...col,
@@ -469,6 +489,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
                             username={username}
                             updateColumn={updateColumnTitle}
                             updateTaskTitle={updateTaskTitle}
+                            readOnly={readOnly}
                         />
                     ))}
                 </SortableContext>
