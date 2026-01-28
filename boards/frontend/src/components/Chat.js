@@ -1,4 +1,4 @@
-// boards/frontend/src/components/Chat.js - ЗАМЕНИТЕ НА ЭТОТ КОД
+
 import React, { useState, useEffect } from 'react';
 
 const Chat = ({ boardId, currentUser, serverUrl = '', csrfToken }) => {

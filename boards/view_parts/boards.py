@@ -38,15 +38,33 @@ def board_detail(request, board_id):  # передача номера доски
 #     })
 
 
-def boards_page(request, pk):
+# def boards_page(request, pk):
+#     board = get_object_or_404(Board, id=pk)
+#     user_data = {
+#         "user_id": request.user.id,
+#         "username": request.user.username,
+#     }
+#     index_path = os.path.join(settings.BASE_DIR, 'boards', 'frontend', 'build', 'index.html')
+#     return FileResponse(open(index_path,
+#                              'rb'))  # открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
+
+
+def react_app_view(request, pk):  # ← добавить параметр pk
+    # Можно получить доску для контекста
     board = get_object_or_404(Board, id=pk)
-    user_data = {
-        "user_id": request.user.id,
-        "username": request.user.username,
+
+    # Передать данные в React через контекст
+    context = {
+        'board_id': board.id,
+        'board_title': board.title,
+        # Можно передать пользовательские данные
+        'user_data': {
+            'user_id': request.user.id,
+            'username': request.user.username,
+        }
     }
-    index_path = os.path.join(settings.BASE_DIR, 'boards', 'frontend', 'build', 'index.html')
-    return FileResponse(open(index_path,
-                             'rb'))  # открывает файл в бинарном режиме для чтения, для отдачи файлов как HTTP-ответ с помощью FileResponse и Django автоматически ставит заголовки
+
+    return render(request, 'boards/react.html', context)
 
 
 # -----------------------Действия с бордами-------------------------------

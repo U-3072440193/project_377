@@ -1,8 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
-<div id="root"></div>
-<script src="{% static 'frontend/static/js/main.js' %}"></script>
-{% endblock %}
 
-    
+{% block content %}
+<!-- Подключаем CSS из React-билда -->
+<link rel="stylesheet" href="{% static 'styles/main.ab9326b8.css' %}">
+
+
+
+<!-- Основной контейнер для монтирования React -->
+<main>
+    <div id="root"></div>
+</main>
+<!-- Загружаем собранные файлы React -->
+<script src="{% static 'js/main.1a19fe89.js' %}"></script>
+
+
+{% endblock %}
