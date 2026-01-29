@@ -7,15 +7,32 @@
 {% block content %}
 <main>
     <div class="boards">
-        <h2>Мои доски</h2>
+        <div class="archive-title">
+            <img src="/static/images/kanban_g.svg" alt="" style="width: 50px; height: 50px;">
+            <h2>Мои доски</h2>
+        </div>
+
         {% for board in boards %}
         <div class="board-container" data-board-id="{{ board.id }}" data-board-owner-id="{{ board.owner.id }}">
 
-            <!-- Заголовок доски - теперь отдельный блок -->
+            <!-- Заголовок доски -->
             <a href="{% url 'boards-page' board.id %}" class="board-title"
                 style="{% if request.user != board.owner %}background-color: #8d8d8d{% endif %}">
                 {{board.title}}
             </a>
+            {% if request.user != board.owner %}
+            <a href="{% url 'profile-public' board.owner.id %}" class="owner-avatar-link"
+                title="Профиль {{ board.owner.username }}">
+                {% if board.owner.profile.avatar %}
+                <img src="{{ board.owner.profile.avatar.url }}" alt="{{ board.owner.username }}" class="owner-avatar">
+                {% else %}
+                <div class="owner-avatar default-avatar">
+                    {{ board.owner.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <span class="owner-name">{{ board.owner.username }}</span>
+            </a>
+            {% endif %}
 
             <!-- Основное содержимое -->
             <div class="super-ultra-content">
@@ -59,7 +76,8 @@
                 <form method="post" action="{% url 'exit_board' board.id %}" style="display: inline"
                     class="exit-board-form">
                     {% csrf_token %}
-                    <button type="submit" class="exit-board">Выйти</button>
+                    <button type="submit" class="exit-board"><img class="archive-img" src="/static/images/exit.svg"
+                            alt="Архив" style="width: 36px; height: 36px;"></button>
                 </form>
             </div>
             {% endif %}
@@ -72,7 +90,8 @@
                         {% if board.is_archived %}
                         📤 Восстановить из архива
                         {% else %}
-                         <img class="archive-img" src="/static/images/rar.svg" alt="Архив" style="width: 36px; height: 36px;">
+                        <img class="archive-img" src="/static/images/rar.svg" alt="Архив"
+                            style="width: 36px; height: 36px;">
                         {% endif %}
                     </button>
                 </form>
@@ -82,7 +101,8 @@
                 <form method="post" action="{% url 'delete_board' board.id %}" style="display: inline"
                     class="delete-board-form">
                     {% csrf_token %}
-                    <button type="submit" class="delete-board">x</button>
+                    <button type="submit" class="delete-board"><img class="archive-img" src="/static/images/trash.svg"
+                            alt="Удалить" style="width: 36px; height: 36px;"></button>
                 </form>
             </div>
         </div>

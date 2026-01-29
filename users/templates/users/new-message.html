@@ -12,8 +12,10 @@
         {% csrf_token %}
 
         <label for="recipient">Кому:</label>
-        <input type="text" id="recipient" autocomplete="off" placeholder="Начните вводить имя..." required>
-        <input type="hidden" name="recipient_id" id="recipient_id">
+        <input type="text" id="recipient" autocomplete="off" placeholder="Начните вводить имя..." required
+               {% if preselected_recipient_name %}value="{{ preselected_recipient_name }}"{% endif %}>
+        <input type="hidden" name="recipient_id" id="recipient_id"
+               {% if preselected_recipient_id %}value="{{ preselected_recipient_id }}"{% endif %}>
         <div id="suggestions" class="suggestions"></div>
 
         <input type="text" name="subject" placeholder="Тема" required>
@@ -23,58 +25,73 @@
         <input type="file" name="file" id="file">
 
         <button type="submit" class="btn compose">Отправить</button>
+        {% if preselected_recipient_id %}
+        <a href="{% url 'profile-public' preselected_recipient_id %}" class="btn compose">Отмена</a>
+        {% endif %}
     </form>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    const input = document.getElementById("recipient");
+    const suggestions = document.getElementById("suggestions");
+    const recipientIdField = document.getElementById("recipient_id");
+    const searchUrl = "{% url 'search-users' %}";
 
-    const input = document.getElementById("recipient"); //для блока ввода
-    const suggestions = document.getElementById("suggestions"); //для вылезающего списка юзров
-    const recipientIdField = document.getElementById("recipient_id"); //для скрытого поля, куда записываю айди
+    // Если поле уже заполнено (при переходе с профиля), отключаем поиск
+    {% if preselected_recipient_name and preselected_recipient_id %}
+        input.disabled = true;
+        input.style.backgroundColor = "#f5f5f5";
+        input.style.cursor = "not-allowed";
+        
+        // Добавляем подсказку, что получатель уже выбран
+        const recipientNote = document.createElement('div');
+        recipientNote.className = 'recipient-note';
+        recipientNote.textContent = 'Получатель уже выбран';
+        recipientNote.style.color = '#28a745';
+        recipientNote.style.fontSize = '14px';
+        recipientNote.style.marginTop = '5px';
+        input.parentNode.insertBefore(recipientNote, input.nextSibling);
+    {% else %}
+        // Включаем поиск только если поле пустое
+        input.addEventListener("input", function() {
+            const query = this.value.trim();
 
+            if (!query) {
+                suggestions.innerHTML = "";
+                recipientIdField.value = "";
+                return;
+            }
 
-    const searchUrl = "{% url 'search-users' %}"; //  тег  чтобы путь был точным
+            fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    let html = "";
+                    if (data.length === 0) {
+                        html = '<div class="no-suggestions">Нет пользователей</div>';
+                    } else {
+                        data.forEach(user => {
+                            html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">
+                                        ${user.username}
+                                     </div>`;
+                        });
+                    }
+                    suggestions.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Ошибка fetch:', err);
+                });
+        });
 
-    // при введени текста сработает:
-    input.addEventListener("input", function() {
-        const query = this.value.trim(); //значение в поле ввода без пробелов
-
-        if (!query) {
-            suggestions.innerHTML = "";
-            recipientIdField.value = "";
-            return; //если в поле пусто, очищаю, выхожу
-        }
-
-        fetch(`${searchUrl}?search=${encodeURIComponent(query)}`)  //get запрос на сервак передаем введённый текст как параметр search, encodeURIComponent query — кодирует строку для URL
-            .then(response => response.json())
-            .then(data => {
-                let html = "";
-                if (data.length === 0) {
-                    html = '<div class="no-suggestions">Нет пользователей</div>';
-                } else {
-                    data.forEach(user => {
-                        html += `<div class="suggest-item" data-id="${user.id}" data-name="${user.username}">
-                                    ${user.username}
-                                 </div>`;
-                    });
-                }
-                suggestions.innerHTML = html;
-            })
-            .catch(err => {
-                console.error('Ошибка fetch:', err);
-            }); //если запрос не удался
-    });
-
-    // Клик по пользователю из списка
-    suggestions.addEventListener("click", function(e) {
-        const target = e.target;
-        if (target.classList.contains("suggest-item")) {    //клик был именно по элементу с классом suggest-item
-            input.value = target.dataset.name;  //забиваю имя выбранного пользователя в поле ввода
-            recipientIdField.value = target.dataset.id; //в скрытое поле для отправки на сервер
-            suggestions.innerHTML = "";
-        }
-    });
+        suggestions.addEventListener("click", function(e) {
+            const target = e.target;
+            if (target.classList.contains("suggest-item")) {
+                input.value = target.dataset.name;
+                recipientIdField.value = target.dataset.id;
+                suggestions.innerHTML = "";
+            }
+        });
+    {% endif %}
 
     // Проверка перед сабмитом
     document.querySelector('form.email-compose').addEventListener('submit', function(e) {
@@ -83,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
             alert('Вы должны выбрать получателя из списка');
         }
     });
-
 });
 </script>
 

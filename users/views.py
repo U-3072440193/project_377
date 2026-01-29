@@ -148,6 +148,10 @@ def create_message(request, pk):
 
 @login_required(login_url='login')
 def new_message(request):
+    # Получаем данные из GET-параметров
+    recipient_id = request.GET.get('recipient_id')
+    recipient_name = request.GET.get('recipient_name')
+    
     if request.method == "POST":
         recipient_id = request.POST.get("recipient_id")
         if not recipient_id:
@@ -163,22 +167,21 @@ def new_message(request):
             message.name = request.user.username
             message.email = request.user.email
             message.save()
-            # send_mail(
-            #     # отправка почты на реальный почтовый ящик. !!! Требуется настроить отправку SMTP на яндекс, мейл,гугл либо удалить email_notifications, либо обработать ошибку!!! ОТПРАВКА ПОКА НЕ РАБОТАЕТ
-            #     subject=f"Новое сообщение от {request.user.username}",
-            #     message=message.body,
-            #     from_email=settings.DEFAULT_FROM_EMAIL,
-            #     recipient_list=[recipient.email],
-            #     fail_silently=False,
-            # )
             messages.success(request, "Сообщение отправлено")
             return redirect('inbox')
     else:
         form = MessageForm()
 
     users = User.objects.exclude(id=request.user.id)
-    context = {"users": users, "form": form}
+    context = {
+        "users": users, 
+        "form": form,
+        "preselected_recipient_id": recipient_id,
+        "preselected_recipient_name": recipient_name
+    }
     return render(request, 'users/new-message.html', context)
+
+
 
 
 @login_required(login_url='login')
@@ -202,3 +205,32 @@ def search_users(request):
 # def create_user_profile(sender, instance, created, **kwargs):
 #     if created:
 #         Profile.objects.create(user=instance)
+
+@login_required(login_url='login')
+def public_profile(request,pk):
+    user = get_object_or_404(User, id=pk)
+    profile = user.profile 
+    boards = Board.objects.filter(owner=user).order_by('-created')
+    
+    context = {
+        "profile": profile,
+        "boards": boards,
+    }
+    return render(request, "users/profile_public.html", context)
+
+def search_profile(request):
+    # Получаем поисковый запрос
+    search_query = request.GET.get('search', '')
+    users = User.objects.all()
+    
+    # Фильтруем пользователей, если есть поисковый запрос
+    if search_query:
+        users = users.filter(username__icontains=search_query)
+    
+    context = {
+        'users': users,
+        'search_query': search_query
+    }
+    return render(request, "users/search-profile.html", context)
+
+

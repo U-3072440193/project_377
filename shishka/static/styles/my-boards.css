@@ -19,16 +19,30 @@ main {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    align-items: stretch; /* Изменено с center на stretch */
+    align-items: stretch;
     gap: 12px;
     background: #fff;
     border-radius: 12px;
-    padding: 0; /* Убрали padding, добавим внутрь */
+    padding: 0;
     margin-bottom: 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
-/* Заголовок доски - растягиваем на всю высоту */
+.board-container:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+    transform: translateY(-2px);
+    z-index: 10;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+
+    border-color: #4CAF50;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+    transform: translateY(-2px)
+}
+
+
+/* Заголовок доски */
 .board-title {
     display: flex;
     align-items: center;
@@ -37,17 +51,94 @@ main {
     color: #fff;
     text-decoration: none;
     padding: 10px 18px;
-    border-radius: 12px 0 0 12px; /* Закругления только слева */
+    border-radius: 12px 0 0 12px;
     font-weight: 600;
-    white-space: nowrap;
-    min-height: 100%; /* Растягиваем на всю высоту */
-    min-width: 180px; /* Фиксированная минимальная ширина */
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
     text-align: center;
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.4;
 }
 
 .board-title:hover {
     background-color: #444;
+}
+
+/* Стили для аватара владельца доски */
+.owner-avatar-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background-color: #f5f5f5;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.owner-avatar-link:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.owner-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.owner-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Анимация при наведении на аватар */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+.owner-avatar-link:hover .owner-avatar,
+.owner-avatar-link:hover .default-avatar {
+    animation: pulse 1.5s infinite;
 }
 
 /* Контейнер для остального контента */
@@ -57,7 +148,7 @@ main {
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    padding: 16px 18px; /* Переносим padding сюда */
+    padding: 16px 18px;
 }
 
 .email-compose {
@@ -89,6 +180,12 @@ main {
     font-size: 13px !important;
     border: none !important;
     cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.email-compose button:hover {
+    background: #178d1b !important;
+    transform: translateY(-1px);
 }
 
 .suggestions {
@@ -100,6 +197,8 @@ main {
     margin-top: 4px;
     z-index: 10;
     min-width: 180px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
 }
 
 .member-add {
@@ -111,15 +210,22 @@ main {
 .suggest-item {
     padding: 6px 10px;
     cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
 }
 
 .suggest-item:hover {
-    background: #f0f0f0;
+    background: #f8f9fa;
+}
+
+.suggest-item:last-child {
+    border-bottom: none;
 }
 
 .no-suggestions {
     padding: 6px 10px;
     color: #999;
+    font-style: italic;
 }
 
 .toggle-users {
@@ -128,18 +234,20 @@ main {
     gap: 6px !important;
     font-weight: 600 !important;
     color: white !important;
-    background: #4CAF50 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     border: none !important;
     padding: 8px 15px !important;
-    border-radius: 4px !important;
+    border-radius: 20px !important;
     cursor: pointer !important;
     font-size: 14px !important;
     margin: 10px 0 !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
 }
 
 .toggle-users:hover {
-    background: #178d1b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 .toggle-users .arrow {
@@ -156,9 +264,10 @@ main {
     border-radius: 8px;
     padding: 10px;
     margin-top: 8px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     min-width: 220px;
     z-index: 100;
+    border: 1px solid #dee2e6;
 }
 
 .board-user {
@@ -185,11 +294,11 @@ main {
     margin-left: auto;
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
-/* КНОПКА УДАЛЕНИЯ ДОСКИ */
-button.delete-board,
-form.delete-board-form button[type="submit"] {
+/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ КНОПОК-ИКОНОК */
+.permit button {
     width: 40px !important;
     height: 40px !important;
     border-radius: 50% !important;
@@ -197,44 +306,42 @@ form.delete-board-form button[type="submit"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 18px !important;
-    background: #d9534f !important;
-    color: white !important;
-    border: none !important;
+    background: #f5f5f5 !important;
+    border: 3px solid #fff !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
-    box-shadow: 0 3px 8px rgba(217, 83, 79, 0.3) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
-button.delete-board:hover,
-form.delete-board-form button[type="submit"]:hover {
-    background: #c9302c !important;
-    transform: scale(1.1) !important;
-    box-shadow: 0 5px 12px rgba(217, 83, 79, 0.4) !important;
+/* Эффект при наведении на все кнопки */
+.permit button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    background-color: #e9ecef !important;
 }
 
-/* КНОПКА ВЫХОДА ИЗ ДОСКИ */
-button.exit-board,
-form.exit-board-form button[type="submit"] {
-    all: unset !important;
-    background: #f0ad4e !important;
-    color: white !important;
-    padding: 6px 12px !important;
-    border-radius: 6px !important;
-    font-weight: bold !important;
-    font-size: 13px !important;
-    border: none !important;
-    cursor: pointer !important;
-    display: inline-block !important;
-    text-align: center !important;
-    transition: all 0.3s ease !important;
-    padding: 20px;
+
+
+
+
+
+
+
+
+
+
+
+
+/* Стили для изображений внутри кнопок */
+.permit button img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-button.exit-board:hover,
-form.exit-board-form button[type="submit"]:hover {
-    background: #ec971f !important;
-    transform: translateY(-1px) !important;
+.permit button:hover img {
+    transform: scale(1.1);
 }
 
 .hidden {
@@ -275,6 +382,8 @@ button {
     border-radius: 50%;
     margin-right: 10px;
     object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .board-user .user-info {
@@ -329,29 +438,65 @@ button {
         flex-direction: column;
         padding: 0;
     }
-    
+
     .board-title {
         border-radius: 12px 12px 0 0;
         min-height: auto;
         width: 100%;
         padding: 15px;
     }
-    
+
     .board-content {
         width: 100%;
         padding: 15px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .owner-avatar-link {
+        align-self: flex-start;
+        margin-top: 10px;
+    }
+
+    .owner-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .default-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .permit {
+        margin-left: 0;
+        margin-top: 10px;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .email-compose {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .toggle-users {
+        width: 100%;
+        justify-content: center;
     }
 }
+
 .super-ultra-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
 }
 
 .board-supercontent {
     flex: 1;
 }
+
 .board-container .permit {
     align-items: center;
 }
@@ -376,7 +521,7 @@ button.delete-board {
 }
 
 .archive-title h2 {
-    margin: 0; /* Убираем margin у заголовка */
+    margin: 0;
     font-size: 28px;
     color: #333;
 }
@@ -412,7 +557,7 @@ button.delete-board {
     padding: 40px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     margin-top: 20px;
 }
 
@@ -437,26 +582,109 @@ button.delete-board {
     background: #178d1b;
 }
 
-/* Кнопка восстановления из архива */
-button.archive-board {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    padding: 0 !important;
-    
+/* Кнопка восстановления из архива (текстовая версия) */
+button.archive-board[style*="📤"] {
+    width: auto !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #4CAF50 0%, #178d1b 100%) !important;
     color: white !important;
-    border: none !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 3px 8px rgba(193, 207, 196, 0.3) !important;
-    font-size: 18px !important;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2) !important;
 }
 
-button.archive-board:hover {
-    background: #e8fbec !important;
-    transform: scale(1.1) !important;
-    box-shadow: 0 5px 12px rgba(200, 200, 200, 0.4) !important;
+button.archive-board[style*="📤"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Индикатор "владелец" */
+.owner-badge {
+    display: inline-block;
+    color: #212529;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.3);
+}
+
+/* Анимация пульсации для всех элементов */
+@keyframes gentle-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Эффект при наведении на кнопки с иконками */
+.permit button:hover img {
+    animation: gentle-pulse 0.6s ease;
+}
+
+/* Дополнительные эффекты для лучшего UX */
+.permit button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Для состояний кнопок */
+.permit button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Эффект градиентного бордера для активных элементов */
+.owner-avatar-link,
+.permit button {
+    position: relative;
+}
+
+.owner-avatar-link::before,
+.permit button::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.owner-avatar-link:hover::before,
+.permit button:hover::before {
+    opacity: 1;
+}
+
+/* Стили для скроллбара */
+.list-of-board-users::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-of-board-users::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.list-of-board-users::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+}
+
+.list-of-board-users::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }

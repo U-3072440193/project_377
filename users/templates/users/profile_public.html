@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/profile-public.css' %}">
+{% endblock %}
+{% block content %}
+<main class="profile">
+
+    <div class="container-prof">
+        <div class="profile-left">
+            <div class="profile-window">
+                <h1>{{ profile.user.username }}</h1>
+                <img src="{{ profile.avatar.url }}" alt="Аватар пользователя {{ profile.user.username }}">
+                
+                {% if request.user.is_authenticated and request.user != profile.user %}
+                <div class="profile-actions">
+                    <a href="{% url 'new-message' %}?recipient_id={{ profile.user.id }}&recipient_name={{ profile.user.username|urlencode }}" class="btn compose">
+    Написать сообщение
+</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1>Профиль пользователя</h1>
+                <p><span class="label">Имя пользователя:</span> {{ profile.user.username }}</p>
+                <p><span class="label">Имя:</span> {{ profile.first_name|default:"Не указано" }}</p>
+                <p><span class="label">Фамилия:</span> {{ profile.last_name|default:"Не указано" }}</p>
+                <p><span class="label">О себе:</span> {{ profile.bio|default:"Пользователь пока не добавил информацию о себе" }}</p>
+                {% if profile.social_media_link %}
+                <p><span class="label">Социальная сеть:</span> 
+                    <a href="{{ profile.social_media_link }}" target="_blank" class="social-link">
+                        {{ profile.social_media_link }}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="profile-right">
+            <div class="user-boards">
+                <h2>Доски пользователя</h2>
+                {% if boards %}
+                    <div class="boards-grid">
+                        {% for board in boards %}
+                        <div class="board-card">
+                            <h3>{{ board.title }}</h3>
+                            <p>{{ board.description|truncatechars:100 }}</p>
+                            <small>Создано: {{ board.created|date:"d.m.Y" }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-boards">У пользователя пока нет досок</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}

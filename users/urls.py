@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register_user, name='register'),
     path('profile/', views.user_profile, name='profile'),
+    path('profile-public/<int:pk>/', views.public_profile, name='profile-public'),
     path('edit-profile/', views.edit_profile, name='edit-profile'),
     path('inbox/', views.inbox, name='inbox'),
     path('message/<str:pk>/', views.view_message, name='message'),
@@ -16,6 +17,7 @@ urlpatterns = [
     path('delete_message/<int:pk>/', views.delete_message, name='delete_message'),
     path('search-users/', views.search_users, name='search-users'),
     path('captcha/', include('captcha.urls')),
+    path('search_profile/', views.search_profile, name='search-profile'),
 
 ]
 

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/search-profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="search-profile">
+    <div class="container">
+        <h1>Поиск пользователей</h1>
+        
+        <!-- Форма поиска -->
+        <div class="search-form">
+            <form method="get" action="{% url 'search-profile' %}">
+                <div class="search-input-group">
+                    <input type="text" 
+                           name="search" 
+                           placeholder="Введите имя пользователя..."
+                           value="{{ search_query }}"
+                           autocomplete="off">
+                    <button type="submit" class="btn search-btn">
+                        Поиск
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Результаты поиска -->
+        <div class="search-results">
+            {% if search_query %}
+                <h2>Результаты поиска по запросу: "{{ search_query }}"</h2>
+                {% if users %}
+                    <div class="users-grid">
+                        {% for user in users %}
+                        <div class="user-card">
+                            <div class="user-avatar">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    <div class="default-avatar">
+                                        <img src="{{ profile.avatar.url }}" alt="Аватар">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="user-info">
+                                <h3>{{ user.username }}</h3>
+                                <p class="user-fullname">
+                                    {% if user.profile.first_name or user.profile.last_name %}
+                                        {{ user.profile.first_name }} {{ user.profile.last_name }}
+                                    {% else %}
+                                        Имя не указано
+                                    {% endif %}
+                                </p>
+                                {% if user.profile.bio %}
+                                <p class="user-bio">{{ user.profile.bio|truncatechars:80 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="user-actions">
+                                <a href="{% url 'profile-public' user.id %}" class="btn view-profile">
+                                    Профиль
+                                </a>
+                                {% if user != request.user %}
+                                <a href="{% url 'new-message' %}?recipient_id={{ user.id }}&recipient_name={{ user.username|urlencode }}" 
+                                   class="btn send-message">
+                                    Сообщение
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-results">
+                        <p>Пользователи не найдены</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <!-- Показываем всех пользователей или инструкцию -->
+                <div class="search-instruction">
+                    <p>Введите имя пользователя в поле поиска выше</p>
+                    {% if users %}
+                    <h3>Все пользователи:</h3>
+                    <div class="users-grid">
+                        {% for user in users %}
+                        <div class="user-card">
+                            <div class="user-avatar">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    <div class="default-avatar">
+                                        {{ user.username|slice:":1"|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="user-info">
+                                <h3>{{ user.username }}</h3>
+                                <p class="user-fullname">
+                                    {% if user.profile.first_name or user.profile.last_name %}
+                                        {{ user.profile.first_name }} {{ user.profile.last_name }}
+                                    {% else %}
+                                        Имя не указано
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="user-actions">
+                                <a href="{% url 'profile-public' user.id %}" class="btn view-profile">
+                                    Профиль
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
