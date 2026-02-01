@@ -156,83 +156,258 @@
   border-radius: 0 0 6px 6px;
 }
 
-/* Ряд кнопок */
-.task-buttons-row {
+/* ====== НОВЫЕ СТИЛИ ДЛЯ ДВУХ СТРОК КНОПОК ====== */
+
+/* Первая строка: круглые кнопки */
+.task-buttons-row-first {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
 }
 
-/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ КНОПОК ТАСКА (как в заголовке) */
-.task-btn {
-  background: transparent;  
+.task-btn-circle {
+  background: white !important;
   border: none;
-  border-radius: 4px;
+  border-radius: 50% !important;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  padding: 6px 10px;
-  gap: 4px;
-  font-size: 13px;
-  color: #333;
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  min-width: 70px;
-  font-weight: 500;
+  padding: 8px !important;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  position: relative;
 }
 
-.task-btn:hover {
-  background: rgba(0, 0, 0, 0.12);
-  border-color: rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.task-btn-circle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
 }
 
-/* Иконки */
-.textIcon, .fileIcon, .commentIcon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
+/* Иконки в круглых кнопках */
+.task-btn-circle .textIcon,
+.task-btn-circle .fileIcon,
+.task-btn-circle .commentIcon {
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
-/* Специфичные стили для каждой кнопки */
-.description-btn {
+/* Бейджи для файлов и комментариев */
+.files-badge,
+.comments-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #FF5252;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.comments-badge {
+  background: #7B1FA2;
+}
+
+/* Вторая строка: дедлайн и приоритет */
+.task-buttons-row-second {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+  height: 36px;
+}
+
+/* Стили для секции дедлайна */
+.deadline-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Круглая кнопка дедлайна */
+.deadline-icon-btn {
+  background: #4CAF50 !important;
+  border: none;
+  border-radius: 50% !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 8px !important;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  flex-shrink: 0;
+}
+
+.deadline-icon-btn:hover:not(:disabled) {
+  background: #45a049 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+.deadline-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deadline-icon-btn .timeIcon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.deadline-icon-btn.has-deadline {
+  background: #333 !important;
+}
+
+.deadline-icon-container {
+  display: flex;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+}
+
+.deadline-label {
+  font-size: 12px;
   color: #2e7d32;
+  font-style: italic;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1;
+  margin-left: 2px;
+  padding: 2px 6px;
+  background: rgba(46, 125, 50, 0.1);
+  border-radius: 3px;
 }
 
-.files-btn {
-  color: #1565c0;
+/* Убрать старые стили строки кнопок */
+.task-buttons-row {
+  display: none;
 }
 
-.files-btn.has-files {
-  font-weight: 600;
+/* ====== ОСТАЛЬНЫЕ СТИЛИ ====== */
+
+/* Для приоритетов */
+.priority-container {
+  position: relative;
+  
+  height: 36px;
 }
 
-.comments-btn {
-  color: #7b1fa2;
+/* Кнопка приоритета */
+.priority-btn {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: 100px;
+  box-sizing: border-box;
 }
 
-.comments-btn.active {
-  background: rgba(156, 39, 176, 0.1);
-  border-color: rgba(156, 39, 176, 0.2);
+/* Выпадающий список приоритетов */
+.priority-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: slideDown 0.2s ease-out;
+  min-width: 100px;
 }
 
-/* Стрелочки */
-.files-arrow,
-.comments-arrow,
+.priority-item {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.2s;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.priority-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  filter: brightness(110%);
+}
+
+/* Конкретные цвета для приоритетов */
+.priority-item.low {
+  background-color: #4CAF50 !important;
+}
+
+.priority-item.average {
+  background-color: #FFC107 !important;
+  color: #212529 !important;
+  text-shadow: none;
+}
+
+.priority-item.high {
+  background-color: #FF9800 !important;
+}
+
+.priority-item.maximal {
+  background-color: #F44336 !important;
+}
+
+/* Индикатор текущего приоритета в выпадающем списке */
+.priority-item::after {
+  content: "✓";
+  opacity: 0;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.priority-item.active::after {
+  opacity: 1;
+}
+
+/* Стрелочка для приоритета */
 .priority-arrow {
   font-size: 10px;
   margin-left: 4px;
   transition: transform 0.2s;
 }
 
-.files-arrow.open,
-.comments-arrow.open,
 .priority-arrow.open {
   transform: rotate(180deg);
 }
@@ -598,66 +773,6 @@
   transition: all 0.2s ease;
 }
 
-/* Адаптивность */
-@media (max-width: 1200px) {
-  .description-content {
-    width: 70%;
-  }
-}
-
-@media (max-width: 768px) {
-  .description-content,
-  .tiptap-modal {
-    width: 95%;
-    height: 90vh;
-  }
-  
-  .task-header {
-    padding: 10px;
-    min-height: 45px;
-  }
-  
-  .task-name {
-    font-size: 13px;
-  }
-  
-  .task-content {
-    padding: 10px;
-  }
-  
-  .task-buttons-row {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  
-  .task-btn {
-    font-size: 11px;
-    padding: 5px 6px;
-    min-width: 60px;
-  }
-  
-  .textIcon, .fileIcon, .commentIcon {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .files-dropdown-content {
-    max-height: 250px;
-  }
-}
-
-@media (max-width: 480px) {
-  .task-buttons-row {
-    flex-direction: column;
-  }
-  
-  .description-content,
-  .tiptap-modal {
-    width: 98%;
-    height: 95vh;
-  }
-}
-
 /* Список комментариев */
 .comment-item {
   position: relative;
@@ -813,123 +928,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Для приоритетов */
-/* Контейнер для кнопки приоритета */
-.priority-container {
-  position: relative;
-}
-
-/* Кнопка приоритета */
-.priority-btn {
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-}
-
-/* Выпадающий список приоритетов */
-.priority-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: slideDown 0.2s ease-out;
-  min-width: 150px;
-}
-
-.priority-item {
-  padding: 10px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-  transition: all 0.2s;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.priority-item:hover {
-  transform: translateX(2px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  filter: brightness(110%);
-}
-
-/* Конкретные цвета для приоритетов */
-.priority-item.low {
-  background-color: #4CAF50 !important;
-}
-
-.priority-item.average {
-  background-color: #FFC107 !important;
-  color: #212529 !important;
-  text-shadow: none;
-}
-
-.priority-item.high {
-  background-color: #FF9800 !important;
-}
-
-.priority-item.maximal {
-  background-color: #F44336 !important;
-}
-
-/* Индикатор текущего приоритета в выпадающем списке */
-.priority-item::after {
-  content: "✓";
-  opacity: 0;
-  font-weight: bold;
-  margin-left: 8px;
-}
-
-.priority-item.active::after {
-  opacity: 1;
-}
-
-/* Адаптивность для строки кнопок */
-@media (max-width: 768px) {
-  .task-buttons-row {
-    flex-direction: column;
-  }
-  
-  .priority-container {
-    width: 100%;
-  }
-  
-  .priority-btn {
-    width: 100%;
-    min-width: unset;
-  }
-  
-  .priority-dropdown {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    max-width: 300px;
-    z-index: 9999;
-  }
-}
-
-/* Для очень маленьких экранов */
-@media (max-width: 480px) {
-  .priority-item {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-}
-
 /* Удаление коммента кнопка */
 .delete-comment-btn {
   background: none;
@@ -966,7 +964,113 @@
   font-size: 0.85em;
 }
 
-/* Адаптация для маленьких экранов */
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .description-content {
+    width: 70%;
+  }
+}
+
+@media (max-width: 768px) {
+  .description-content,
+  .tiptap-modal {
+    width: 95%;
+    height: 90vh;
+  }
+  
+  .task-header {
+    padding: 10px;
+    min-height: 45px;
+  }
+  
+  .task-name {
+    font-size: 13px;
+  }
+  
+  .task-content {
+    padding: 10px;
+  }
+  
+  .task-buttons-row-first {
+    flex-wrap: wrap;
+  }
+  
+  .task-btn-circle {
+    width: 32px;
+    height: 32px;
+    padding: 6px !important;
+  }
+  
+  .task-btn-circle .textIcon,
+  .task-btn-circle .fileIcon,
+  .task-btn-circle .commentIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .files-badge,
+  .comments-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+  }
+  
+  .files-dropdown-content {
+    max-height: 250px;
+  }
+  
+ 
+  
+  .deadline-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px !important;
+  }
+  
+  .deadline-icon-btn .timeIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .priority-container {
+    width: 100%;
+  }
+  
+  .priority-btn {
+    min-width: unset;
+    
+  }
+  
+  .priority-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 300px;
+    z-index: 9999;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-buttons-row-first {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  
+  .description-content,
+  .tiptap-modal {
+    width: 98%;
+    height: 95vh;
+  }
+  
+  .priority-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Адаптация для маленьких экранов - переименование */
 @media (max-width: 768px) {
   .task-rename-container {
     flex-direction: column;
@@ -981,5 +1085,22 @@
   
   .task-header-buttons {
     gap: 3px;
+  }
+  
+  /* Адаптивность для мобильных - дедлайн */
+  .deadline-label {
+    font-size: 11px;
+    padding: 1px 4px;
+  }
+  
+  .deadline-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px !important;
+  }
+  
+  .deadline-icon-btn .timeIcon {
+    width: 16px;
+    height: 16px;
   }
 }

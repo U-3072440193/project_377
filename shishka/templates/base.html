@@ -1,88 +1,88 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" type="image/x-icon"/>
-    <!-- Общие стили -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" type="image/x-icon" />
     <link rel="stylesheet" href="{% static 'styles/style.css' %}">
-
     {% block profile %}{% endblock %}
     {% block styles %}{% endblock %}
-
     <title>Шишка</title>
 </head>
-
 <body>
-<!-- Header / Navigation -->
-<header class="site-header">
-    <div class="container">
-        <!-- Логотип -->
-        <a href="{% url 'home' %}" class="logo">
-            <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo"/>
-        </a>
+    <header class="site-header">
+        <div class="container">
+            <!-- Логотип -->
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo" />
+            </a>
 
-        <!-- Навигация -->
-        <nav class="main-nav">
-            <ul>
-                <li><a href="{% url 'home' %}">Главная</a></li>
-                {% if request.user.is_authenticated %}
-                <li><a href="{% url 'new-board' %}">Создать доску</a></li>
-                <li><a href="{% url 'archive' %}">Мой архив</a></li>
-                <li><a href="#">Мой чат</a></li>
-                <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
-                <li><a href="{%url 'inbox'%}">Почта</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-
-        <!-- Пользователь -->
-        <div class="user-menu">
-            {% if request.user.is_authenticated %}
-            <div class="user-info">
-                <a href="{% url 'profile' %}" class="user-link">
-                    {% if request.user.profile.avatar %}
-                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="avatar"/>
-                    {% else %}
-                    <img src="{% static 'images/user.png' %}" alt="{{ request.user.username }}" class="avatar"/>
+            <!-- Навигация -->
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'new-board' %}">Создать доску</a></li>
+                    <li><a href="{% url 'archive' %}">Мой архив</a></li>
+                    <li><a href="#">Мой чат</a></li>
+                    <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
+                    <li><a href="{%url 'inbox'%}">Почта</a></li>
                     {% endif %}
-                    <span class="username">{{ request.user.username }}</span>
-                </a>
-                <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
+                </ul>
+            </nav>
+
+            <!-- Пользователь -->
+            <div class="user-menu">
+                {% if request.user.is_authenticated %}
+                <div class="user-info">
+                    <div class="avatar-and-name">
+                        <div class="avatar-container">
+                            <a href="{% url 'profile' %}" class="user-link">
+                                {% if request.user.profile.avatar %}
+                                <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}"
+                                    class="avatar" />
+                                {% else %}
+                                <img src="{% static 'images/user.png' %}" alt="{{ request.user.username }}"
+                                    class="avatar" />
+                                {% endif %}
+                            </a>
+                            <!-- Бейдж для уведомлений -->
+                            {% if unread and unread > 0 %}
+                            <div class="badge {% if unread > 9 %}large{% endif %}">
+                                {{ unread }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <span class="username">{{ request.user.username }}</span>
+                    </div>
+                    <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="login-btn">Войти</a>
+                {% endif %}
             </div>
-            {% else %}
-            <a href="{% url 'login' %}" class="login-btn">Войти</a>
-            {% endif %}
         </div>
+    </header>
 
+    <div class="body-list">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                <p>{{ message }}</p>
+                <button class="alert-close">⨯</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main content -->
+        {% block content %}
+        {% endblock %}
     </div>
-</header>
 
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">
-        <p>{{ message }}</p>
-        <button class="alert-close">⨯</button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-
-<!-- Main content -->
-{% block content %}
-{% endblock %}
-
-<!-- Footer -->
-
+    <script src="{% static 'js/app.js'%}"></script>
 </body>
-<script src="{% static 'js/app.js'%}"></script>
-
-
 </html>

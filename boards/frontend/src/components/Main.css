@@ -89,10 +89,10 @@
 
 /* Кнопка участников - унифицированная */
 .member-btn {
-  background: rgba(33, 243, 79, 0.2);
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -108,8 +108,8 @@
 }
 
 .userIcon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
@@ -423,11 +423,94 @@
   }
 }
 
-/* Удалите старые стили которые больше не нужны */
+
 .chat-fullview,
 .back-to-board-btn,
 .control-buttons,
 .member-container,
 .members {
   display: none;
+}
+
+/* Стили для переименования доски */
+.board-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rename-board-btn {
+  background: #333;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.rename-board-btn:hover {
+  background: #4caf50;
+}
+
+.board-rename-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.board-rename-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1.5em;
+  font-weight: bold;
+  background: white;
+  color: #333;
+}
+
+.board-rename-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Общие стили для кнопок подтверждения/отмены (используются и для колонок и для доски) */
+.rename-confirm-btn,
+.rename-cancel-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.rename-confirm-btn {
+  background: #28a745;
+  color: white;
+}
+
+.rename-confirm-btn:hover {
+  background: #218838;
+}
+
+.rename-cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.rename-cancel-btn:hover {
+  background: #c82333;
 }

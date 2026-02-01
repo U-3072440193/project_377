@@ -17,7 +17,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from ..models import Board
 from ..serializers import BoardSerializer
-from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES
+from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES,get_react_js_filename,get_react_css_filename
+from rest_framework import status
 
 
 # ------------------Доска------------------
@@ -53,6 +54,10 @@ def react_app_view(request, pk):  # ← добавить параметр pk
     # Можно получить доску для контекста
     board = get_object_or_404(Board, id=pk)
 
+
+    # Получаем имена файлов
+    react_js = get_react_js_filename()  # например: main.23c0e5d0.js
+    react_css = get_react_css_filename()  # например: main.23c0e5d0.css
     # Передать данные в React через контекст
     context = {
         'board_id': board.id,
@@ -61,6 +66,8 @@ def react_app_view(request, pk):  # ← добавить параметр pk
         'user_data': {
             'user_id': request.user.id,
             'username': request.user.username,
+            'react_js': react_js,  
+            'react_css': react_css,  
         }
     }
 
@@ -300,3 +307,52 @@ def archive_board_view(request, board_id):
         "user_data": user_data,
         "is_archive_view": True,
     })
+
+
+class BoardRenameAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+
+    def patch(self, request, pk):
+        board = get_object_or_404(Board, pk=pk)
+
+        # Проверка прав: только владелец может переименовать доску
+        if board.owner != request.user:
+            return Response(
+                {"error": "Нет прав на редактирование доски"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверка, что доска не в архиве
+        if board.is_archived:
+            return Response(
+                {"error": "Невозможно переименовать доску в архиве"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        title = request.data.get("title")
+        if not title or not title.strip():
+            return Response(
+                {"error": "Название обязательно и не может быть пустым"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        title = title.strip()
+        if len(title) > 200:  # Проверка максимальной длины
+            return Response(
+                {"error": "Название слишком длинное (максимум 200 символов)"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Проверяем, изменилось ли название
+        if board.title == title:
+            return Response(
+                {"message": "Название не изменилось"},
+                status=status.HTTP_200_OK
+            )
+            
+        board.title = title
+        board.save()
+
+        serializer = BoardSerializer(board)
+        return Response(serializer.data, status=status.HTTP_200_OK)

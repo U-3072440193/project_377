@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block profile %}
+<link rel="stylesheet" href="{% static 'styles/register.css' %}">
+{% endblock %}
 {% block content %}
 
 {%if page == 'register' %}

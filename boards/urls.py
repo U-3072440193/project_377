@@ -17,4 +17,5 @@ urlpatterns = [
     path('board/<int:board_id>/archive/', views.archive_board, name='archive_board'),
     path('archive/board/<int:board_id>/', views.archive_board_view, name='archive-view'),
 
+
 ]

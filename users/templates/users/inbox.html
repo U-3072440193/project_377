@@ -48,4 +48,35 @@
     </div>
 
 </main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Плавное удаление писем
+    document.querySelectorAll('.delete-message').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const emailItem = this.closest('.email');
+            const form = this.closest('form');
+            const messageId = form.action.split('/').filter(Boolean).pop();
+
+            // Анимация удаления
+            emailItem.classList.add('deleting');
+
+            // Отправка формы после анимации
+            setTimeout(() => {
+                form.submit();
+            }, 300);
+        });
+    });
+
+    // Подсветка новых сообщений
+    const unreadEmails = document.querySelectorAll('.email--unread');
+    unreadEmails.forEach(email => {
+        email.style.animationDelay = (Math.random() * 0.5) + 's';
+    });
+
+
+});
+</script>
 {% endblock %}

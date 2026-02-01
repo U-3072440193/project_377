@@ -6,6 +6,7 @@ import renameIcon from "../assets/images/rename_w.svg";
 import textIcon from "../assets/images/text.svg";
 import commentIcon from "../assets/images/comment.svg";
 import fileIcon from "../assets/images/file.svg";
+import timeIcon from "../assets/images/time_w.svg";
 import DeadlineButton from "./DeadlineButton";
 
 function Task({
@@ -31,7 +32,6 @@ function Task({
   const [showComments, setShowComments] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
   const [priority, setPriority] = useState(task.priority || "low");
-  const [deadlineModalOpen, setDeadlineModalOpen] = useState(false);
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState(task.title);
@@ -363,6 +363,18 @@ function Task({
     }
   };
 
+  // Новая функция для кнопки дедлайна
+  const DeadlineIconButton = ({ onClick, title, hasDeadline = false }) => (
+    <button
+      className={`deadline-icon-btn ${hasDeadline ? "has-deadline" : ""}`}
+      onClick={onClick}
+      title={title}
+      disabled={readOnly}
+    >
+      <img className='timeIcon' src={timeIcon} alt="Дедлайн" />
+    </button>
+  );
+
   return (
     <>
       <div className="task-container" style={style}>
@@ -431,171 +443,171 @@ function Task({
         </div>
 
         <div className="task-content">
-          <div className="task-content-main">
-            <div className="task-buttons-row">
-              <button
-                className="task-btn description-btn"
-                onClick={() => {
-                  if (description) {
-                    setShowDescriptionOverlay(true);
-                  } else {
-                    setShowEditor(true);
-                  }
-                }}
-                title="Показать/редактировать описание"
-              >
-                {!description && "+ "}
-                <img className='textIcon' src={textIcon} alt="Описание" />
-              </button>
+          {/* Первая строка: круглые кнопки */}
+          <div className="task-buttons-row-first">
+            <button
+              className="task-btn-circle description-btn"
+              onClick={() => {
+                if (description) {
+                  setShowDescriptionOverlay(true);
+                } else {
+                  setShowEditor(true);
+                }
+              }}
+              title="Показать/редактировать описание"
+            >
+              <img className='textIcon' src={textIcon} alt="Описание" />
+            </button>
 
-              <button
-                className={`task-btn files-btn ${files.length > 0 ? "has-files" : ""}`}
-                onClick={() => setShowFiles(!showFiles)}
-                title="Показать/скрыть файлы"
-              >
-                <img className='fileIcon' src={fileIcon} alt="Файлы" />
-                {files.length > 0 && `(${files.length})`}
-                <span className={`files-arrow ${showFiles ? "open" : ""}`}>
-                  {showFiles ? "▲" : "▼"}
-                </span>
-              </button>
+            <button
+              className={`task-btn-circle files-btn ${files.length > 0 ? "has-files" : ""}`}
+              onClick={() => setShowFiles(!showFiles)}
+              title="Показать/скрыть файлы"
+            >
+              <img className='fileIcon' src={fileIcon} alt="Файлы" />
+              {files.length > 0 && <span className="files-badge">{files.length}</span>}
+            </button>
 
-              {task.comments && task.comments.length > 0 && (
-                <button
-                  className={`task-btn comments-btn ${showComments ? "active" : ""}`}
-                  onClick={() => setShowComments(!showComments)}
-                  title="Показать/скрыть комментарии"
-                >
-                  <img className='commentIcon' src={commentIcon} alt="Комментарии" /> {task.comments.length}
-                  <span className={`comments-arrow ${showComments ? "open" : ""}`}>
-                    {showComments ? "▲" : "▼"}
-                  </span>
-                </button>
-              )}
-              
-              <div className="deadline">
+            {/* Кнопка комментариев всегда показывается */}
+            <button
+              className={`task-btn-circle comments-btn ${showComments ? "active" : ""} ${task.comments?.length > 0 ? "has-comments" : ""}`}
+              onClick={() => setShowComments(!showComments)}
+              title={task.comments?.length > 0 ? `Комментарии (${task.comments.length})` : "Добавить комментарий"}
+            >
+              <img className='commentIcon' src={commentIcon} alt="Комментарии" />
+              {task.comments?.length > 0 && <span className="comments-badge">{task.comments.length}</span>}
+            </button>
+          </div>
+
+          {/* Вторая строка: дедлайн и приоритет */}
+            <div className="task-buttons-row-second">
+            <div className="deadline-section">
+              <div className="deadline-icon-container">
                 <DeadlineButton
                   taskId={task.id}
                   initialDeadline={task.deadline}
                   csrfToken={csrfToken}
                   onDeadlineChange={handleDeadlineChange}
                   readOnly={readOnly}
+                  customButton={DeadlineIconButton}
+                  showLabel={true}
                 />
-              </div>
-
-              <div className="priority-container">
-                <button
-                  className="task-btn priority-btn"
-                  onClick={() => isMember() && setShowPriority(!showPriority)}
-                  title="Изменить приоритет"
-                  style={{
-                    backgroundColor: getPriorityColor(priority),
-                    color: priority === "average" ? "#212529" : "white",
-                    border: "none",
-                  }}
-                >
-                  {getPriorityName(priority)}
-                  <span className={`priority-arrow ${showPriority ? "open" : ""}`}>
-                    {showPriority ? "▲" : "▼"}
-                  </span>
-                </button>
-
-                {showPriority && isMember() && (
-                  <div className="priority-dropdown">
-                    <button
-                      className={`priority-item low ${priority === "low" ? "active" : ""}`}
-                      onClick={() => changePriority("low")}
-                    >
-                      Низкий
-                    </button>
-                    <button
-                      className={`priority-item average ${priority === "average" ? "active" : ""}`}
-                      onClick={() => changePriority("average")}
-                    >
-                      Средний
-                    </button>
-                    <button
-                      className={`priority-item high ${priority === "high" ? "active" : ""}`}
-                      onClick={() => changePriority("high")}
-                    >
-                      Высокий
-                    </button>
-                    <button
-                      className={`priority-item maximal ${priority === "maximal" ? "active" : ""}`}
-                      onClick={() => changePriority("maximal")}
-                    >
-                      Максимум
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
 
-            {isMember() && (
-              <div className="add-comment">
-                <input
-                  type="text"
-                  placeholder="Добавить комментарий..."
-                  value={newCommentTitle}
-                  onChange={(e) => setNewCommentTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") addCommentHandler();
-                  }}
-                />
-                <button onClick={addCommentHandler}>Отправить</button>
-              </div>
-            )}
+            <div className="priority-container">
+              <button
+                className="task-btn priority-btn"
+                onClick={() => isMember() && setShowPriority(!showPriority)}
+                title="Изменить приоритет"
+                style={{
+                  backgroundColor: getPriorityColor(priority),
+                  color: priority === "average" ? "#212529" : "white",
+                  border: "none",
+                }}
+              >
+                {getPriorityName(priority)}
+                <span className={`priority-arrow ${showPriority ? "open" : ""}`}>
+                  {showPriority ? "▲" : "▼"}
+                </span>
+              </button>
 
-            {showFiles && (
-              <div className="files-dropdown">
-                <div className="files-dropdown-content">
-                  <label className="file-upload-label">
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      style={{ display: "none" }}
-                    />
-                    <span className="upload-file-btn">+ Загрузить файл</span>
-                  </label>
-
-                  {loadingFiles ? (
-                    <div className="loading-files">Загрузка файлов...</div>
-                  ) : files.length > 0 ? (
-                    <div className="files-list">
-                      {files.map((file) => (
-                        <div key={file.id} className="file-item">
-                          <a
-                            href={file.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="file-link"
-                            title={`Загружено: ${formatDate(file.uploaded_at)}\n${file.uploaded_by_username}`}
-                          >
-                            <span className="file-icon">📎</span>
-                            <span className="file-name">
-                              {file.file_name || file.file.split("/").pop()}
-                            </span>
-                          </a>
-
-                          {isMember() && (
-                            <button
-                              className="delete-file-btn"
-                              onClick={() => deleteFile(file.id)}
-                              title="Удалить файл"
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="no-files">Файлы отсутствуют</div>
-                  )}
+              {showPriority && isMember() && (
+                <div className="priority-dropdown">
+                  <button
+                    className={`priority-item low ${priority === "low" ? "active" : ""}`}
+                    onClick={() => changePriority("low")}
+                  >
+                    Низкий
+                  </button>
+                  <button
+                    className={`priority-item average ${priority === "average" ? "active" : ""}`}
+                    onClick={() => changePriority("average")}
+                  >
+                    Средний
+                  </button>
+                  <button
+                    className={`priority-item high ${priority === "high" ? "active" : ""}`}
+                    onClick={() => changePriority("high")}
+                  >
+                    Высокий
+                  </button>
+                  <button
+                    className={`priority-item maximal ${priority === "maximal" ? "active" : ""}`}
+                    onClick={() => changePriority("maximal")}
+                  >
+                    Максимум
+                  </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+
+          {showFiles && (
+            <div className="files-dropdown">
+              <div className="files-dropdown-content">
+                <label className="file-upload-label">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                  <span className="upload-file-btn">+ Загрузить файл</span>
+                </label>
+
+                {loadingFiles ? (
+                  <div className="loading-files">Загрузка файлов...</div>
+                ) : files.length > 0 ? (
+                  <div className="files-list">
+                    {files.map((file) => (
+                      <div key={file.id} className="file-item">
+                        <a
+                          href={file.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="file-link"
+                          title={`Загружено: ${formatDate(file.uploaded_at)}\n${file.uploaded_by_username}`}
+                        >
+                          <span className="file-icon">📎</span>
+                          <span className="file-name">
+                            {file.file_name || file.file.split("/").pop()}
+                          </span>
+                        </a>
+
+                        {isMember() && (
+                          <button
+                            className="delete-file-btn"
+                            onClick={() => deleteFile(file.id)}
+                            title="Удалить файл"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-files">Файлы отсутствуют</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Поле добавления комментария - только если комменты открыты */}
+          {isMember() && showComments && (
+            <div className="add-comment">
+              <input
+                type="text"
+                placeholder="Добавить комментарий..."
+                value={newCommentTitle}
+                onChange={(e) => setNewCommentTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addCommentHandler();
+                }}
+              />
+              <button onClick={addCommentHandler}>Отправить</button>
+            </div>
+          )}
 
           {task.comments && task.comments.length > 0 && showComments && (
             <div className="comments-section">

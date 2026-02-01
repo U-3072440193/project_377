@@ -224,10 +224,7 @@ const App = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h2>Добро пожаловать, {username}!</h2>
-        <button onClick={logout}>Выйти</button>
-      </div>
+      
 
       {board && user && (
         <Main

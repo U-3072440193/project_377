@@ -4,6 +4,12 @@
   display: inline-block;
 }
 
+.deadline-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .deadline-btn {
   display: flex;
   align-items: center;
@@ -54,6 +60,19 @@
 
 .deadline-btn.overdue .calendarIcon {
   filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(4738%) hue-rotate(353deg) brightness(90%) contrast(86%);
+}
+
+.deadline-label {
+  font-size: 12px;
+  color: #2e7d32;
+  font-style: italic;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1;
+  margin-left: 2px;
+  padding: 2px 6px;
+  background: rgba(46, 125, 50, 0.1);
+  border-radius: 3px;
 }
 
 .deadline-date {
@@ -266,4 +285,254 @@
   0% { opacity: 1; }
   50% { opacity: 0.7; }
   100% { opacity: 1; }
+}
+
+/* Стили для дедлайн попапа - КОМПАКТНЫЕ */
+.deadline-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  padding: 16px;
+  min-width: 240px;
+  max-width: 260px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.deadline-popup-content {
+  padding: 0;
+  margin: 0;
+}
+
+.deadline-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.deadline-popup-header h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.close-popup-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.close-popup-btn:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+/* Стили для выбора даты */
+.date-input-container {
+  margin-bottom: 12px;
+}
+
+.date-input-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.date-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  height: 36px;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Превью даты */
+.date-preview {
+  margin: 12px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.selected-date-info {
+  color: #2e7d32;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.selected-date-info strong {
+  color: #1b5e20;
+  font-size: 12px;
+}
+
+.no-date-info {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Кнопки действий */
+.deadline-popup-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.deadline-popup-actions button {
+  flex: 1;
+  min-width: 80px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.save-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.remove-btn {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.remove-btn:hover:not(:disabled) {
+  background-color: #f1b0b7;
+  transform: translateY(-1px);
+}
+
+.remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Позиционирование для контейнера дедлайна в таске */
+.deadline-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .deadline-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 280px;
+    z-index: 9999;
+  }
+  
+  .deadline-popup-actions {
+    flex-direction: column;
+  }
+  
+  .deadline-popup-actions button {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .deadline-popup-content {
+    padding: 14px;
+  }
+  
+  .deadline-label {
+    font-size: 11px;
+    padding: 1px 4px;
+  }
+}
+
+/* Анимация для плавного появления */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Затемнение фона для мобильной версии */
+@media (max-width: 768px) {
+  .deadline-popup::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
 }

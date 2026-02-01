@@ -16,16 +16,22 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import userIcon from "../assets/images/user.svg";
+import userIcon from "../assets/images/user_w.svg";
+import renameIcon from "../assets/images/rename_w.svg";
 
 function Main({ user, board, csrfToken, members, removeMember, serverUrl, username, readOnly = false }) {
   const [columns, setColumns] = useState([]);
-  const [tasks, setTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showMember, setShowMember] = useState(false);
   const [showChat, setShowChat] = useState(false);
+
+  // Состояние для переименования доски
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newBoardTitle, setNewBoardTitle] = useState(board.title);
+  const [boardTitle, setBoardTitle] = useState(board.title);
+
   const isOwner = user.id === board.owner.id;
   const isMember = () => {
     return members.some(
@@ -33,11 +39,67 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     );
   };
 
-  console.log("user:", user);
-  console.log("csrfToken:", csrfToken);
+  // Для переименовывания доски
+  // Обновляем состояние при изменении пропса board
+  useEffect(() => {
+    setBoardTitle(board.title);
+  }, [board.title]);
+
+  const updateBoardTitle = (newTitle) => {
+    if (readOnly || !isOwner) return;
+    fetch(`${serverUrl}api/boards/${board.id}/rename/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      credentials: "include",
+      body: JSON.stringify({ title: newTitle }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        // Обновляем состояние вместо прямого изменения объекта
+        setBoardTitle(newTitle);
+        board.title = newTitle; // На всякий случай обновляем и объект
+      })
+      .catch((error) => {
+        console.error("Error renaming board:", error);
+        alert("Ошибка при переименовании доски: " + error.message);
+      });
+  };
+
+  const handleRename = () => {
+    if (readOnly || !isOwner) return;
+    if (newBoardTitle.trim() && newBoardTitle !== board.title) {
+      updateBoardTitle(newBoardTitle);
+    }
+    setIsRenaming(false);
+  };
+
+  const cancelRename = () => {
+    if (readOnly) return;
+    setNewBoardTitle(boardTitle); // Используем boardTitle вместо board.title
+    setIsRenaming(false);
+  };
+
+  const startRenaming = () => {
+    if (readOnly || !isOwner) { // Проверка перед началом переименования
+      if (readOnly) alert("Доска в архиве");
+      return;
+    }
+    setIsRenaming(true);
+  };
 
   const toggleInput = () => {
-    if(readOnly){alert("Доска в архиве");return}
+    if (readOnly || !isOwner) { // Только владелец может добавлять колонки
+      if (readOnly) alert("Доска в архиве");
+      return;
+    }
     setShowInput(!showInput);
     if (showInput) {
       setNewColumnTitle("");
@@ -64,7 +126,8 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   const handleDragStart = (event) => {
     if (readOnly) {
       event.preventDefault();
-      return;}
+      return;
+    }
     const { active } = event;
     setActiveTask(active.data.current?.task);
   };
@@ -152,7 +215,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskOrder = (taskId, newIndex, columnId) => {
-    if (readOnly) return;
+    if (readOnly || !isMember()) return; // Только участники могут перемещать задачи
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -165,7 +228,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskColumn = (taskId, newColumnId) => {
-    if (readOnly) return;
+    if (readOnly || !isMember()) return; // Только участники могут перемещать задачи
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -177,13 +240,8 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     }).catch(console.error);
   };
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-CSRFToken': csrfToken
-  };
-
   const updateTaskTitle = (taskId, newTitle) => {
-    if (readOnly) return;
+    if (readOnly || !isMember()) return; // Только участники могут переименовывать задачи
     console.log("Переименование задачи:", taskId, "->", newTitle);
 
     fetch(`${serverUrl}api/tasks/${taskId}/rename/`, {
@@ -220,7 +278,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addColumn = () => {
-    if (readOnly) return;
+    if (readOnly || !isOwner) return; // Только владелец может добавлять колонки
     if (!newColumnTitle.trim()) return;
 
     fetch(`${serverUrl}api/boards/${board.id}/columns/`, {
@@ -242,7 +300,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const removeColumn = (colId) => {
-    if (readOnly) return;
+    if (readOnly || !isOwner) return; // Только владелец может удалять колонки
     fetch(`${serverUrl}api/columns/${colId}/`, {
       method: "DELETE",
       headers: { "X-CSRFToken": csrfToken },
@@ -253,7 +311,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateColumnTitle = (columnId, newTitle) => {
-    if (readOnly) return;
+    if (readOnly || !isOwner) return; // Только владелец может переименовывать колонки
     fetch(`${serverUrl}api/columns/${columnId}/rename/`, {
       method: "PATCH",
       headers: {
@@ -320,7 +378,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addCommentToTask = (taskId, newComment) => {
-    if (readOnly) return;
+    if (readOnly || !isMember()) return; // Только участники могут добавлять комментарии
     setColumns((prevColumns) =>
       prevColumns.map((col) => ({
         ...col,
@@ -345,166 +403,204 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
 
   return (
     <div className="main">
-        {/* Тулбар - фиксированной высоты */}
-        <div className="tool-bar">
-            <div className="board-actions">
-                <div className="inn-board">
-                    <h1>{board.title}</h1>
-                    <p>Дата создания: {new Date(board.created).toLocaleString('ru-RU', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
-                </div>
-                {user.id === board.owner.id && (
-                    <div className="actions">
-                        <button className="add-column-btn" onClick={toggleInput}>
-                            {showInput ? "×" : "+"}
-                        </button>
-                        {showInput && (
-                            <div className="add-column-form">
-                                <input
-                                    type="text"
-                                    placeholder="Название колонки"
-                                    value={newColumnTitle}
-                                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                                    autoFocus
-                                />
-                                <button onClick={addColumn}>Добавить</button>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-            
-            {/* Кнопки управления - внутри тулбара */}
-            <div className="toolbar-controls">
-                {/* Кнопка чата */}
-                <button 
-                    className="chat-toggle-button"
-                    onClick={() => setShowChat(!showChat)}
-                >
-                    💬 Чат ({showChat ? 'скрыть' : 'показать'})
-                </button>
-                
-                {/* Кнопка участников */}
-                <button className="member-btn" onClick={viewMember}>
-                    {showMember ? "×" : <img className='userIcon' src={userIcon} alt="Пользователи" />}
-                </button>
-            </div>
-            
-            {/* Блок пользователя */}
-            <div className="user">
-                <p>Создатель: {board.owner.username}</p>
-                <img
-                    src={`${serverUrl}${board.owner.avatar}`}
-                    alt="avatar"
-                    width="50"
-                    height="50"
+      {/* Тулбар */}
+      <div className="tool-bar">
+        <div className="board-actions">
+          <div className="inn-board">
+            {isRenaming ? (
+              <div className="board-rename-input-container">
+                <input
+                  type="text"
+                  value={newBoardTitle}
+                  onChange={(e) => setNewBoardTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleRename();
+                    if (e.key === 'Escape') cancelRename();
+                  }}
+                  autoFocus
+                  className="board-rename-input"
                 />
+                <button onClick={handleRename} className="rename-confirm-btn">
+                  ✓
+                </button>
+                <button onClick={cancelRename} className="rename-cancel-btn">
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <div className="board-title-section">
+                <h1>{boardTitle}</h1> {/* Используем boardTitle */}
+                {isOwner && !readOnly && !isRenaming && (
+                  <button
+                    className="rename-board-btn"
+                    onClick={startRenaming}
+                    title="Переименовать доску"
+                  >
+                    <img className='renameIcon' src={renameIcon} alt="Переименовать" />
+                  </button>
+                )}
+              </div>
+            )}
+            <p>Дата создания: {new Date(board.created).toLocaleString('ru-RU', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</p>
+          </div>
+          {isOwner && !readOnly && ( // Только владелец и не в архиве
+            <div className="actions">
+              <button className="add-column-btn" onClick={toggleInput}>
+                {showInput ? "×" : "+"}
+              </button>
+              {showInput && (
+                <div className="add-column-form">
+                  <input
+                    type="text"
+                    placeholder="Название колонки"
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    autoFocus
+                  />
+                  <button onClick={addColumn}>Добавить</button>
+                </div>
+              )}
             </div>
+          )}
         </div>
 
-        {/* Попап участников (абсолютный) */}
-        {showMember && board && members.length > 0 && (
-            <div className="members-popup">
-                <div className="members-content">
-                    <h3>Участники доски:</h3>
-                    <button className="close-members-btn" onClick={() => setShowMember(false)}>×</button>
-                    <ul>
-                        {members.map((member) => (
-                            <li key={member.id}>
-                                <img
-                                    src={`${serverUrl}${member.avatar}`}
-                                    alt={member.username}
-                                    width={32}
-                                    height={32}
-                                    style={{ borderRadius: "50%" }}
-                                />
-                                {member.username} ({member.role})
-                                {user.id === board.owner.id && (
-                                    <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
-                                        ×
-                                    </button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-        )}
+        {/* Кнопки управления - внутри тулбара */}
+        <div className="toolbar-controls">
+          {/* Кнопка чата (доступна всем участникам) */}
+          {isMember() && (
+            <button
+              className="chat-toggle-button"
+              onClick={() => setShowChat(!showChat)}
+            >
+              💬 Чат ({showChat ? 'скрыть' : 'показать'})
+            </button>
+          )}
 
-        {/* Чат - АБСОЛЮТНО позиционированный, поверх всего */}
-        {showChat && (
-            <div className="chat-overlay">
-                <div className="chat-window">
-                    <div className="chat-header">
-                        <h3>💬 Чат доски #{board.id}</h3>
-                        <button className="close-chat-btn" onClick={() => setShowChat(false)}>×</button>
-                    </div>
-                    <Chat
-                        boardId={board?.id}
-                        currentUser={{
-                            id: user?.id || 0,
-                            username: user?.username || 'Гость',
-                            avatar: user?.avatar || '/default-avatar.png'
-                        }}
-                        serverUrl={serverUrl}
-                        csrfToken={csrfToken}
-                        key={`chat-${board?.id}-${user?.id}`}
-                    />
-                </div>
-            </div>
-        )}
+          {/* Кнопка участников (доступна всем участникам) */}
+          {isMember() && (
+            <button className="member-btn" onClick={viewMember}>
+              {showMember ? "×" : <img className='userIcon' src={userIcon} alt="Пользователи" />}
+            </button>
+          )}
+        </div>
 
-        {/* Основной контент - доска с колонками */}
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-        >
-            <div className="columns-container">
-                <SortableContext
-                    items={columns.map((col) => col.id)}
-                    strategy={horizontalListSortingStrategy}
-                >
-                    {columns.map((col) => (
-                        <Column
-                            key={col.id}
-                            column={col}
-                            removeColumn={removeColumn}
-                            csrfToken={csrfToken}
-                            updateTasks={updateTasksInColumn}
-                            addTask={addTaskToColumn}
-                            removeTask={removeTaskFromColumn}
-                            updateTask={updateTaskInColumn}
-                            forPermit={isOwner}
-                            isMember={isMember}
-                            addCommentToTask={addCommentToTask}
-                            serverUrl={serverUrl}
-                            user={user}
-                            username={username}
-                            updateColumn={updateColumnTitle}
-                            updateTaskTitle={updateTaskTitle}
-                            readOnly={readOnly}
-                        />
-                    ))}
-                </SortableContext>
-            </div>
+        {/* Блок пользователя */}
+        <div className="user">
+          <p>Создатель: {board.owner.username}</p>
+          <img
+            src={`${serverUrl}${board.owner.avatar}`}
+            alt="avatar"
+            width="50"
+            height="50"
+          />
+        </div>
+      </div>
 
-            <DragOverlay dropAnimation={dropAnimation}>
-                {activeTask && (
-                    <div className="task-overlay">
-                        <div className="drag-handle task-name">{activeTask.title}</div>
-                    </div>
-                )}
-            </DragOverlay>
-        </DndContext>
+      {/* Попап участников (абсолютный) - виден только участникам */}
+      {showMember && isMember() && board && members.length > 0 && (
+        <div className="members-popup">
+          <div className="members-content">
+            <h3>Участники доски:</h3>
+            <button className="close-members-btn" onClick={() => setShowMember(false)}>×</button>
+            <ul>
+              {members.map((member) => (
+                <li key={member.id}>
+                  <img
+                    src={`${serverUrl}${member.avatar}`}
+                    alt={member.username}
+                    width={32}
+                    height={32}
+                    style={{ borderRadius: "50%" }}
+                  />
+                  {member.username} ({member.role})
+                  {isOwner && !readOnly && ( // Только владелец и не в архиве
+                    <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
+                      ×
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Чат - АБСОЛЮТНО позиционированный, поверх всего (доступен только участникам) */}
+      {showChat && isMember() && (
+        <div className="chat-overlay">
+          <div className="chat-window">
+            <div className="chat-header">
+              <h3>💬 Чат доски #{board.id}</h3>
+              <button className="close-chat-btn" onClick={() => setShowChat(false)}>×</button>
+            </div>
+            <Chat
+              boardId={board?.id}
+              currentUser={{
+                id: user?.id || 0,
+                username: user?.username || 'Гость',
+                avatar: user?.avatar || '/default-avatar.png'
+              }}
+              serverUrl={serverUrl}
+              csrfToken={csrfToken}
+              key={`chat-${board?.id}-${user?.id}`}
+              readOnly={!isMember()} // Передаем readOnly если пользователь не участник
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Основной контент - доска с колонками */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="columns-container">
+          <SortableContext
+            items={columns.map((col) => col.id)}
+            strategy={horizontalListSortingStrategy}
+          >
+            {columns.map((col) => (
+              <Column
+                key={col.id}
+                column={col}
+                removeColumn={removeColumn}
+                csrfToken={csrfToken}
+                updateTasks={updateTasksInColumn}
+                addTask={addTaskToColumn}
+                removeTask={removeTaskFromColumn}
+                updateTask={updateTaskInColumn}
+                forPermit={isOwner}
+                isMember={isMember}
+                addCommentToTask={addCommentToTask}
+                serverUrl={serverUrl}
+                user={user}
+                username={username}
+                updateColumn={updateColumnTitle}
+                updateTaskTitle={updateTaskTitle}
+                readOnly={readOnly || !isMember()} // Передаем readOnly если не участник
+              />
+            ))}
+          </SortableContext>
+        </div>
+
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeTask && (
+            <div className="task-overlay">
+              <div className="drag-handle task-name">{activeTask.title}</div>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
     </div>
-);
+  );
 }
 
 export default Main;

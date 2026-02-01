@@ -1,13 +1,15 @@
-// DeadlineButton.js - НАДЁЖНЫЙ ВАРИАНТ БЕЗ БИБЛИОТЕК
 import React, { useState, useRef, useEffect } from "react";
 import "./deadlinebutton.css";
+import timeIcon from "../assets/images/time_w.svg";
 
 const DeadlineButton = ({ 
   taskId, 
   initialDeadline, 
   csrfToken, 
   onDeadlineChange,
-  readOnly = false 
+  readOnly = false,
+  customButton,
+  showLabel = true
 }) => {
   const [deadline, setDeadline] = useState(
     initialDeadline ? new Date(initialDeadline) : null
@@ -113,7 +115,6 @@ const DeadlineButton = ({
     
     if (dateValue) {
       const newDate = new Date(dateValue);
-      // Добавляем время, чтобы избежать проблем с часовыми поясами
       newDate.setHours(12, 0, 0, 0);
       setDeadline(newDate);
     } else {
@@ -122,7 +123,7 @@ const DeadlineButton = ({
   };
 
   const formatDeadline = (dateString) => {
-    if (!dateString) return "Дедлайн";
+    if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString("ru-RU", {
       day: "2-digit",
@@ -152,6 +153,109 @@ const DeadlineButton = ({
     };
   }, [isOpen]);
 
+  // Если передана кастомная кнопка, используем её
+  if (customButton) {
+    const CustomButtonComponent = customButton;
+    const formattedDeadline = deadline ? formatDeadline(deadline) : null;
+    
+    return (
+      <div className="deadline-container" ref={deadlineRef}>
+        <div className="deadline-section">
+          <CustomButtonComponent
+            onClick={() => !readOnly && setIsOpen(!isOpen)}
+            title={formattedDeadline ? `Дедлайн: ${formattedDeadline}` : "Установить дедлайн"}
+            hasDeadline={!!deadline}
+          />
+          
+          {/* Метка с датой дедлайна */}
+          {showLabel && formattedDeadline && (
+            <span className="deadline-label">
+              {formattedDeadline}
+            </span>
+          )}
+        </div>
+        
+        {isOpen && !readOnly && (
+          <div className="deadline-popup">
+            <div className="deadline-popup-content">
+              <div className="deadline-popup-header">
+                <h4>Установить дедлайн</h4>
+                <button 
+                  className="close-popup-btn"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Закрыть"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="date-input-container">
+                <label htmlFor="deadline-date-input">
+                  Выберите дату:
+                </label>
+                <input
+                  id="deadline-date-input"
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  min={getTodayString()}
+                  className="date-input"
+                />
+              </div>
+              
+              <div className="date-preview">
+                {selectedDate ? (
+                  <div className="selected-date-info">
+                    <strong>Выбранная дата:</strong><br />
+                    {new Date(selectedDate).toLocaleDateString('ru-RU', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      weekday: 'long'
+                    })}
+                  </div>
+                ) : (
+                  <div className="no-date-info">
+                    Дата не выбрана
+                  </div>
+                )}
+              </div>
+              
+              <div className="deadline-popup-actions">
+                <button 
+                  onClick={handleSave} 
+                  disabled={isSaving || !selectedDate}
+                  className="save-btn"
+                >
+                  {isSaving ? "Сохранение..." : "Установить"}
+                </button>
+                
+                {deadline && (
+                  <button 
+                    onClick={handleRemove} 
+                    disabled={isSaving}
+                    className="remove-btn"
+                  >
+                    Удалить
+                  </button>
+                )}
+                
+                <button 
+                  onClick={() => setIsOpen(false)} 
+                  disabled={isSaving}
+                  className="cancel-btn"
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Стандартная кнопка (скрыта, используется только через customButton)
   return (
     <div className="deadline-container" ref={deadlineRef}>
       <button
@@ -159,8 +263,9 @@ const DeadlineButton = ({
         onClick={() => !readOnly && setIsOpen(!isOpen)}
         title={deadline ? `Дедлайн: ${formatDeadline(deadline)}` : "Установить дедлайн"}
         disabled={readOnly}
+        style={{ display: 'none' }}
       >
-        📅 {deadline ? formatDeadline(deadline) : "Дедлайн"}
+        <img className='timeIcon' src={timeIcon} alt="Дедлайн" /> {deadline ? formatDeadline(deadline) : "Дедлайн"}
       </button>
 
       {isOpen && !readOnly && (
@@ -215,7 +320,7 @@ const DeadlineButton = ({
                 disabled={isSaving || !selectedDate}
                 className="save-btn"
               >
-                {isSaving ? "Сохранение..." : "Установить дедлайн"}
+                {isSaving ? "Сохранение..." : "Установить"}
               </button>
               
               {deadline && (
@@ -224,7 +329,7 @@ const DeadlineButton = ({
                   disabled={isSaving}
                   className="remove-btn"
                 >
-                  Удалить дедлайн
+                  Удалить
                 </button>
               )}
               
