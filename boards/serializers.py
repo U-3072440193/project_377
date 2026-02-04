@@ -33,11 +33,19 @@ class CommentSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)  # информация о создателе задачи
     comments = CommentSerializer(many=True, read_only=True)
+    responsible = UserSerializer(many=True, read_only=True)
+    responsible_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=User.objects.all(),
+        source='responsible',
+        write_only=True,
+        required=False
+    )
 
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'position', 'creator', 'created', 'updated', 'files', 'comments',
-                  'priority', 'deadline' ]
+                  'priority', 'deadline','responsible', 'responsible_ids', ]
 
 
 # Сериализатор подгрузки файлов к задаче

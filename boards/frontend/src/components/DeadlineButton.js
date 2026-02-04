@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./deadlinebutton.css";
+import "./deadlineButton.css";
 import timeIcon from "../assets/images/time_w.svg";
+
 
 const DeadlineButton = ({ 
   taskId, 

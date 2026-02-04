@@ -586,6 +586,8 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
                 updateColumn={updateColumnTitle}
                 updateTaskTitle={updateTaskTitle}
                 readOnly={readOnly || !isMember()} // Передаем readOnly если не участник
+                members={members}
+                board={board}
               />
             ))}
           </SortableContext>

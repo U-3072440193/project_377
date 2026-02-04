@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import axios from "axios"; // ДОБАВЛЕН ИМПОРТ AXIOS
 import TipTap from "./TipTap";
 import renameIcon from "../assets/images/rename_w.svg";
 import textIcon from "../assets/images/text.svg";
 import commentIcon from "../assets/images/comment.svg";
 import fileIcon from "../assets/images/file.svg";
 import timeIcon from "../assets/images/time_w.svg";
+import userIcon from "../assets/images/user.svg";
 import DeadlineButton from "./DeadlineButton";
 
 function Task({
@@ -20,7 +22,11 @@ function Task({
   user,
   username,
   updateTaskTitle,
-  readOnly = false
+  readOnly = false,
+  members: boardMembers, 
+  serverUrl, 
+  board, 
+  isOwner
 }) {
   const [showEditor, setShowEditor] = useState(false);
   const [description, setDescription] = useState(task.description || "");
@@ -35,6 +41,8 @@ function Task({
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState(task.title);
+  const [taskMembers, setTaskMembers] = useState(task.responsible || []);
+  const [showMember, setShowMember] = useState(false);
 
   const {
     attributes,
@@ -64,9 +72,13 @@ function Task({
   }, [task.id]);
 
   const fetchFiles = async () => {
-    if (readOnly) return;
+    console.log('fetchFiles called for task:', task.id);
+    console.log('Current files state:', files);
+
     try {
       setLoadingFiles(true);
+      console.log('Making API call...');
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}tasks/${task.id}/files/`,
         {
@@ -75,8 +87,11 @@ function Task({
         }
       );
 
+      console.log('Response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Files data received:', data);
         setFiles(data);
       } else {
         console.error("Ошибка загрузки файлов:", response.status);
@@ -375,6 +390,76 @@ function Task({
     </button>
   );
 
+  //Добавление мембера к таску
+  const addMemberToTask = (userId) => {
+    if (readOnly || !isMember()) return;
+    
+    axios
+      .post(
+        `${serverUrl}api/tasks/${task.id}/add-responsible/`,
+        { user_id: userId },
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          }
+        }
+      )
+      .then((res) => {
+        // Добавляем пользователя в список ответственных
+        const newMember = boardMembers.find(m => m.id === userId);
+        if (newMember) {
+          const updatedTaskMembers = [...taskMembers, newMember];
+          setTaskMembers(updatedTaskMembers);
+          
+          // Обновляем задачу в колонке
+          const updatedTask = {
+            ...task,
+            responsible: updatedTaskMembers
+          };
+          if (updateTask) updateTask(columnId, updatedTask);
+        }
+        setShowMember(false);
+      })
+      .catch((err) => {
+        console.error("Ошибка добавления участника:", err);
+        alert("Не удалось добавить участника");
+      });
+  };
+
+  // Удаление мембера из таска
+  const removeMemberFromTask = (userId) => {
+    if (readOnly || !isMember()) return;
+    
+    axios
+      .post(
+        `${serverUrl}api/tasks/${task.id}/remove-responsible/`,
+        { user_id: userId },
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          }
+        }
+      )
+      .then((res) => {
+        // Удаляем пользователя из списка ответственных
+        const updatedTaskMembers = taskMembers.filter(m => m.id !== userId);
+        setTaskMembers(updatedTaskMembers);
+        
+        // Обновляем задачу в колонке
+        const updatedTask = {
+          ...task,
+          responsible: updatedTaskMembers
+        };
+        if (updateTask) updateTask(columnId, updatedTask);
+      })
+      .catch((err) => {
+        console.error("Ошибка удаления участника:", err);
+        alert("Не удалось удалить участника");
+      });
+  };
+
   return (
     <>
       <div className="task-container" style={style}>
@@ -477,10 +562,84 @@ function Task({
               <img className='commentIcon' src={commentIcon} alt="Комментарии" />
               {task.comments?.length > 0 && <span className="comments-badge">{task.comments.length}</span>}
             </button>
+
+            {/* Кнопка ответственных */}
+            <div className="task-btn-circle" style={{ position: 'relative' }}>
+              <button
+                className={`task-btn-circle ${taskMembers.length > 0 ? "has-members" : ""}`}
+                onClick={() => setShowMember(!showMember)}
+                title={taskMembers.length > 0 ? `Ответственные (${taskMembers.length})` : "Добавить ответственного"}
+              >
+                <img className='userIcon' src={userIcon} alt="Ответственные" />
+                {taskMembers.length > 0 && <span className="members-badge">{taskMembers.length}</span>}
+              </button>
+
+              {showMember && isMember() && (
+                <div className="members-dropdown">
+                  <div className="members-dropdown-content">
+                    <div className="current-members">
+                      <h4>Ответственные:</h4>
+                      {taskMembers.length > 0 ? (
+                        <div className="task-members-list">
+                          {taskMembers.map((member) => (
+                            <div key={member.id} className="task-member-item">
+                              <img
+                                src={`${serverUrl}${member.avatar}`}
+                                alt={member.username}
+                                width={24}
+                                height={24}
+                                style={{ borderRadius: "50%" }}
+                              />
+                              <span>{member.username}</span>
+                              <button
+                                className="remove-task-member-btn"
+                                onClick={() => removeMemberFromTask(member.id)}
+                                title="Удалить"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="no-members">Нет ответственных</div>
+                      )}
+                    </div>
+                    
+                    <div className="available-members">
+                      <h4>Добавить участника:</h4>
+                      <div className="available-members-list">
+                        {boardMembers
+                          .filter(member => !taskMembers.some(m => m.id === member.id))
+                          .map((member) => (
+                            <div key={member.id} className="available-member-item">
+                              <img
+                                src={`${serverUrl}${member.avatar}`}
+                                alt={member.username}
+                                width={24}
+                                height={24}
+                                style={{ borderRadius: "50%" }}
+                              />
+                              <span>{member.username}</span>
+                              <button
+                                className="add-task-member-btn"
+                                onClick={() => addMemberToTask(member.id)}
+                                title="Добавить"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Вторая строка: дедлайн и приоритет */}
-            <div className="task-buttons-row-second">
+          <div className="task-buttons-row-second">
             <div className="deadline-section">
               <div className="deadline-icon-container">
                 <DeadlineButton

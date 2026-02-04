@@ -82,6 +82,7 @@ class Task(models.Model):
     position = models.PositiveIntegerField(default=0)
     priority = models.CharField(max_length=10, choices=PRIORITY, default='low')
     deadline = models.DateTimeField(null=True, blank=True)
+    responsible = models.ManyToManyField(User, related_name='responsible_tasks', blank=True)
 
     def __str__(self):
         return self.title

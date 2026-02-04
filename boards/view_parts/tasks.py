@@ -401,3 +401,127 @@ class TaskDeadlineAPIView(APIView):
         task.save()
         serializer = TaskSerializer(task)
         return Response(serializer.data, status=200)
+    
+
+class AddResponsibleToTaskAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+    
+    def post(self, request, task_id):
+        """
+        Добавить ответственного к задаче
+        """
+        try:
+            task = get_object_or_404(Task, id=task_id)
+            user_id = request.data.get('user_id')
+            
+            if not user_id:
+                return Response({'error': 'user_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Проверяем, что пользователь существует
+            user = get_object_or_404(User, id=user_id)
+            
+            # Проверяем права доступа
+            board = task.column.board
+            if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
+                return Response({'error': 'Нет прав для изменения этой задачи'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Проверяем, что добавляемый пользователь является участником доски
+            # Сначала проверяем владельца
+            if user != board.owner:
+                # Проверяем, что пользователь имеет доступ к доске
+                if not BoardPermit.objects.filter(board=board, user=user).exists():
+                    return Response({'error': 'Пользователь не является участником доски'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Добавляем пользователя к ответственным
+            if task.responsible.filter(id=user.id).exists():
+                return Response({'error': 'Пользователь уже является ответственным'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            task.responsible.add(user)
+            task.save()
+            
+            # Возвращаем обновленную задачу
+            serializer = TaskSerializer(task)
+            return Response({
+                'success': True,
+                'message': 'Пользователь добавлен к ответственным',
+                'task': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RemoveResponsibleFromTaskAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+    
+    def post(self, request, task_id):
+        """
+        Удалить ответственного из задачи
+        """
+        try:
+            task = get_object_or_404(Task, id=task_id)
+            user_id = request.data.get('user_id')
+            
+            if not user_id:
+                return Response({'error': 'user_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Проверяем, что пользователь существует
+            user = get_object_or_404(User, id=user_id)
+            
+            # Проверяем права доступа
+            board = task.column.board
+            if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
+                return Response({'error': 'Нет прав для изменения этой задачи'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Удаляем пользователя из ответственных
+            if not task.responsible.filter(id=user.id).exists():
+                return Response({'error': 'Пользователь не является ответственным'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            task.responsible.remove(user)
+            task.save()
+            
+            # Возвращаем обновленную задачу
+            serializer = TaskSerializer(task)
+            return Response({
+                'success': True,
+                'message': 'Пользователь удален из ответственных',
+                'task': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GetTaskResponsibleAPIView(APIView):
+    authentication_classes = UNIVERSAL_FOR_AUTHENTICATION
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+    
+    def get(self, request, task_id):
+        """
+        Получить список ответственных за задачу
+        """
+        try:
+            task = get_object_or_404(Task, id=task_id)
+            
+            # Проверяем права доступа
+            board = task.column.board
+            if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
+                return Response({'error': 'Нет прав для просмотра этой задачи'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Получаем список ответственных
+            responsible_users = task.responsible.all()
+            
+            # Используем UserSerializer из ваших сериализаторов
+            from ..serializers import UserSerializer
+            serializer = UserSerializer(responsible_users, many=True)
+            
+            return Response({
+                'success': True,
+                'responsible': serializer.data,
+                'count': responsible_users.count()
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

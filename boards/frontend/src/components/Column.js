@@ -24,7 +24,10 @@ function Column({
   username,
   updateColumn,
   updateTaskTitle,
-  readOnly=false,
+  readOnly = false,
+  members,
+  serverUrl,
+  board
 }) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -83,7 +86,7 @@ function Column({
       })
       .catch(console.error);
   };
-  
+
   // Для переименовывания колонки
   const handleRename = () => {
     if (readOnly) return;
@@ -139,7 +142,7 @@ function Column({
                     onClick={() => setIsRenaming(true)}
                     title="Переименовать"
                   >
-                    <img className='renameIcon' src={renameIcon} alt="Переименовать"/>
+                    <img className='renameIcon' src={renameIcon} alt="Переименовать" />
                   </button>
                   {forPermit && removeColumn && (
                     <button
@@ -176,6 +179,10 @@ function Column({
               username={username}
               updateTaskTitle={updateTaskTitle}
               readOnly={readOnly}
+              members={members} 
+              serverUrl={serverUrl} 
+              board={board} 
+              isOwner={forPermit} 
             />
           ))}
         </SortableContext>
