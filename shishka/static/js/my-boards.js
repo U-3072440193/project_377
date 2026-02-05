@@ -117,7 +117,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         usersHTML = users
                             .map(
                                 (user) => `
+                                
                                     <div class="board-user" data-user-id="${user.id}">
+                                    <a href="/users/profile-public/${user.id}/" 
+                                    class="user-profile-link" 
+                                    title="Профиль ${user.username}"
+                                    style="display: contents; text-decoration: none; color: inherit;"
+                                    >
                                         <img src="${user.avatar || '/static/images/default-avatar.png'}"
                                              alt="${user.username}"
                                              width="32"
@@ -126,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         <span class="user-info">
                                             <strong>${user.username}</strong>
                                             <span class="user-role">(${getRoleName(user.role)})</span>
-                                        </span>
+                                        </span></a>
                                         ${isOwner && user.id !== boardOwnerId ?
                                         `<button class="remove-user"
                                                 data-user-id="${user.id}"

@@ -11,6 +11,7 @@ class Board(models.Model):
     hidden = models.BooleanField(default=True)
     members = models.ManyToManyField(User, related_name='shared_boards', blank=True)
     is_archived = models.BooleanField(default=False)
+    position = models.IntegerField(default=0, verbose_name="Позиция")
 
     def __str__(self):
         return self.title
@@ -46,6 +47,20 @@ class BoardPermit(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.role} на {self.board.title}"
+
+
+class UserBoardOrder(models.Model):
+    """Порядок досок для каждого пользователя"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    board = models.ForeignKey('Board', on_delete=models.CASCADE)  # Кавычки если Board определен ниже
+    position = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ['user', 'board']
+        ordering = ['position']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.board.title} (pos: {self.position})"
 
 
 class Column(models.Model):
@@ -92,7 +107,7 @@ class Task(models.Model):
             last_task = Task.objects.filter(column=self.column).order_by('-position').first()
             self.position = last_task.position + 1 if last_task else 1
         super().save(*args, **kwargs)
-    
+
     # Метод для проверки просроченности
     def is_overdue(self):
         if not self.deadline:

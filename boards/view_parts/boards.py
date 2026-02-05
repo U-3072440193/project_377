@@ -7,10 +7,10 @@ import os
 import json
 from django.contrib import messages
 from ..forms import BoardForm
-from ..models import Board, BoardPermit, User
+from ..models import Board, BoardPermit, User, UserBoardOrder
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.db.models import Q
-
+from django.db import models
 # -------------------Для BoardListAPIView---------------
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -19,6 +19,7 @@ from ..models import Board
 from ..serializers import BoardSerializer
 from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES,get_react_js_filename,get_react_css_filename
 from rest_framework import status
+from django.views.decorators.http import require_POST
 
 
 # ------------------Доска------------------
@@ -84,13 +85,37 @@ def new_board(request):
         if form.is_valid():
             board = form.save(commit=False)  # сохранение без копирования в бд
             board.owner = request.user
+            
+            # Находим максимальную позицию у пользователя и ставим +1 (СВЕРХУ)
+            max_position = Board.objects.filter(
+                owner=request.user,
+                is_archived=False
+            ).aggregate(models.Max('position'))['position__max'] or 0
+            
+            # Устанавливаем позицию на 1 больше максимальной (новые сверху)
+            board.position = max_position + 1
             board.save()
+            
             # Автоматически добавляем владельца
             BoardPermit.objects.get_or_create(
                 board=board,
                 user=request.user,
                 defaults={'role': 'owner'}
             )
+            
+            # Также создаем запись в UserBoardOrder
+            UserBoardOrder.objects.create(
+                user=request.user,
+                board=board,
+                position=1  # Новая доска всегда сверху
+            )
+            
+            # Обновляем позиции остальных досок пользователя
+            # Смещаем все существующие доски вниз на 1
+            UserBoardOrder.objects.filter(
+                user=request.user
+            ).exclude(board=board).update(position=models.F('position') + 1)
+            
             return redirect('boards-page', pk=board.id)
     else:
         form = BoardForm()
@@ -99,7 +124,6 @@ def new_board(request):
         'form': form
     }
     return render(request, 'boards/new-board-form.html', context)
-
 
 @login_required(login_url='login')
 def delete_board(request, pk):
@@ -111,20 +135,18 @@ def delete_board(request, pk):
 @login_required(login_url='login')
 def my_boards(request):
     user = request.user
-
-    owned_boards = Board.objects.filter(owner=user)
-    permitted_boards = Board.objects.filter(
-        boardpermit__user=user
-    ).exclude(owner=user)
-
-    boards = (owned_boards | permitted_boards).order_by('-created').distinct()
     
-
+    # Получаем доски с учетом порядка
+    boards = get_user_boards_with_order(user)
+    
     context = {
-        'boards': boards.distinct().filter(is_archived=False),
-        'archived_boards': boards.distinct().filter(is_archived=True),
+        'boards': boards,
+        'archived_boards': Board.objects.filter(
+            Q(owner=user) | Q(boardpermit__user=user),
+            is_archived=True
+        ).distinct(),
     }
-
+    
     return render(request, 'boards/my-boards.html', context)
 
 
@@ -356,3 +378,163 @@ class BoardRenameAPIView(APIView):
 
         serializer = BoardSerializer(board)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@login_required
+@require_POST
+def move_board_up(request, board_id):
+    """Переместить доску вверх в пользовательском порядке"""
+    try:
+        board = get_object_or_404(Board, id=board_id)
+        user = request.user
+        
+        # Получаем текущий порядок пользователя
+        user_orders = UserBoardOrder.objects.filter(
+            user=user
+        ).order_by('position')
+        
+        # Преобразуем в список ID досок
+        board_ids = [order.board_id for order in user_orders]
+        
+        # Находим индекс текущей доски
+        try:
+            current_index = board_ids.index(board.id)
+        except ValueError:
+            # Доски нет в порядке пользователя - добавляем в конец
+            UserBoardOrder.objects.create(
+                user=user,
+                board=board,
+                position=len(board_ids) + 1
+            )
+            return JsonResponse({
+                'success': True,
+                'message': f'Доска "{board.title}" добавлена в список'
+            })
+        
+        if current_index > 0:
+            # Меняем местами с предыдущей доской
+            board_ids[current_index], board_ids[current_index - 1] = \
+                board_ids[current_index - 1], board_ids[current_index]
+            
+            # Обновляем позиции в БД
+            update_board_positions(user, board_ids)
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Доска "{board.title}" перемещена выше'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Доска уже на первой позиции'
+            })
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def move_board_down(request, board_id):
+    """Переместить доску вниз в пользовательском порядке"""
+    try:
+        board = get_object_or_404(Board, id=board_id)
+        user = request.user
+        
+        # Получаем текущий порядок пользователя
+        user_orders = UserBoardOrder.objects.filter(
+            user=user
+        ).order_by('position')
+        
+        # Преобразуем в список ID досок
+        board_ids = [order.board_id for order in user_orders]
+        
+        # Находим индекс текущей доски
+        try:
+            current_index = board_ids.index(board.id)
+        except ValueError:
+            # Доски нет в порядке пользователя - добавляем в конец
+            UserBoardOrder.objects.create(
+                user=user,
+                board=board,
+                position=len(board_ids) + 1
+            )
+            return JsonResponse({
+                'success': True,
+                'message': f'Доска "{board.title}" добавлена в список'
+            })
+        
+        if current_index < len(board_ids) - 1:
+            # Меняем местами со следующей доской
+            board_ids[current_index], board_ids[current_index + 1] = \
+                board_ids[current_index + 1], board_ids[current_index]
+            
+            # Обновляем позиции в БД
+            update_board_positions(user, board_ids)
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Доска "{board.title}" перемещена ниже'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Доска уже на последней позиции'
+            })
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+def get_user_boards_with_order(user):
+    """Получить доски пользователя с учетом его порядка"""
+    # Все доступные доски
+    owned_boards = Board.objects.filter(owner=user, is_archived=False)
+    permitted_boards = Board.objects.filter(
+        boardpermit__user=user,
+        is_archived=False
+    ).exclude(owner=user)
+    
+    all_boards = (owned_boards | permitted_boards).distinct()
+    
+    # Получаем пользовательский порядок
+    user_orders = UserBoardOrder.objects.filter(
+        user=user,
+        board__in=all_boards
+    ).select_related('board')
+    
+    # Создаем словарь позиций
+    position_dict = {order.board_id: order.position for order in user_orders}
+    
+    # Инициализируем порядок для досок без записи
+    for board in all_boards:
+        if board.id not in position_dict:
+            # Создаем запись с дефолтной позицией
+            UserBoardOrder.objects.create(
+                user=user,
+                board=board,
+                position=len(position_dict) + 1
+            )
+            position_dict[board.id] = len(position_dict) + 1
+    
+    # Сортируем доски по позиции
+    sorted_boards = sorted(
+        all_boards,
+        key=lambda b: position_dict.get(b.id, 999999)
+    )
+    
+    return sorted_boards
+
+def update_board_positions(user, board_ids_in_order):
+    """Обновить позиции досок для пользователя"""
+    # Удаляем старые записи для этих досок
+    UserBoardOrder.objects.filter(
+        user=user,
+        board_id__in=board_ids_in_order
+    ).delete()
+    
+    # Создаем новые записи с обновленными позициями
+    for position, board_id in enumerate(board_ids_in_order, start=1):
+        UserBoardOrder.objects.create(
+            user=user,
+            board_id=board_id,
+            position=position
+        )

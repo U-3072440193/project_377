@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import axios from "axios"; // ДОБАВЛЕН ИМПОРТ AXIOS
+import axios from "axios";
 import TipTap from "./TipTap";
 import renameIcon from "../assets/images/rename_w.svg";
 import textIcon from "../assets/images/text.svg";
@@ -44,6 +44,10 @@ function Task({
   const [taskMembers, setTaskMembers] = useState(task.responsible || []);
   const [showMember, setShowMember] = useState(false);
 
+  // Реф для позиционирования выпадающего меню
+  const memberButtonRef = useRef(null);
+  const dropdownRef = useRef(null);
+
   const {
     attributes,
     listeners,
@@ -71,14 +75,27 @@ function Task({
     fetchFiles();
   }, [task.id]);
 
-  const fetchFiles = async () => {
-    console.log('fetchFiles called for task:', task.id);
-    console.log('Current files state:', files);
+  // Закрытие выпадающего меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+          memberButtonRef.current && !memberButtonRef.current.contains(event.target)) {
+        setShowMember(false);
+      }
+    };
 
+    if (showMember) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMember]);
+
+  const fetchFiles = async () => {
     try {
       setLoadingFiles(true);
-      console.log('Making API call...');
-
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}tasks/${task.id}/files/`,
         {
@@ -87,11 +104,8 @@ function Task({
         }
       );
 
-      console.log('Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('Files data received:', data);
         setFiles(data);
       } else {
         console.error("Ошибка загрузки файлов:", response.status);
@@ -406,20 +420,17 @@ function Task({
         }
       )
       .then((res) => {
-        // Добавляем пользователя в список ответственных
         const newMember = boardMembers.find(m => m.id === userId);
         if (newMember) {
           const updatedTaskMembers = [...taskMembers, newMember];
           setTaskMembers(updatedTaskMembers);
           
-          // Обновляем задачу в колонке
           const updatedTask = {
             ...task,
             responsible: updatedTaskMembers
           };
           if (updateTask) updateTask(columnId, updatedTask);
         }
-        setShowMember(false);
       })
       .catch((err) => {
         console.error("Ошибка добавления участника:", err);
@@ -443,11 +454,9 @@ function Task({
         }
       )
       .then((res) => {
-        // Удаляем пользователя из списка ответственных
         const updatedTaskMembers = taskMembers.filter(m => m.id !== userId);
         setTaskMembers(updatedTaskMembers);
         
-        // Обновляем задачу в колонке
         const updatedTask = {
           ...task,
           responsible: updatedTaskMembers
@@ -458,6 +467,39 @@ function Task({
         console.error("Ошибка удаления участника:", err);
         alert("Не удалось удалить участника");
       });
+  };
+
+  // Позиционирование выпадающего меню
+  const getDropdownPosition = () => {
+    if (!memberButtonRef.current) return {};
+    
+    const rect = memberButtonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownHeight = 400; // примерная высота
+    
+    // Определяем, где больше места - сверху или снизу
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    
+    let top, transformOrigin;
+    
+    if (spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove) {
+      // Показываем снизу
+      top = rect.bottom + 8;
+      transformOrigin = "top center";
+    } else {
+      // Показываем сверху
+      top = rect.top - dropdownHeight - 8;
+      transformOrigin = "bottom center";
+    }
+    
+    return {
+      position: 'fixed',
+      top: `${top}px`,
+      left: `${rect.left + rect.width / 2}px`,
+      transform: 'translateX(-50%)',
+      transformOrigin: transformOrigin
+    };
   };
 
   return (
@@ -564,77 +606,16 @@ function Task({
             </button>
 
             {/* Кнопка ответственных */}
-            <div className="task-btn-circle" style={{ position: 'relative' }}>
+            <div className="task-btn-circle-container">
               <button
-                className={`task-btn-circle ${taskMembers.length > 0 ? "has-members" : ""}`}
+                ref={memberButtonRef}
+                className={`task-btn-circle members-btn ${taskMembers.length > 0 ? "has-members" : ""}`}
                 onClick={() => setShowMember(!showMember)}
                 title={taskMembers.length > 0 ? `Ответственные (${taskMembers.length})` : "Добавить ответственного"}
               >
                 <img className='userIcon' src={userIcon} alt="Ответственные" />
                 {taskMembers.length > 0 && <span className="members-badge">{taskMembers.length}</span>}
               </button>
-
-              {showMember && isMember() && (
-                <div className="members-dropdown">
-                  <div className="members-dropdown-content">
-                    <div className="current-members">
-                      <h4>Ответственные:</h4>
-                      {taskMembers.length > 0 ? (
-                        <div className="task-members-list">
-                          {taskMembers.map((member) => (
-                            <div key={member.id} className="task-member-item">
-                              <img
-                                src={`${serverUrl}${member.avatar}`}
-                                alt={member.username}
-                                width={24}
-                                height={24}
-                                style={{ borderRadius: "50%" }}
-                              />
-                              <span>{member.username}</span>
-                              <button
-                                className="remove-task-member-btn"
-                                onClick={() => removeMemberFromTask(member.id)}
-                                title="Удалить"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="no-members">Нет ответственных</div>
-                      )}
-                    </div>
-                    
-                    <div className="available-members">
-                      <h4>Добавить участника:</h4>
-                      <div className="available-members-list">
-                        {boardMembers
-                          .filter(member => !taskMembers.some(m => m.id === member.id))
-                          .map((member) => (
-                            <div key={member.id} className="available-member-item">
-                              <img
-                                src={`${serverUrl}${member.avatar}`}
-                                alt={member.username}
-                                width={24}
-                                height={24}
-                                style={{ borderRadius: "50%" }}
-                              />
-                              <span>{member.username}</span>
-                              <button
-                                className="add-task-member-btn"
-                                onClick={() => addMemberToTask(member.id)}
-                                title="Добавить"
-                              >
-                                +
-                              </button>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -808,6 +789,73 @@ function Task({
           )}
         </div>
       </div>
+
+      {/* Выпадающее меню ответственных - ВНЕ task-container */}
+      {showMember && isMember() && (
+        <div 
+          ref={dropdownRef}
+          className="members-dropdown"
+          style={getDropdownPosition()}
+        >
+          <div className="members-dropdown-content">
+            <div className="current-members">
+              <h4>Ответственные:</h4>
+              {taskMembers.length > 0 ? (
+                <div className="task-members-list">
+                  {taskMembers.map((member) => (
+                    <div key={member.id} className="task-member-item">
+                      <img
+                        src={`${serverUrl}${member.avatar}`}
+                        alt={member.username}
+                        width={32}
+                        height={32}
+                        style={{ borderRadius: "50%" }}
+                      />
+                      <span>{member.username}</span>
+                      <button
+                        className="remove-task-member-btn"
+                        onClick={() => removeMemberFromTask(member.id)}
+                        title="Удалить"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-members">Нет ответственных</div>
+              )}
+            </div>
+            
+            <div className="available-members">
+              <h4>Добавить участника:</h4>
+              <div className="available-members-list">
+                {boardMembers
+                  .filter(member => !taskMembers.some(m => m.id === member.id))
+                  .map((member) => (
+                    <div key={member.id} className="available-member-item">
+                      <img
+                        src={`${serverUrl}${member.avatar}`}
+                        alt={member.username}
+                        width={32}
+                        height={32}
+                        style={{ borderRadius: "50%" }}
+                      />
+                      <span>{member.username}</span>
+                      <button
+                        className="add-task-member-btn"
+                        onClick={() => addMemberToTask(member.id)}
+                        title="Добавить"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isMember() && showEditor && (
         <div
