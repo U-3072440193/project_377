@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3  # Сохраняем БД на хосте
+      - ./media:/app/media            # Сохраняем загруженные файлы
+      - ./static:/app/static          # Статические файлы
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=ваш-секретный-ключ-тут
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
