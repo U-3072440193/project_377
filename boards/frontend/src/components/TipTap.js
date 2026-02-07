@@ -1,5 +1,5 @@
-// TipTap.js - исправленная версия
 import React, { useState } from 'react';
+import "./tiptap.css";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';

@@ -1,122 +1,209 @@
-/* tiptap.css */
+/* ==================== TipTap Container ==================== */
 .tiptap-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 16px;
+  height: 500px; /* Можно менять под нужный блок */
+  background: #f9f9fb;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden; /* Обрезаем все, что выходит */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Панель инструментов */
+/* ==================== Toolbar ==================== */
 .tiptap-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  border: 1px solid #e9ecef;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e2e2;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
 }
 
 .toolbar-group {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: white;
+  background: #f1f3f5;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
 }
 
 .tiptap-toolbar button {
   background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
   padding: 8px 12px;
   cursor: pointer;
+  font-size: 14px;
+  color: #495057;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s;
-  font-size: 14px;
-  color: #495057;
+  transition: all 0.15s;
 }
 
 .tiptap-toolbar button:hover {
   background: #e9ecef;
-  border-color: #adb5bd;
+  border-color: #bfbfbf;
   transform: translateY(-1px);
 }
 
 .tiptap-toolbar button.is-active {
-  background: #007bff;
+  background: #4c6ef5;
   color: white;
-  border-color: #007bff;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  border-color: #4c6ef5;
+  box-shadow: 0 2px 6px rgba(76, 110, 245, 0.3);
 }
 
-.tiptap-toolbar button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+/* ==================== Editor ==================== */
+.tiptap-editor {
+  flex: 1 1 auto; /* Занимает оставшееся место */
+  overflow-y: auto; /* Вертикальный скролл */
+  padding: 20px;
+  background: #ffffff;
 }
 
-/* Выбор цвета */
-.color-picker {
-  display: flex;
-  gap: 4px;
-  align-items: center;
+.tiptap-editor .ProseMirror {
+  min-height: 300px; /* Минимальная высота */
+  outline: none;
 }
 
-.color-picker input[type="color"] {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 1px solid #dee2e6;
+/* Заголовки */
+.tiptap-editor .ProseMirror h1 {
+  font-size: 1.8em;
+  margin: 0.5em 0;
+  font-weight: 700;
+  color: #212529;
+}
+.tiptap-editor .ProseMirror h2 {
+  font-size: 1.5em;
+  margin: 0.5em 0;
+  font-weight: 600;
+  color: #343a40;
+}
+.tiptap-editor .ProseMirror h3 {
+  font-size: 1.2em;
+  margin: 0.5em 0;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Параграфы и списки */
+.tiptap-editor .ProseMirror p {
+  margin: 0 0 1em 0;
+  line-height: 1.6;
+  color: #495057;
+}
+.tiptap-editor .ProseMirror ul,
+.tiptap-editor .ProseMirror ol {
+  padding-left: 24px;
+  margin: 0 0 1em 0;
+}
+
+/* Код и цитаты */
+.tiptap-editor .ProseMirror pre {
+  background: #f1f3f5;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: auto;
+  margin: 1em 0;
+  border: 1px solid #e2e2e2;
+}
+.tiptap-editor .ProseMirror code {
+  background: #e9ecef;
+  padding: 2px 6px;
   border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #d6336c;
+}
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 4px solid #4c6ef5;
+  padding-left: 12px;
+  color: #6c757d;
+  font-style: italic;
+  margin: 1em 0;
+}
+
+/* Картинки */
+.tiptap-editor .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1em 0;
+}
+
+/* ==================== Actions ==================== */
+.tiptap-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e2e2;
+  background: #f8f9fa;
+}
+
+.tiptap-actions button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
   cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: all 0.15s;
 }
 
-.color-picker button {
-  min-width: 32px;
-  padding: 8px;
+.tiptap-actions .save-btn {
+  background: #28a745;
+  color: white;
+}
+.tiptap-actions .save-btn:hover {
+  background: #218838;
 }
 
-/* Всплывающие окна ввода */
+.tiptap-actions .cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+.tiptap-actions .cancel-btn:hover {
+  background: #495057;
+}
+
+/* ==================== Input Popup ==================== */
 .input-popup {
   position: absolute;
-  top: 100px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  background: white;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
   padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   z-index: 100;
   display: flex;
   gap: 8px;
   align-items: center;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e2e2e2;
 }
 
 .input-popup input {
   padding: 8px 12px;
   border: 1px solid #ced4da;
-  border-radius: 4px;
+  border-radius: 6px;
   min-width: 300px;
   font-size: 14px;
 }
 
-.input-popup input:focus {
-  outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
 .input-popup button {
   padding: 8px 16px;
+  border-radius: 6px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
 }
@@ -125,259 +212,29 @@
   background: #28a745;
   color: white;
 }
-
-.input-popup button:first-of-type:hover {
-  background: #218838;
-}
-
 .input-popup button:last-of-type {
   background: #6c757d;
   color: white;
 }
 
-.input-popup button:last-of-type:hover {
-  background: #545b62;
-}
-
-/* Область редактора */
-.tiptap-editor {
-  flex: 1;
-  overflow: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 20px;
-  background: white;
-  margin-bottom: 16px;
-}
-
-.tiptap-editor .ProseMirror {
-  outline: none;
-  min-height: 400px;
-}
-
-/* Стили контента TipTap */
-.tiptap-editor .ProseMirror h1 {
-  font-size: 2em;
-  margin: 0.67em 0;
-  font-weight: bold;
-  color: #212529;
-}
-
-.tiptap-editor .ProseMirror h2 {
-  font-size: 1.5em;
-  margin: 0.75em 0;
-  font-weight: bold;
-  color: #343a40;
-}
-
-.tiptap-editor .ProseMirror h3 {
-  font-size: 1.17em;
-  margin: 0.83em 0;
-  font-weight: bold;
-  color: #495057;
-}
-
-.tiptap-editor .ProseMirror p {
-  margin: 0 0 1em 0;
-  line-height: 1.6;
-}
-
-.tiptap-editor .ProseMirror ul,
-.tiptap-editor .ProseMirror ol {
-  padding-left: 24px;
-  margin: 0 0 1em 0;
-}
-
-.tiptap-editor .ProseMirror li {
-  margin-bottom: 0.5em;
-}
-
-.tiptap-editor .ProseMirror blockquote {
-  border-left: 3px solid #0d6efd;
-  margin: 1em 0;
-  padding-left: 1em;
-  color: #6c757d;
-  font-style: italic;
-}
-
-.tiptap-editor .ProseMirror code {
-  background: #f8f9fa;
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #d63384;
-}
-
-.tiptap-editor .ProseMirror pre {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 16px;
-  overflow: auto;
-  margin: 1em 0;
-  border: 1px solid #e9ecef;
-}
-
-.tiptap-editor .ProseMirror pre code {
-  background: none;
-  padding: 0;
-  color: inherit;
-}
-
-.tiptap-editor .ProseMirror img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 1em 0;
-}
-
-.tiptap-editor .ProseMirror .custom-link {
-  color: #0d6efd;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.tiptap-editor .ProseMirror .custom-link:hover {
-  color: #0a58ca;
-}
-
-.tiptap-editor .ProseMirror hr {
-  border: none;
-  border-top: 2px solid #dee2e6;
-  margin: 2em 0;
-}
-
-.tiptap-editor .ProseMirror table {
-  border-collapse: collapse;
-  margin: 1em 0;
-  width: 100%;
-}
-
-.tiptap-editor .ProseMirror table td,
-.tiptap-editor .ProseMirror table th {
-  border: 1px solid #dee2e6;
-  padding: 8px 12px;
-}
-
-.tiptap-editor .ProseMirror table th {
-  background: #f8f9fa;
-  font-weight: bold;
-}
-
-.tiptap-editor .ProseMirror .task-list-item {
-  display: flex;
-  align-items: flex-start;
-}
-
-.tiptap-editor .ProseMirror .task-list-item-checkbox {
-  margin-right: 8px;
-  margin-top: 0.3em;
-}
-
-.tiptap-editor .ProseMirror iframe {
-  max-width: 100%;
-  border-radius: 8px;
-  margin: 1em 0;
-}
-
-/* Кнопки действий */
-.tiptap-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid #dee2e6;
-}
-
-.tiptap-actions button {
-  padding: 12px 24px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.tiptap-actions .save-btn {
-  background: #28a745;
-  color: white;
-}
-
-.tiptap-actions .save-btn:hover {
-  background: #218838;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-}
-
-.tiptap-actions .cancel-btn {
-  background: #6c757d;
-  color: white;
-}
-
-.tiptap-actions .cancel-btn:hover {
-  background: #545b62;
-  transform: translateY(-1px);
-}
-
-/* Анимации */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Адаптивность */
-@media (max-width: 1200px) {
-  .tiptap-toolbar {
-    overflow-x: auto;
-  }
-  
-  .toolbar-group {
-    flex-shrink: 0;
-  }
-}
-
+/* ==================== Адаптив ==================== */
 @media (max-width: 768px) {
-  .tiptap-toolbar {
-    padding: 8px;
-    gap: 4px;
+  .tiptap-container {
+    height: 400px;
   }
-  
-  .tiptap-toolbar button {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  
   .tiptap-editor {
     padding: 12px;
   }
-  
+  .tiptap-toolbar {
+    padding: 8px;
+    gap: 4px;
+    overflow-x: auto;
+  }
   .tiptap-actions button {
-    padding: 10px 16px;
+    padding: 8px 16px;
     font-size: 13px;
   }
-  
-  .input-popup {
-    flex-direction: column;
-    min-width: 280px;
-  }
-  
   .input-popup input {
-    min-width: 250px;
+    min-width: 200px;
   }
 }

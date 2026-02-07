@@ -1,0 +1,252 @@
+
+/* Контейнер с картинкой и профилем */
+.container-prof {
+    display: flex;            /* включаем flex */
+    align-items: flex-start;  /* выравнивание по верхнему краю */
+    gap: 30px;                /* расстояние между картинкой и полем */
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+           
+}
+
+/* Блок с картинкой */
+.profile-window {
+    flex: 0 0 200px;          /* фиксированная ширина */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-window img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;       /* круглая аватарка */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+
+main.profile {
+    flex: 1; /* растягиваем на доступное пространство */
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fdfdfd;
+    
+   
+}
+
+/* Левый блок: верхний */
+
+.profile-left{
+    min-width: 450px ;
+}
+.profile-left .profile-window {
+    display: flex;
+    flex-direction: column; /* сверху вниз */
+        
+    gap: 15px;              /* расстояние между именем и картинкой */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 15px;
+    padding: 10px;
+}
+
+.profile-left .profile-window h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.profile-left .profile-window img {
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.edit{
+    background: #333;
+    color: #fff;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* Левый блок: нижний */
+.profile-left .profile-info {
+    display: flex;
+    flex-direction: column; /* сверху вниз */
+    gap: 15px;              /* расстояние между именем и картинкой */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 15px;
+    padding: 10px;
+}
+
+.profile-left .profile-info h1,p{
+    padding: 10px 20px; 
+}
+.label {
+    font-weight: bold;
+}
+
+
+
+/* Правая колонка с формой */
+.profile-field {
+    flex: 2 1 400px;
+    max-width: 600px;
+}
+
+form {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.form-edit {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-edit label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-edit input[type="text"],
+.form-edit input[type="email"],
+.form-edit input[type="file"],
+.form-edit textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-edit textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+input.btn.edit {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+input.btn.edit:hover {
+    background-color: #4CAF50;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .container-prof {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-left,
+    .profile-field {
+        max-width: 100%;
+    }
+}
+
+/* Правый столбик профиля */
+.profile-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.icon-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.icon-table td {
+    width: 240px;
+    height: 140px;
+    padding: 10px;
+    text-align: center;
+    border: none;
+}
+
+.icon-table img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.icon-table img:hover {
+    transform: scale(1.1);
+}
+/* иконки справа */
+.icon {
+    transition: 0.3s; /* плавный переход */
+}
+
+.icon:hover {
+    filter: brightness(0.5) sepia(1) hue-rotate(180deg);
+}
+
+.boards{
+    display: flex;
+    flex-direction: column; /* сверху вниз */
+    gap: 15px;              /* расстояние между именем и картинкой */
+    border-radius: 10px;
+    margin: 15px;
+    padding: 10px;
+}
+.board-container{
+    display: flex;             /* делаем flex-контейнером */
+    flex-direction: row;       /* по горизонтали */
+    justify-content: space-between; /* название слева, дата справа */
+    align-items: center;       /* выравниваем по вертикали */
+    
+    width: 400px;      
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.delete-board {
+    padding: 2px; /* сброс паддинга */
+}
+
+.delete-message {
+    background: none;      /* убираем фон */
+    border: none;          /* убираем рамку */
+    color: #333;           /* цвет крестика */
+    font-weight: bold;     
+    font-size: 16px;       /* размер крестика */
+    cursor: pointer;       /* курсор указателя при наведении */
+    padding: 1px;            /* убираем внутренние отступы */
+    margin: 0;             /* убираем внешние отступы */
+    line-height: 1;        /* чтобы текст был ровно по центру */
+    box-shadow: none
+}
+
+.delete-message:hover {
+    color: red;            /* цвет при наведении, если нужно */
+}

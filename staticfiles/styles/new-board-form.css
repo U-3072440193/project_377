@@ -1,0 +1,62 @@
+.board-form {
+    display: flex;
+    justify-content: center;
+    margin-top: 80px;
+}
+
+.board-form form {
+    width: 100%;
+    max-width: 420px;
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.form-edit {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-edit label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #4CAF50;
+}
+
+.form-edit input {
+    padding: 10px 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #2a2a2a;
+    color: #4CAF50;
+    outline: none;
+    transition: border 0.2s ease;
+}
+
+.form-edit input:focus {
+    border-color: #4CAF50;
+}
+
+.btn.edit {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #4CAF50;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn.edit:hover {
+    background: #71b473;
+}
+
+.btn.edit:active {
+    transform: scale(0.98);
+}

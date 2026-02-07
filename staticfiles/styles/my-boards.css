@@ -1,0 +1,739 @@
+main {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f5f6f8;
+}
+
+.boards {
+    width: 100%;
+    max-width: 1100px;
+    margin: 10px;
+}
+
+.boards h2 {
+    margin-bottom: 20px;
+}
+
+.board-container {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+    background: #fff;
+    border-radius: 20px 0 20px 0;
+    padding: 0;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.board-container:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+    transform: translateY(-2px);
+    z-index: 10;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+
+    border-color: #4CAF50;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+    transform: translateY(-2px)
+}
+
+
+/* Заголовок доски */
+.board-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 20px 0 0 0;
+    font-weight: 600;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.board-title:hover {
+    background-color: #444;
+}
+
+/* Стили для аватара владельца доски */
+.owner-avatar-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background-color: #f5f5f5;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.owner-avatar-link:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.owner-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.owner-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Анимация при наведении на аватар */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+.owner-avatar-link:hover .owner-avatar,
+.owner-avatar-link:hover .default-avatar {
+    animation: pulse 1.5s infinite;
+}
+
+/* Контейнер для остального контента */
+.board-content {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+}
+
+.email-compose {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.email-compose label {
+    font-size: 13px;
+    color: #555;
+}
+
+.email-compose input[type="text"],
+.email-compose select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+.email-compose button {
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    background: #4CAF50 !important;
+    color: white !important;
+    font-size: 13px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.email-compose button:hover {
+    background: #178d1b !important;
+    transform: translateY(-1px);
+}
+
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 6px;
+    margin-top: 4px;
+    z-index: 10;
+    min-width: 180px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+}
+
+.member-add {
+    background-color: rgba(21, 167, 41, 0.15);
+    padding: 6px;
+    border-radius: 5px;
+}
+
+.suggest-item {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.suggest-item:hover {
+    background: #f8f9fa;
+}
+
+.suggest-item:last-child {
+    border-bottom: none;
+}
+
+.no-suggestions {
+    padding: 6px 10px;
+    color: #999;
+    font-style: italic;
+}
+
+.toggle-users {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+    color: white !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    padding: 8px 15px !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    margin: 10px 0 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.toggle-users:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.toggle-users .arrow {
+    font-size: 10px !important;
+    margin-left: 5px !important;
+    transition: transform 0.3s ease !important;
+}
+
+.list-of-board-users {
+    position: absolute;
+    top: 100%;
+    right: 16px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    min-width: 220px;
+    z-index: 100;
+    border: 1px solid #dee2e6;
+}
+
+.board-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.board-user img {
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+}
+
+.board-created {
+    font-size: 12px;
+    color: #4CAF50;
+    font-style: italic;
+    padding: 10px;
+}
+
+.permit {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ КНОПОК-ИКОНОК */
+.permit button {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f5f5f5 !important;
+    border: 3px solid #fff !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Эффект при наведении на все кнопки */
+.permit button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    background-color: #e9ecef !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Стили для изображений внутри кнопок */
+.permit button img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.permit button:hover img {
+    transform: scale(1.1);
+}
+
+.hidden {
+    display: none;
+}
+
+/* сброс кнопок */
+button {
+    all: unset;
+    cursor: pointer;
+}
+
+/* Стили для списка участников */
+.list-of-board-users {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.board-user {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.board-user:last-child {
+    margin-bottom: 0;
+}
+
+.board-user img {
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.board-user .user-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.board-user strong {
+    font-size: 14px;
+    color: #333;
+}
+
+.board-user .user-role {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.remove-user {
+    background: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.remove-user:hover {
+    background: #c82333 !important;
+    transform: scale(1.1) !important;
+}
+
+.loading-users,
+.no-users,
+.error-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .board-container {
+        flex-direction: column;
+        padding: 0;
+    }
+
+    .board-title {
+        border-radius: 12px 12px 0 0;
+        min-height: auto;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .board-content {
+        width: 100%;
+        padding: 15px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .owner-avatar-link {
+        align-self: flex-start;
+        margin-top: 10px;
+    }
+
+    .owner-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .default-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .permit {
+        margin-left: 0;
+        margin-top: 10px;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .email-compose {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .toggle-users {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.super-ultra-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.board-supercontent {
+    flex: 1;
+}
+
+.board-container .permit {
+    align-items: center;
+}
+
+button.delete-board {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+}
+
+.board-container {
+    padding-right: 15px;
+}
+
+/* Стили для заголовка страницы архива */
+.archive-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.archive-title h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.archive-title .archive-img {
+    width: 50px;
+    height: 50px;
+    display: block;
+}
+
+/* Стили для архивных досок */
+.archive-badge {
+    display: block;
+    font-size: 0.7em;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+
+.archive-notice {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 6px;
+    color: #6c757d;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.empty-archive {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    margin-top: 20px;
+}
+
+.empty-archive p {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.empty-archive a {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.empty-archive a:hover {
+    background: #178d1b;
+}
+
+/* Кнопка восстановления из архива (текстовая версия) */
+button.archive-board[style*="📤"] {
+    width: auto !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #4CAF50 0%, #178d1b 100%) !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2) !important;
+}
+
+button.archive-board[style*="📤"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Индикатор "владелец" */
+.owner-badge {
+    display: inline-block;
+    color: #212529;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.3);
+}
+
+/* Анимация пульсации для всех элементов */
+@keyframes gentle-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Эффект при наведении на кнопки с иконками */
+.permit button:hover img {
+    animation: gentle-pulse 0.6s ease;
+}
+
+/* Дополнительные эффекты для лучшего UX */
+.permit button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Для состояний кнопок */
+.permit button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Эффект градиентного бордера для активных элементов */
+.owner-avatar-link,
+.permit button {
+    position: relative;
+}
+
+.owner-avatar-link::before,
+.permit button::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.owner-avatar-link:hover::before,
+.permit button:hover::before {
+    opacity: 1;
+}
+
+/* Стили для скроллбара */
+.list-of-board-users::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-of-board-users::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.list-of-board-users::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+}
+
+.list-of-board-users::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+
+/* Для кнопок перемещения доски */
+.board-order-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-left: 10px;
+    align-items: center;
+}
+
+.board-order-controls button {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    padding: 0 !important;
+    background: none !important;
+    border-radius: 5px !important;
+    position: relative;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+}
+
+/* Стрелка вверх */
+.board-order-controls .move-up {
+    border-bottom: 20px solid #4CAF50; /* Цвет треугольника */
+    border-top: 0;
+}
+
+/* Стрелка вниз */
+.board-order-controls .move-down {
+    border-top: 20px solid #4CAF50; /* Цвет треугольника */
+    border-bottom: 0;
+}
+
+.board-order-controls button:hover {
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    transform: translateY(-2px);
+}
+
+.board-order-controls .move-up:hover {
+    border-bottom-color: #2E7D32;
+}
+
+.board-order-controls .move-down:hover {
+    border-top-color: #4CAF50;
+}

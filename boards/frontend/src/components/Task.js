@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import "./task.css";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import axios from "axios";
