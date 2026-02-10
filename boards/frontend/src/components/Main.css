@@ -1,4 +1,3 @@
-
 .main {
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -90,7 +89,7 @@
 
 /* Кнопка участников - унифицированная */
 .member-btn {
-  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   width: 38px;
   height: 38px;
@@ -205,35 +204,6 @@
 
 .remove-member-btn:hover {
   background: rgba(130, 130, 130, 0.3);
-}
-
-/* Контейнер для колонок */
-.columns-container {
-  display: flex;
-  gap: 20px;
-  padding: 10px 0;
-  overflow-x: auto;
-  min-height: 500px;
-}
-
-.columns-container::-webkit-scrollbar {
-  height: 12px;
-}
-
-.columns-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 6px;
-}
-
-.columns-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  border: 3px solid transparent;
-  background-clip: padding-box;
-}
-
-.columns-container::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
 }
 
 /* Оверлей для перетаскивания */
@@ -381,59 +351,8 @@
   border-bottom: none;
 }
 
-/* ==================== АДАПТИВНОСТЬ ==================== */
+/* ==================== СТИЛИ ПЕРЕИМЕНОВАНИЯ ДОСКИ ==================== */
 
-@media (max-width: 768px) {
-  .tool-bar {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
-  
-  .board-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .user {
-    flex-direction: row;
-    gap: 15px;
-    align-self: flex-start;
-  }
-  
-  .columns-container {
-    padding: 5px 0 15px 0;
-  }
-  
-  .chat-window {
-    width: 95%;
-    height: 90vh;
-    max-height: 90vh;
-  }
-  
-  .toolbar-controls {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .members-popup {
-    width: 90%;
-    max-width: 90%;
-  }
-}
-
-
-.chat-fullview,
-.back-to-board-btn,
-.control-buttons,
-.member-container,
-.members {
-  display: none;
-}
-
-/* Стили для переименования доски */
 .board-title-section {
   display: flex;
   align-items: center;
@@ -483,7 +402,7 @@
   border-color: #4CAF50;
 }
 
-/* Общие стили для кнопок подтверждения/отмены (используются и для колонок и для доски) */
+/* Общие стили для кнопок подтверждения/отмены */
 .rename-confirm-btn,
 .rename-cancel-btn {
   width: 28px;
@@ -516,4 +435,348 @@
   background: #c82333;
 }
 
+/* ==================== СТИЛИ ПРОКРУТКИ  ==================== */
 
+/* Обертка для всего блока с прокруткой */
+.board-scroll-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: #ebebeb;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Декоративные элементы */
+.board-scroll-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%);
+}
+
+/* Контролы аудиоплеера сверху */
+.scroll-controls-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ползунок в стиле аудиоплеера */
+.scroll-slider-container {
+  flex: 1;
+  position: relative;
+  height: 40px;
+  margin: 0 25px;
+  display: flex;
+  align-items: center;
+}
+
+/* Трек ползунка */
+.scroll-slider-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Прогресс (заполненная часть) */
+.scroll-slider-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    #218838 0%, 
+    #4caf50 50%, 
+    #4c03de 100%);
+  border-radius: 3px;
+  width: 30%;
+  box-shadow: 0 0 10px rgba(0, 219, 222, 0.5);
+  transition: width 0.1s ease;
+}
+
+/* Ползунок (кружок) */
+.scroll-slider-handle {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 3px solid #00dbde;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  box-shadow: 
+    0 0 15px rgba(0, 219, 222, 0.7),
+    0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.scroll-slider-handle:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 
+    0 0 20px rgba(0, 219, 222, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Кнопки управления (как в аудиоплеере) */
+.scroll-btn {
+  background: #333;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 22px;
+  color: rgb(109, 109, 109);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.scroll-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(10, 126, 25, 0.3) 0%, 
+    rgb(6, 110, 4) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+}
+
+.scroll-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.scroll-btn:hover::before {
+  opacity: 1;
+}
+
+.scroll-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Цифровые индикаторы */
+.scroll-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.scroll-time {
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 45px;
+  text-align: center;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scroll-track-info {
+  font-size: 13px;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* Деления на треке */
+.scroll-ticks {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.scroll-tick {
+  width: 1px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.scroll-tick:nth-child(5n) {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Волны анимация (опционально) */
+.scroll-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  opacity: 0.1;
+  background: linear-gradient(transparent, rgba(0, 219, 222, 0.1));
+  pointer-events: none;
+}
+
+/* Контейнер колонок */
+.columns-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 15px;
+  gap: 20px;
+  scroll-behavior: smooth;
+  min-height: 600px;
+  max-height: 75vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 
+    inset 0 2px 10px rgba(0, 0, 0, 0.05),
+    0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e9ecef;
+}
+
+/* Стилизация скроллбара колонок */
+.columns-container::-webkit-scrollbar {
+  height: 12px;
+  background: #f1f3f5;
+  border-radius: 6px;
+}
+
+.columns-container::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 6px;
+  margin: 0 15px;
+}
+
+.columns-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+  border-radius: 6px;
+  border: 2px solid #f1f3f5;
+  box-shadow: 0 0 10px rgba(0, 219, 222, 0.5);
+}
+
+.columns-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #00c4cc 0%, #e600e6 100%);
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+
+@media (max-width: 768px) {
+  .tool-bar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .board-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .user {
+    flex-direction: row;
+    gap: 15px;
+    align-self: flex-start;
+  }
+  
+  .columns-container {
+    padding: 10px;
+    gap: 15px;
+    min-height: 500px;
+  }
+  
+  .chat-window {
+    width: 95%;
+    height: 90vh;
+    max-height: 90vh;
+  }
+  
+  .toolbar-controls {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .members-popup {
+    width: 90%;
+    max-width: 90%;
+  }
+  
+  /* Адаптивность для аудиоплеера */
+  .scroll-controls-top {
+    flex-direction: column;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .scroll-slider-container {
+    margin: 0 15px;
+    width: 100%;
+  }
+  
+  .scroll-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+  
+  /* На мобильных скрываем аудиоплеер */
+  .scroll-controls-top {
+    display: none;
+  }
+}
+
+/* Скрываем неиспользуемые классы */
+.chat-fullview,
+.back-to-board-btn,
+.control-buttons,
+.member-container,
+.members {
+  display: none;
+}

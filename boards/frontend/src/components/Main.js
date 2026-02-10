@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Column from "./Column";
 import Chat from "./Chat";
 import "./main.css";
@@ -32,6 +32,12 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   const [newBoardTitle, setNewBoardTitle] = useState(board.title);
   const [boardTitle, setBoardTitle] = useState(board.title);
 
+  // Реф для прокрутки контейнера колонок
+  const containerRef = useRef(null);
+
+  // Состояние для прогресса скролла
+  const [scrollProgress, setScrollProgress] = useState(0);
+
   const isOwner = user.id === board.owner.id;
   const isMember = () => {
     return members.some(
@@ -39,8 +45,27 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     );
   };
 
+  // Эффект для отслеживания скролла и обновления прогресса
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const scrollWidth = container.scrollWidth - container.clientWidth;
+      const progress = scrollWidth > 0 ? (scrollLeft / scrollWidth) * 100 : 0;
+      setScrollProgress(progress);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    
+    // Инициализируем прогресс при загрузке
+    handleScroll();
+
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Для переименовывания доски
-  // Обновляем состояние при изменении пропса board
   useEffect(() => {
     setBoardTitle(board.title);
   }, [board.title]);
@@ -63,9 +88,8 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         return res.json();
       })
       .then((data) => {
-        // Обновляем состояние вместо прямого изменения объекта
         setBoardTitle(newTitle);
-        board.title = newTitle; // На всякий случай обновляем и объект
+        board.title = newTitle;
       })
       .catch((error) => {
         console.error("Error renaming board:", error);
@@ -83,12 +107,12 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
 
   const cancelRename = () => {
     if (readOnly) return;
-    setNewBoardTitle(boardTitle); // Используем boardTitle вместо board.title
+    setNewBoardTitle(boardTitle);
     setIsRenaming(false);
   };
 
   const startRenaming = () => {
-    if (readOnly || !isOwner) { // Проверка перед началом переименования
+    if (readOnly || !isOwner) {
       if (readOnly) alert("Доска в архиве");
       return;
     }
@@ -96,7 +120,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const toggleInput = () => {
-    if (readOnly || !isOwner) { // Только владелец может добавлять колонки
+    if (readOnly || !isOwner) {
       if (readOnly) alert("Доска в архиве");
       return;
     }
@@ -215,7 +239,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskOrder = (taskId, newIndex, columnId) => {
-    if (readOnly || !isMember()) return; // Только участники могут перемещать задачи
+    if (readOnly || !isMember()) return;
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -228,7 +252,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskColumn = (taskId, newColumnId) => {
-    if (readOnly || !isMember()) return; // Только участники могут перемещать задачи
+    if (readOnly || !isMember()) return;
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -241,7 +265,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateTaskTitle = (taskId, newTitle) => {
-    if (readOnly || !isMember()) return; // Только участники могут переименовывать задачи
+    if (readOnly || !isMember()) return;
     console.log("Переименование задачи:", taskId, "->", newTitle);
 
     fetch(`${serverUrl}api/tasks/${taskId}/rename/`, {
@@ -278,7 +302,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addColumn = () => {
-    if (readOnly || !isOwner) return; // Только владелец может добавлять колонки
+    if (readOnly || !isOwner) return;
     if (!newColumnTitle.trim()) return;
 
     fetch(`${serverUrl}api/boards/${board.id}/columns/`, {
@@ -300,7 +324,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const removeColumn = (colId) => {
-    if (readOnly || !isOwner) return; // Только владелец может удалять колонки
+    if (readOnly || !isOwner) return;
     fetch(`${serverUrl}api/columns/${colId}/`, {
       method: "DELETE",
       headers: { "X-CSRFToken": csrfToken },
@@ -311,7 +335,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const updateColumnTitle = (columnId, newTitle) => {
-    if (readOnly || !isOwner) return; // Только владелец может переименовывать колонки
+    if (readOnly || !isOwner) return;
     fetch(`${serverUrl}api/columns/${columnId}/rename/`, {
       method: "PATCH",
       headers: {
@@ -378,7 +402,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const addCommentToTask = (taskId, newComment) => {
-    if (readOnly || !isMember()) return; // Только участники могут добавлять комментарии
+    if (readOnly || !isMember()) return;
     setColumns((prevColumns) =>
       prevColumns.map((col) => ({
         ...col,
@@ -389,6 +413,35 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         ),
       }))
     );
+  };
+
+  // Функции прокрутки
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
+
+  // Функция для клика по треку слайдера
+  const handleSliderClick = (e) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const track = e.currentTarget;
+    const rect = track.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+    
+    const scrollWidth = container.scrollWidth - container.clientWidth;
+    const newScrollLeft = percentage * scrollWidth;
+    
+    container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
   };
 
   const dropAnimation = {
@@ -429,7 +482,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
               </div>
             ) : (
               <div className="board-title-section">
-                <h1>{boardTitle}</h1> {/* Используем boardTitle */}
+                <h1>{boardTitle}</h1>
                 {isOwner && !readOnly && !isRenaming && (
                   <button
                     className="rename-board-btn"
@@ -449,7 +502,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
               minute: '2-digit'
             })}</p>
           </div>
-          {isOwner && !readOnly && ( // Только владелец и не в архиве
+          {isOwner && !readOnly && (
             <div className="actions">
               <button className="add-column-btn" onClick={toggleInput}>
                 {showInput ? "×" : "+"}
@@ -502,7 +555,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         </div>
       </div>
 
-      {/* Попап участников (абсолютный) - виден только участникам */}
+      {/* Попап участников */}
       {showMember && isMember() && board && members.length > 0 && (
         <div className="members-popup">
           <div className="members-content">
@@ -519,7 +572,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
                     style={{ borderRadius: "50%" }}
                   />
                   {member.username} ({member.role})
-                  {isOwner && !readOnly && ( // Только владелец и не в архиве
+                  {isOwner && !readOnly && (
                     <button className="remove-member-btn" onClick={() => removeMember(member.id)}>
                       ×
                     </button>
@@ -531,7 +584,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         </div>
       )}
 
-      {/* Чат - АБСОЛЮТНО позиционированный, поверх всего (доступен только участникам) */}
+      {/* Чат */}
       {showChat && isMember() && (
         <div className="chat-overlay">
           <div className="chat-window">
@@ -549,7 +602,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
               serverUrl={serverUrl}
               csrfToken={csrfToken}
               key={`chat-${board?.id}-${user?.id}`}
-              readOnly={!isMember()} // Передаем readOnly если пользователь не участник
+              readOnly={!isMember()}
             />
           </div>
         </div>
@@ -562,35 +615,105 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="columns-container">
-          <SortableContext
-            items={columns.map((col) => col.id)}
-            strategy={horizontalListSortingStrategy}
-          >
-            {columns.map((col) => (
-              <Column
-                key={col.id}
-                column={col}
-                removeColumn={removeColumn}
-                csrfToken={csrfToken}
-                updateTasks={updateTasksInColumn}
-                addTask={addTaskToColumn}
-                removeTask={removeTaskFromColumn}
-                updateTask={updateTaskInColumn}
-                forPermit={isOwner}
-                isMember={isMember}
-                addCommentToTask={addCommentToTask}
-                serverUrl={serverUrl}
-                user={user}
-                username={username}
-                updateColumn={updateColumnTitle}
-                updateTaskTitle={updateTaskTitle}
-                readOnly={readOnly || !isMember()} // Передаем readOnly если не участник
-                members={members}
-                board={board}
-              />
-            ))}
-          </SortableContext>
+        {/* Обертка для всего блока с прокруткой */}
+        <div className="board-scroll-section">
+          {/* Контролы аудиоплеера сверху */}
+          <div className="scroll-controls-top">
+            {/* Кнопка назад */}
+            <button
+              className="scroll-btn scroll-btn-left"
+              onClick={scrollLeft}
+              aria-label="Прокрутить колонки влево"
+              title="Предыдущие колонки"
+            >
+              ‹
+            </button>
+            
+            {/* Контейнер ползунка */}
+            <div className="scroll-slider-container">
+              {/* Текущая позиция */}
+              <div className="scroll-time">
+                {Math.round(scrollProgress)}%
+              </div>
+              
+              {/* Трек с ползунком */}
+              <div 
+                className="scroll-slider-track"
+                onClick={handleSliderClick}
+              >
+                <div 
+                  className="scroll-slider-progress" 
+                  style={{ width: `${scrollProgress}%` }}
+                ></div>
+                <div 
+                  className="scroll-slider-handle" 
+                  style={{ left: `${scrollProgress}%` }}
+                ></div>
+                
+                {/* Деления на треке */}
+                <div className="scroll-ticks">
+                  {[...Array(11)].map((_, i) => (
+                    <div key={i} className="scroll-tick"></div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Информация о треке */}
+              <div className="scroll-track-info">
+                Колонки: {columns.length}
+              </div>
+              
+              {/* Общая длина */}
+              <div className="scroll-time">
+                100%
+              </div>
+            </div>
+            
+            {/* Кнопка вперед */}
+            <button
+              className="scroll-btn scroll-btn-right"
+              onClick={scrollRight}
+              aria-label="Прокрутить колонки вправо"
+              title="Следующие колонки"
+            >
+              ›
+            </button>
+            
+            {/* Волны анимация */}
+            <div className="scroll-waves"></div>
+          </div>
+
+          {/* Контейнер колонок с рефом для прокрутки */}
+          <div className="columns-container" ref={containerRef}>
+            <SortableContext
+              items={columns.map((col) => col.id)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {columns.map((col) => (
+                <Column
+                  key={col.id}
+                  column={col}
+                  removeColumn={removeColumn}
+                  csrfToken={csrfToken}
+                  updateTasks={updateTasksInColumn}
+                  addTask={addTaskToColumn}
+                  removeTask={removeTaskFromColumn}
+                  updateTask={updateTaskInColumn}
+                  forPermit={isOwner}
+                  isMember={isMember}
+                  addCommentToTask={addCommentToTask}
+                  serverUrl={serverUrl}
+                  user={user}
+                  username={username}
+                  updateColumn={updateColumnTitle}
+                  updateTaskTitle={updateTaskTitle}
+                  readOnly={readOnly || !isMember()}
+                  members={members}
+                  board={board}
+                />
+              ))}
+            </SortableContext>
+          </div>
         </div>
 
         <DragOverlay dropAnimation={dropAnimation}>
