@@ -1,69 +1,103 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="banner">
-    <img src="{% static 'images/image2.jpg'%}" alt="" class="home-banner">
-    <div class="banner-text">Шишка - отличный инструмент в командных проектах</div>
-</div>
-{% block profile %}
-<link rel="stylesheet" href="{% static 'styles/index.css' %}">
-{% endblock %}
-<main class="home-page">
-    <section class="hero">
-        <div class="hero-content">
-            <!-- Замени на свою картинку или убери блок img -->
-            <div class="hero-image">
-                <img src="{% static 'images/kanban-illustration.png' %}" alt="Kanban Доска" style="max-width: 400px;">
-            </div>
-            <div class="hero-text">
-                <p class="tagline">Управляй проектами вместе с командой.<br>Интуитивные доски, живые задачи, простое общение.</p>
-                <div class="hero-buttons">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}" class="btn btn-primary">Мой профиль</a>
-
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
-                        <a href="{% url 'register' %}" class="btn btn-outline">Зарегистрироваться</a>
-                    {% endif %}
+<div class="body-list">
+    <div class="banner">
+        <img src="{% static 'images/kanban-main.webp'%}" alt="" class="home-banner">
+        <div class="banner-text">
+            <span class="text-main">ВАШ ПРОЕКТ — ПОД ПОЛНЫМ КОНТРОЛЕМ ВМЕСТЕ С</span>
+            <span class="text-brand"> ШИШКОЙ</span>
+        </div>
+    </div>
+    
+    {% block profile %}
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
+    {% endblock %}
+    
+    <main class="home-page">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-image">
+                    <img src="{% static 'images/kanban-illustration.png' %}" alt="Kanban Доска" style="max-width: 400px;">
+                </div>
+                <div class="hero-text">
+                    <p class="tagline">Управляй проектами вместе с командой.<br>Интуитивные доски, живые задачи, простое общение.</p>
+                    <div class="hero-buttons">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'profile' %}" class="btn btn-primary">Мой профиль</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                            <a href="{% url 'register' %}" class="btn btn-outline">Зарегистрироваться</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="features">
-        <h2>Что уже работает</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>Интерактивные Kanban-доски</h3>
-                <p>Создавай колонки, задачи и перетаскивай их. Динамический интерфейс на React.</p>
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Почему команды выбирают Шишку</h2>
+                
+                <div class="feature-zigzag">
+                    <div class="feature-row">
+                        <div class="feature-image-wrapper">
+                            <img src="{% static 'images/kanban-board-with-team.jpg' %}" alt="Kanban доска" class="feature-img">
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-number"></span>
+                            <h3>Умные Kanban-доски</h3>
+                            <p>Создавайте, перетаскивайте и отслеживайте задачи интуитивно. Каждый участник видит общую картину проекта.</p>
+                            <ul class="feature-list">
+                                <li>Перетаскивание карточек</li>
+                                <li>Неограниченные колонки</li>
+                                <li>Настраиваемые статусы</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-row reverse">
+                        <div class="feature-image-wrapper">
+                            <img src="{% static 'images/email-pic.png' %}" alt="Внутренняя почта" class="feature-img">
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-number"></span>
+                            <h3>Встроенная коммуникация</h3>
+                            <p>Почта и чат в одном интерфейсе. Отправляйте файлы, создавайте групповые беседы.</p>
+                            <ul class="feature-list">
+                                <li>Личные сообщения</li>
+                                <li>Прикрепление файлов</li>
+                                <li>Уведомления в реальном времени</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-row">
+                        <div class="feature-image-wrapper">
+                            <img src="{% static 'images/chat.webp' %}" alt="Чат" class="feature-img">
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-number"></span>
+                            <h3>Обсуждение в контексте</h3>
+                            <p>Комментируйте конкретные задачи, отмечайте коллег и получайте мгновенные ответы — без лишних совещаний.</p>
+                            <ul class="feature-list">
+                                <li>Комментарии к задачам</li>
+                                <li>Упоминания участников</li>
+                                <li>История обсуждений</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <h3>Профили и команды</h3>
-                <p>Персональные профили с аватарами и система добавления участников на доски.</p>
-            </div>
-            <div class="feature-card">
-                <h3>Внутренняя почта</h3>
-                <p>Отправляй сообщения и файлы другим пользователям прямо в системе.</p>
-            </div>
-            <div class="feature-card">
-                <h3>Гибкая архитектура</h3>
-                <p>Бэкенд на Django + REST API, фронтенд на React. Готово к масштабированию.</p>
-            </div>
-            <div class="feature-card">
-                <h3>Что не работает?</h3>
-                <p>Всё остальное.</p>
-            </div>
+        </section>
+    </main>
+    
+    
+    <footer class="site-footer">
+        <div class="architect">
+            <a href="https://github.com/U-3072440193/project_377" class="architect-link" target="_blank">
+                <img src="{% static 'images/GitHub__Logo_w.svg' %}" alt="Чат" class="git-img">
+            </a>
         </div>
-    </section>
-
-    <section class="roadmap">
-        <h2>Что в планах до финальной защиты</h2>
-        <ul>
-            <li><strong>Безопасность:</strong> Финализация проверок прав доступа ко всем операциям.</li>
-            <li><strong>Приглашения:</strong> Система запросов на вступление в доску с подтверждением.</li>
-            <li><strong>Рефакторинг:</strong> Разделение больших React-компонентов для удобства поддержки.</li>
-            <li><strong>UI/UX:</strong> Добавление иконок и улучшение визуальной согласованности.</li>
-        </ul>
-    </section>
-</main>
+    </footer>
+</div>
 {% endblock %}

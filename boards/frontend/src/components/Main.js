@@ -58,7 +58,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     };
 
     container.addEventListener('scroll', handleScroll);
-    
+
     // Инициализируем прогресс при загрузке
     handleScroll();
 
@@ -157,89 +157,107 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
   };
 
   const handleDragEnd = (event) => {
-    if (readOnly) {
-      event.preventDefault();
-      return;
-    }
-    const { active, over } = event;
-    setActiveTask(null);
+  if (readOnly) {
+    event.preventDefault();
+    return;
+  }
+  const { active, over } = event;
+  setActiveTask(null);
 
-    if (!over) return;
+  if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
+  const activeId = active.id;
+  const overId = over.id;
 
-    const activeColumn = columns.find((col) =>
-      col.tasks?.some((task) => task.id === activeId)
+  const activeColumn = columns.find((col) =>
+    col.tasks?.some((task) => task.id === activeId)
+  );
+  const overColumn = columns.find(
+    (col) =>
+      col.id === overId || col.tasks?.some((task) => task.id === overId)
+  );
+
+  if (!activeColumn || !overColumn) return;
+
+  // ПЕРЕМЕЩЕНИЕ ВНУТРИ ОДНОЙ КОЛОНКИ
+  if (activeColumn.id === overColumn.id) {
+    const oldIndex = activeColumn.tasks.findIndex(
+      (task) => task.id === activeId
     );
-    const overColumn = columns.find(
-      (col) =>
-        col.id === overId || col.tasks?.some((task) => task.id === overId)
-    );
-
-    if (!activeColumn || !overColumn) return;
-
-    if (activeColumn.id === overColumn.id) {
-      const oldIndex = activeColumn.tasks.findIndex(
-        (task) => task.id === activeId
-      );
-      const newIndex = overColumn.tasks.findIndex((task) => task.id === overId);
-
-      if (oldIndex !== newIndex) {
-        const newColumns = columns.map((col) => {
-          if (col.id === activeColumn.id) {
-            return {
-              ...col,
-              tasks: arrayMove(col.tasks, oldIndex, newIndex),
-            };
-          }
-          return col;
-        });
-        setColumns(newColumns);
-        updateTaskOrder(activeId, newIndex, activeColumn.id);
-      }
+    
+    // ВАЖНО: Правильно определяем новый индекс!
+    let newIndex;
+    
+    // Проверяем, является ли overId задачей
+    const overTask = overColumn.tasks.find((task) => task.id === overId);
+    
+    if (overTask) {
+      // Отпустили НА ЗАДАЧУ - вставляем ПЕРЕД ней
+      newIndex = overColumn.tasks.findIndex((task) => task.id === overId);
+    } else {
+      // Отпустили НА КОЛОНКУ (пустое место) - вставляем в КОНЕЦ
+      newIndex = activeColumn.tasks.length;
     }
-    else {
-      const task = activeColumn.tasks.find((task) => task.id === activeId);
 
-      const newActiveColumn = {
-        ...activeColumn,
-        tasks: activeColumn.tasks.filter((task) => task.id !== activeId),
-      };
-
-      let newOverColumn;
-
-      if (overId !== overColumn.id) {
-        const overIndex = overColumn.tasks.findIndex(
-          (task) => task.id === overId
-        );
-        const newTasks = [...overColumn.tasks];
-        newTasks.splice(overIndex, 0, { ...task, column: overColumn.id });
-        newOverColumn = {
-          ...overColumn,
-          tasks: newTasks,
-        };
-      }
-      else {
-        newOverColumn = {
-          ...overColumn,
-          tasks: [...overColumn.tasks, { ...task, column: overColumn.id }],
-        };
-      }
-
+    // Только если реально перемещаем на другую позицию
+    if (oldIndex !== newIndex) {
       const newColumns = columns.map((col) => {
-        if (col.id === activeColumn.id) return newActiveColumn;
-        if (col.id === overColumn.id) return newOverColumn;
+        if (col.id === activeColumn.id) {
+          return {
+            ...col,
+            tasks: arrayMove(col.tasks, oldIndex, newIndex),
+          };
+        }
         return col;
       });
-
       setColumns(newColumns);
-      updateTaskColumn(activeId, overColumn.id);
+      // Отправляем 0-based индекс 
+      updateTaskOrder(activeId, newIndex, activeColumn.id);
     }
-  };
+  }
+  // ПЕРЕМЕЩЕНИЕ МЕЖДУ КОЛОНКАМИ
+  else {
+    const task = activeColumn.tasks.find((task) => task.id === activeId);
 
+    const newActiveColumn = {
+      ...activeColumn,
+      tasks: activeColumn.tasks.filter((task) => task.id !== activeId),
+    };
+
+    let newOverColumn;
+
+    if (overId !== overColumn.id) {
+      // Отпустили на задачу в другой колонке
+      const overIndex = overColumn.tasks.findIndex(
+        (task) => task.id === overId
+      );
+      const newTasks = [...overColumn.tasks];
+      newTasks.splice(overIndex, 0, { ...task, column: overColumn.id });
+      newOverColumn = {
+        ...overColumn,
+        tasks: newTasks,
+      };
+    } else {
+      // Отпустили на колонку (пустое место) - в конец
+      newOverColumn = {
+        ...overColumn,
+        tasks: [...overColumn.tasks, { ...task, column: overColumn.id }],
+      };
+    }
+
+    const newColumns = columns.map((col) => {
+      if (col.id === activeColumn.id) return newActiveColumn;
+      if (col.id === overColumn.id) return newOverColumn;
+      return col;
+    });
+
+    setColumns(newColumns);
+    updateTaskColumn(activeId, overColumn.id);
+  }
+};
   const updateTaskOrder = (taskId, newIndex, columnId) => {
     if (readOnly || !isMember()) return;
+
     fetch(`${serverUrl}api/tasks/${taskId}/move/`, {
       method: "PATCH",
       headers: {
@@ -247,8 +265,31 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         "X-CSRFToken": csrfToken,
       },
       credentials: "include",
-      body: JSON.stringify({ order: newIndex, column: columnId }),
-    }).catch(console.error);
+      body: JSON.stringify({ position: newIndex, column: columnId }),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Ошибка обновления порядка');
+        return res.json();
+      })
+      .then(updatedTask => {
+        // Обновляем position задачи в состоянии!
+        setColumns(prevColumns => {
+          return prevColumns.map(col => {
+            if (col.id === columnId) {
+              return {
+                ...col,
+                tasks: col.tasks.map(task =>
+                  task.id === taskId
+                    ? { ...task, position: updatedTask.position } // Обновляем position!
+                    : task
+                )
+              };
+            }
+            return col;
+          });
+        });
+      })
+      .catch(console.error);
   };
 
   const updateTaskColumn = (taskId, newColumnId) => {
@@ -437,10 +478,10 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
     const rect = track.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percentage = Math.max(0, Math.min(1, clickX / rect.width));
-    
+
     const scrollWidth = container.scrollWidth - container.clientWidth;
     const newScrollLeft = percentage * scrollWidth;
-    
+
     container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
   };
 
@@ -628,28 +669,28 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
             >
               ‹
             </button>
-            
+
             {/* Контейнер ползунка */}
             <div className="scroll-slider-container">
               {/* Текущая позиция */}
               <div className="scroll-time">
                 {Math.round(scrollProgress)}%
               </div>
-              
+
               {/* Трек с ползунком */}
-              <div 
+              <div
                 className="scroll-slider-track"
                 onClick={handleSliderClick}
               >
-                <div 
-                  className="scroll-slider-progress" 
+                <div
+                  className="scroll-slider-progress"
                   style={{ width: `${scrollProgress}%` }}
                 ></div>
-                <div 
-                  className="scroll-slider-handle" 
+                <div
+                  className="scroll-slider-handle"
                   style={{ left: `${scrollProgress}%` }}
                 ></div>
-                
+
                 {/* Деления на треке */}
                 <div className="scroll-ticks">
                   {[...Array(11)].map((_, i) => (
@@ -657,18 +698,18 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
                   ))}
                 </div>
               </div>
-              
+
               {/* Информация о треке */}
               <div className="scroll-track-info">
                 Колонки: {columns.length}
               </div>
-              
+
               {/* Общая длина */}
               <div className="scroll-time">
                 100%
               </div>
             </div>
-            
+
             {/* Кнопка вперед */}
             <button
               className="scroll-btn scroll-btn-right"
@@ -678,7 +719,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
             >
               ›
             </button>
-            
+
             {/* Волны анимация */}
             <div className="scroll-waves"></div>
           </div>

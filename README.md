@@ -170,6 +170,7 @@ Django + React + WebSocket с дальнейшим развитием до produ
 <li>Внедрение TypeScript</li>
 <li>Настройка CI/CD</li>
 <li>Улучшение UI/UX</li>
+<li>Решение проблемы с N+1 запросами (ориетировочно select_related() и prefetch_related())</li>
 
 </ul>
 </div>

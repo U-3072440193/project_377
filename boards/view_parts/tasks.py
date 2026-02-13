@@ -28,7 +28,7 @@ class TaskCreateAPIView(APIView):
         task = Task.objects.create(
             column=column,
             title=title,
-            position=column.tasks.count() + 1,
+            position=column.tasks.count() ,
             creator=request.user,
             priority=request.data.get("priority", "low")
         )
@@ -82,6 +82,11 @@ class TaskMoveView(APIView):
     permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
 
     def patch(self, request, pk):
+        print(f"\n=== MOVE TASK {pk} ===")
+        print(f"Request data: {request.data}")
+    
+        task = Task.objects.select_for_update().get(pk=pk)
+        print(f"BEFORE - Task {pk}: position={task.position}, column={task.column.id}")
         """
         Перемещает задачу в другую колонку и/или меняет её позицию.
         Пример JSON тела запроса:
@@ -144,8 +149,8 @@ class TaskMoveView(APIView):
                         # Если позиция не указана, ставим в конец
                         last_position = Task.objects.filter(
                             column=new_column
-                        ).aggregate(models.Max('position'))['position__max'] or 0
-                        task.position = last_position + 1
+                        ).aggregate(models.Max('position'))['position__max']
+                        task.position = (last_position + 1) if last_position is not None else 0
                 else:
                     # Перемещение внутри той же колонки
                     if position is not None and position != task.position:
@@ -167,7 +172,13 @@ class TaskMoveView(APIView):
                         task.position = position
 
                 task.save()
+                task.refresh_from_db()
+                print(f"AFTER  - Task {pk}: position={task.position}, column={task.column.id}")
+    
                 serializer = TaskSerializer(task)
+                print(f"Response data size: {len(str(serializer.data))} bytes")
+                print("=== END ===\n")
+    
                 return Response(serializer.data)
 
         except Task.DoesNotExist:

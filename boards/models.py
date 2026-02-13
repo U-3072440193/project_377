@@ -94,7 +94,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    position = models.PositiveIntegerField(default=0)
+    position = models.IntegerField(default=0)
     priority = models.CharField(max_length=10, choices=PRIORITY, default='low')
     deadline = models.DateTimeField(null=True, blank=True)
     responsible = models.ManyToManyField(User, related_name='responsible_tasks', blank=True)
@@ -103,9 +103,9 @@ class Task(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if self.position == 0 or self.position is None:
+        if self.position is None or self.position < 0:  # Проверяем на None и отрицательные
             last_task = Task.objects.filter(column=self.column).order_by('-position').first()
-            self.position = last_task.position + 1 if last_task else 1
+            self.position = last_task.position + 1 if last_task else 0  # Начинаем с 0!
         super().save(*args, **kwargs)
 
     # Метод для проверки просроченности

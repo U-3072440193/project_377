@@ -46,8 +46,14 @@ function Column({
     disabled: readOnly,
   });
 
+  //  Сортируем задачи по position при каждом обновлении column.tasks!
   useEffect(() => {
-    setTasks(column.tasks || []);
+    if (column.tasks) {
+      const sortedTasks = [...column.tasks].sort((a, b) => a.position - b.position);
+      setTasks(sortedTasks);
+    } else {
+      setTasks([]);
+    }
   }, [column.tasks]);
 
   const addTaskHandler = () => {
