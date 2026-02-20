@@ -197,3 +197,56 @@ class ChatMarkReadAPIView(BaseChatAPIView):
             "success": True,
             "marked": len(message_ids)
         })
+        
+        
+class GeneralChatHistoryAPIView(APIView):
+    """Получение истории общего чата"""
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+    
+    def get(self, request):
+        # ID служебной доски для общего чата
+        GENERAL_BOARD_ID = 999999
+        
+        # Получаем или создаем комнату для этой доски
+        room, _ = ChatRoom.objects.get_or_create(board_id=GENERAL_BOARD_ID)
+        
+        # Получаем сообщения
+        messages = ChatMessage.objects.filter(
+            room=room
+        ).select_related('author').order_by('-created')[:50]
+        
+        # Сериализуем (можно использовать ваш существующий сериализатор)
+        from chat.serializers import ChatMessageSerializer
+        serializer = ChatMessageSerializer(messages, many=True, context={'request': request})
+        
+        return Response({
+            'messages': serializer.data,
+            'room_type': 'general'
+        })
+
+class GeneralChatSendAPIView(APIView):
+    """Отправка сообщения в общий чат"""
+    permission_classes = UNIVERSAL_FOR_PERMISSION_CLASSES
+    
+    def post(self, request):
+        GENERAL_BOARD_ID = 999999
+        
+        room, _ = ChatRoom.objects.get_or_create(board_id=GENERAL_BOARD_ID)
+        
+        text = request.data.get('text', '').strip()
+        if not text:
+            return Response({'error': 'Текст не может быть пустым'}, status=400)
+        
+        message = ChatMessage.objects.create(
+            room=room,
+            author=request.user,
+            text=text
+        )
+        
+        from chat.serializers import ChatMessageSerializer
+        serializer = ChatMessageSerializer(message, context={'request': request})
+        
+        return Response(serializer.data, status=201)
+
+
+

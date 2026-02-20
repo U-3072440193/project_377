@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -11,6 +12,7 @@
     {% block styles %}{% endblock %}
     <title>Шишка</title>
 </head>
+
 <body>
     <header class="site-header">
         <div class="container">
@@ -84,5 +86,88 @@
     </div>
 
     <script src="{% static 'js/app.js'%}"></script>
+    
+
+    <!-- Контейнер для мессенджера -->
+<div id="private-chat-root"></div>
+
+<!-- Кнопка для открытия мессенджера -->
+<button onclick="toggleMessenger()" id="messenger-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 1001; 
+       padding: 12px 24px; background: #333; color: white; 
+       border: none; border-radius: 50px; cursor: pointer;
+       font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
+    <span>💬</span> Мессенджер
+</button>
+
+<script>
+    // Данные для React
+    window.PRIVATE_CHAT_PROPS = {
+        currentUser: {
+            id: {{ request.user.id|default:'null' }},
+            username: "{{ request.user.username|default:'' }}",
+            isAuthenticated: {{ request.user.is_authenticated|yesno:'true,false' }}
+        },
+        serverUrl: "http://127.0.0.1:8000/",
+        csrfToken: "{{ csrf_token }}"
+    };
+
+    function toggleMessenger() {
+        const messenger = document.getElementById('private-chat-root');
+        if (messenger.style.display === 'none' || messenger.style.display === '') {
+            messenger.style.display = 'block';
+        } else {
+            messenger.style.display = 'none';
+        }
+    }
+
+    // Закрытие по клику вне мессенджера
+    document.addEventListener('click', function(event) {
+        const messenger = document.getElementById('private-chat-root');
+        const button = document.getElementById('messenger-toggle');
+        
+        if (messenger && button && 
+            messenger.style.display !== 'none' &&
+            !messenger.contains(event.target) && 
+            !button.contains(event.target)) {
+            messenger.style.display = 'none';
+        }
+    });
+
+    // Скрыть для неавторизованных
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if not request.user.is_authenticated %}
+        const button = document.getElementById('messenger-toggle');
+        if (button) button.style.display = 'none';
+        {% endif %}
+    });
+</script>
+<script src="{% static 'js/main.bba65630.js' %}"></script>
+
+<!-- Стили для контейнера -->
+<style>
+    #private-chat-root {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 800px;
+        height: 600px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 1000;
+        overflow: hidden;
+    }
+    
+    @media (max-width: 900px) {
+        #private-chat-root {
+            width: 95%;
+            height: 80vh;
+            right: 2.5%;
+            bottom: 70px;
+        }
+    }
+</style>
 </body>
+
 </html>

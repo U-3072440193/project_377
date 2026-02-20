@@ -32,6 +32,8 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,7 +45,6 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rest_framework',
     'captcha',
-    'channels',
     'chat',
 ]
 
@@ -85,12 +86,12 @@ CHANNEL_LAYERS = {
     'default': {  # Имя подключения (может быть несколько)
         #'BACKEND': 'channels_redis.core.RedisChannelLayer',
         "BACKEND": "channels.layers.InMemoryChannelLayer",  # Движок
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],  # Где искать Redis
+        #'CONFIG': {
+            # "hosts": [('127.0.0.1', 6379)],  # Где искать Redis
             # Можно добавить:
             # "prefix": "chat_",  # Префикс ключей в Redis
             # "timeout": 30,      # Таймаут соединения
-        },
+        #},
     },
 }
 #------------------------------------------------------------
@@ -141,7 +142,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'shishka' / 'static',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

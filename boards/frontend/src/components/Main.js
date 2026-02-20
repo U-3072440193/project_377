@@ -588,7 +588,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
         <div className="user">
           <p>Создатель: {board.owner.username}</p>
           <img
-            src={`${serverUrl}${board.owner.avatar}`}
+            src={board.owner.avatar}
             alt="avatar"
             width="50"
             height="50"
@@ -606,7 +606,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
               {members.map((member) => (
                 <li key={member.id}>
                   <img
-                    src={`${serverUrl}${member.avatar}`}
+                    src={member.avatar}
                     alt={member.username}
                     width={32}
                     height={32}

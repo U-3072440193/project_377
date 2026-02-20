@@ -110,3 +110,48 @@ class ChatFile(models.Model):
             self.file_size = self.file.size
             # Можно определить MIME-тип (нужна дополнительная библиотека)
         super().save(*args, **kwargs)
+        
+        
+class PrivateChat(models.Model):
+    """Личный чат между двумя пользователями"""
+    user1 = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='private_chats_as_user1'
+    )
+    user2 = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='private_chats_as_user2'
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['user1', 'user2']  # чтобы не создать дубликат
+    
+    def __str__(self):
+        return f"Чат между {self.user1.username} и {self.user2.username}"
+    
+    def get_other_user(self, user):
+        """Возвращает собеседника"""
+        return self.user2 if user == self.user1 else self.user1
+
+class PrivateMessage(models.Model):
+    """Сообщение в личном чате"""
+    chat = models.ForeignKey(
+        PrivateChat, 
+        on_delete=models.CASCADE, 
+        related_name='messages'
+    )
+    sender = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='sent_private_messages'
+    )
+    text = models.TextField(max_length=2000)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    is_read = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['created']

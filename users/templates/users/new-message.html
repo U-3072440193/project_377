@@ -35,14 +35,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const input = document.getElementById("recipient");
     const suggestions = document.getElementById("suggestions");
     const recipientIdField = document.getElementById("recipient_id");
-    const searchUrl = "{% url 'search-users' %}";
+    const searchUrl = "/users/search-users/";
 
     // Если поле уже заполнено (при переходе с профиля), отключаем поиск
     {% if preselected_recipient_name and preselected_recipient_id %}
         input.disabled = true;
         input.style.backgroundColor = "#f5f5f5";
         input.style.cursor = "not-allowed";
-        
+
         // Добавляем подсказку, что получатель уже выбран
         const recipientNote = document.createElement('div');
         recipientNote.className = 'recipient-note';

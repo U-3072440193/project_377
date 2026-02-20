@@ -10,14 +10,17 @@ from ..forms import BoardForm
 from ..models import Board, BoardPermit, User, UserBoardOrder
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.db.models import Q
-from django.db import models
+from django.db import models, transaction
+
+
 # -------------------Для BoardListAPIView---------------
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from ..models import Board
 from ..serializers import BoardSerializer
-from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES,get_react_js_filename,get_react_css_filename
+from .utils import UNIVERSAL_FOR_AUTHENTICATION, UNIVERSAL_FOR_PERMISSION_CLASSES, get_react_js_filename, \
+    get_react_css_filename
 from rest_framework import status
 from django.views.decorators.http import require_POST
 
@@ -55,7 +58,6 @@ def react_app_view(request, pk):  # ← добавить параметр pk
     # Можно получить доску для контекста
     board = get_object_or_404(Board, id=pk)
 
-
     # Получаем имена файлов
     react_js = get_react_js_filename()  # например: main.23c0e5d0.js
     react_css = get_react_css_filename()  # например: main.23c0e5d0.css
@@ -67,8 +69,8 @@ def react_app_view(request, pk):  # ← добавить параметр pk
         'user_data': {
             'user_id': request.user.id,
             'username': request.user.username,
-            'react_js': react_js,  
-            'react_css': react_css,  
+            'react_js': react_js,
+            'react_css': react_css,
         }
     }
 
@@ -85,37 +87,37 @@ def new_board(request):
         if form.is_valid():
             board = form.save(commit=False)  # сохранение без копирования в бд
             board.owner = request.user
-            
+
             # Находим максимальную позицию у пользователя и ставим +1 (СВЕРХУ)
             max_position = Board.objects.filter(
                 owner=request.user,
                 is_archived=False
             ).aggregate(models.Max('position'))['position__max'] or 0
-            
+
             # Устанавливаем позицию на 1 больше максимальной (новые сверху)
             board.position = max_position + 1
             board.save()
-            
+
             # Автоматически добавляем владельца
             BoardPermit.objects.get_or_create(
                 board=board,
                 user=request.user,
                 defaults={'role': 'owner'}
             )
-            
+
             # Также создаем запись в UserBoardOrder
             UserBoardOrder.objects.create(
                 user=request.user,
                 board=board,
                 position=1  # Новая доска всегда сверху
             )
-            
+
             # Обновляем позиции остальных досок пользователя
             # Смещаем все существующие доски вниз на 1
             UserBoardOrder.objects.filter(
                 user=request.user
             ).exclude(board=board).update(position=models.F('position') + 1)
-            
+
             return redirect('boards-page', pk=board.id)
     else:
         form = BoardForm()
@@ -124,6 +126,7 @@ def new_board(request):
         'form': form
     }
     return render(request, 'boards/new-board-form.html', context)
+
 
 @login_required(login_url='login')
 def delete_board(request, pk):
@@ -135,10 +138,10 @@ def delete_board(request, pk):
 @login_required(login_url='login')
 def my_boards(request):
     user = request.user
-    
+
     # Получаем доски с учетом порядка
     boards = get_user_boards_with_order(user)
-    
+
     context = {
         'boards': boards,
         'archived_boards': Board.objects.filter(
@@ -146,7 +149,7 @@ def my_boards(request):
             is_archived=True
         ).distinct(),
     }
-    
+
     return render(request, 'boards/my-boards.html', context)
 
 
@@ -241,16 +244,17 @@ def remove_board_member(request, board_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @login_required
 def exit_board(request, board_id):
     board = get_object_or_404(Board, id=board_id)
-    
+
     # Проверяем, что пользователь не владелец
     if request.user == board.owner:
         messages.error(request, "Владелец доски не может выйти из нее. Удалите доску или передайте права владения.")
         return redirect('my-boards')
-    
+
     # Проверяем, есть ли у пользователя разрешение на эту доску
     try:
         user_permit = BoardPermit.objects.get(board=board, user=request.user)
@@ -258,7 +262,7 @@ def exit_board(request, board_id):
         messages.success(request, f"Вы вышли из доски '{board.title}'")
     except BoardPermit.DoesNotExist:
         messages.error(request, "Вы не являетесь участником этой доски")
-    
+
     return redirect('my-boards')
 
 
@@ -273,26 +277,27 @@ class BoardListAPIView(APIView):  # отправка json в реакт
         return Response(serializer.data)
 
 
-#------------Архив------------
+# ------------Архив------------
 @login_required
-def archive_board(request,board_id):
+def archive_board(request, board_id):
     board = get_object_or_404(Board, id=board_id)
-    
+
     # Проверяем, что пользователь - владелец
     if request.user != board.owner:
         messages.error(request, "Только владелец может архивировать доску")
         return redirect('my-boards')
-    
+
     # Переключаем состояние архивации
     board.is_archived = not board.is_archived
     board.save()
-    
+
     if board.is_archived:
         messages.success(request, f'Доска "{board.title}" перемещена в архив')
     else:
         messages.success(request, f'Доска "{board.title}" восстановлена из архива')
-    
+
     return redirect('my-boards')
+
 
 @login_required
 def archived_boards(request):
@@ -300,30 +305,31 @@ def archived_boards(request):
         Q(owner=request.user) | Q(members=request.user),
         is_archived=True
     ).distinct()
-    
+
     return render(request, 'boards/archived-boards.html', {
         'archived_boards': archived_boards
     })
 
+
 @login_required
 def archive_board_view(request, board_id):
     board = get_object_or_404(Board, id=board_id)
-    
+
     # Проверяем доступ
-    if not (board.owner == request.user or 
+    if not (board.owner == request.user or
             board.boardpermit_set.filter(user=request.user).exists()):
         return HttpResponseForbidden("Нет доступа к этой доске")
-    
+
     # Проверяем, что доска действительно в архиве
     if not board.is_archived:
         messages.info(request, "Эта доска не находится в архиве")
         return redirect('boards-page', pk=board.id)
-    
+
     user_data = {
         "user_id": request.user.id,
         "username": request.user.username,
     }
-    
+
     return render(request, "boards/board.html", {
         "board": board,
         "user_data": user_data,
@@ -344,35 +350,35 @@ class BoardRenameAPIView(APIView):
                 {"error": "Нет прав на редактирование доски"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         # Проверка, что доска не в архиве
         if board.is_archived:
             return Response(
                 {"error": "Невозможно переименовать доску в архиве"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         title = request.data.get("title")
         if not title or not title.strip():
             return Response(
                 {"error": "Название обязательно и не может быть пустым"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         title = title.strip()
         if len(title) > 200:  # Проверка максимальной длины
             return Response(
                 {"error": "Название слишком длинное (максимум 200 символов)"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         # Проверяем, изменилось ли название
         if board.title == title:
             return Response(
                 {"message": "Название не изменилось"},
                 status=status.HTTP_200_OK
             )
-            
+
         board.title = title
         board.save()
 
@@ -387,15 +393,15 @@ def move_board_up(request, board_id):
     try:
         board = get_object_or_404(Board, id=board_id)
         user = request.user
-        
+
         # Получаем текущий порядок пользователя
         user_orders = UserBoardOrder.objects.filter(
             user=user
         ).order_by('position')
-        
+
         # Преобразуем в список ID досок
         board_ids = [order.board_id for order in user_orders]
-        
+
         # Находим индекс текущей доски
         try:
             current_index = board_ids.index(board.id)
@@ -410,15 +416,15 @@ def move_board_up(request, board_id):
                 'success': True,
                 'message': f'Доска "{board.title}" добавлена в список'
             })
-        
+
         if current_index > 0:
             # Меняем местами с предыдущей доской
             board_ids[current_index], board_ids[current_index - 1] = \
                 board_ids[current_index - 1], board_ids[current_index]
-            
+
             # Обновляем позиции в БД
             update_board_positions(user, board_ids)
-            
+
             return JsonResponse({
                 'success': True,
                 'message': f'Доска "{board.title}" перемещена выше'
@@ -428,9 +434,10 @@ def move_board_up(request, board_id):
                 'success': False,
                 'message': 'Доска уже на первой позиции'
             })
-            
+
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 
 @login_required
 @require_POST
@@ -439,15 +446,15 @@ def move_board_down(request, board_id):
     try:
         board = get_object_or_404(Board, id=board_id)
         user = request.user
-        
+
         # Получаем текущий порядок пользователя
         user_orders = UserBoardOrder.objects.filter(
             user=user
         ).order_by('position')
-        
+
         # Преобразуем в список ID досок
         board_ids = [order.board_id for order in user_orders]
-        
+
         # Находим индекс текущей доски
         try:
             current_index = board_ids.index(board.id)
@@ -462,15 +469,15 @@ def move_board_down(request, board_id):
                 'success': True,
                 'message': f'Доска "{board.title}" добавлена в список'
             })
-        
+
         if current_index < len(board_ids) - 1:
             # Меняем местами со следующей доской
             board_ids[current_index], board_ids[current_index + 1] = \
                 board_ids[current_index + 1], board_ids[current_index]
-            
+
             # Обновляем позиции в БД
             update_board_positions(user, board_ids)
-            
+
             return JsonResponse({
                 'success': True,
                 'message': f'Доска "{board.title}" перемещена ниже'
@@ -480,10 +487,11 @@ def move_board_down(request, board_id):
                 'success': False,
                 'message': 'Доска уже на последней позиции'
             })
-            
+
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
+
+
 def get_user_boards_with_order(user):
     """Получить доски пользователя с учетом его порядка"""
     # Все доступные доски
@@ -492,18 +500,18 @@ def get_user_boards_with_order(user):
         boardpermit__user=user,
         is_archived=False
     ).exclude(owner=user)
-    
+
     all_boards = (owned_boards | permitted_boards).distinct()
-    
+
     # Получаем пользовательский порядок
     user_orders = UserBoardOrder.objects.filter(
         user=user,
         board__in=all_boards
     ).select_related('board')
-    
+
     # Создаем словарь позиций
     position_dict = {order.board_id: order.position for order in user_orders}
-    
+
     # Инициализируем порядок для досок без записи
     for board in all_boards:
         if board.id not in position_dict:
@@ -514,27 +522,22 @@ def get_user_boards_with_order(user):
                 position=len(position_dict) + 1
             )
             position_dict[board.id] = len(position_dict) + 1
-    
+
     # Сортируем доски по позиции
     sorted_boards = sorted(
         all_boards,
         key=lambda b: position_dict.get(b.id, 999999)
     )
-    
+
     return sorted_boards
 
+
+
 def update_board_positions(user, board_ids_in_order):
-    """Обновить позиции досок для пользователя"""
-    # Удаляем старые записи для этих досок
-    UserBoardOrder.objects.filter(
-        user=user,
-        board_id__in=board_ids_in_order
-    ).delete()
-    
-    # Создаем новые записи с обновленными позициями
-    for position, board_id in enumerate(board_ids_in_order, start=1):
-        UserBoardOrder.objects.create(
-            user=user,
-            board_id=board_id,
-            position=position
-        )
+    """Обновить позиции досок для пользователя без удаления записей"""
+    with transaction.atomic():
+        for position, board_id in enumerate(board_ids_in_order, start=1):
+            UserBoardOrder.objects.filter(
+                user=user,
+                board_id=board_id
+            ).update(position=position)

@@ -27,6 +27,7 @@ urlpatterns = [
     path('boards/', include('boards.urls')),
     path('api/', include('boards.api_urls')),
     path('api/chat/', include('chat.api_urls')),
+    path('chat/', include('chat.urls')),
     path('settings/', views.settings, name='settings'),
     
 
