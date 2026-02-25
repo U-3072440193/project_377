@@ -27,7 +27,8 @@ class Board(models.Model):
                 user=self.owner,
                 defaults={'role': 'owner'}
             )
-
+    class Meta:
+        unique_together = ['title', 'owner']
 
 class BoardPermit(models.Model):
     class Meta:
@@ -70,6 +71,7 @@ class Column(models.Model):
 
     class Meta:
         ordering = ['position']
+        unique_together = ['board', 'position']
 
     def save(self, *args, **kwargs):
         if self.position == 0 or self.position is None:
@@ -113,6 +115,8 @@ class Task(models.Model):
         if not self.deadline:
             return False
         return timezone.now() > self.deadline
+    class Meta:
+        unique_together = ['column', 'position']
 
 
 def task_file_path(instance, filename):
