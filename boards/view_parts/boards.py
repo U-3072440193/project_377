@@ -10,7 +10,7 @@ from ..forms import BoardForm
 from ..models import Board, BoardPermit, User, UserBoardOrder
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.db.models import Q
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 
 
 # -------------------Для BoardListAPIView---------------
@@ -83,42 +83,49 @@ def react_app_view(request, pk):  # ← добавить параметр pk
 @login_required(login_url='login')
 def new_board(request):
     if request.method == 'POST':
-        form = BoardForm(request.POST)  # создаём форму из POST-данных
+        form = BoardForm(request.POST)
         if form.is_valid():
-            board = form.save(commit=False)  # сохранение без копирования в бд
-            board.owner = request.user
+            try:
+                board = form.save(commit=False)
+                board.owner = request.user
 
-            # Находим максимальную позицию у пользователя и ставим +1 (СВЕРХУ)
-            max_position = Board.objects.filter(
-                owner=request.user,
-                is_archived=False
-            ).aggregate(models.Max('position'))['position__max'] or 0
+                # Находим максимальную позицию у пользователя и ставим +1 (СВЕРХУ)
+                max_position = Board.objects.filter(
+                    owner=request.user,
+                    is_archived=False
+                ).aggregate(models.Max('position'))['position__max'] or 0
 
-            # Устанавливаем позицию на 1 больше максимальной (новые сверху)
-            board.position = max_position + 1
-            board.save()
+                # Устанавливаем позицию на 1 больше максимальной (новые сверху)
+                board.position = max_position + 1
+                board.save()
 
-            # Автоматически добавляем владельца
-            BoardPermit.objects.get_or_create(
-                board=board,
-                user=request.user,
-                defaults={'role': 'owner'}
-            )
+                # Автоматически добавляем владельца
+                BoardPermit.objects.get_or_create(
+                    board=board,
+                    user=request.user,
+                    defaults={'role': 'owner'}
+                )
 
-            # Также создаем запись в UserBoardOrder
-            UserBoardOrder.objects.create(
-                user=request.user,
-                board=board,
-                position=1  # Новая доска всегда сверху
-            )
+                # Также создаем запись в UserBoardOrder
+                UserBoardOrder.objects.create(
+                    user=request.user,
+                    board=board,
+                    position=1  # Новая доска всегда сверху
+                )
 
-            # Обновляем позиции остальных досок пользователя
-            # Смещаем все существующие доски вниз на 1
-            UserBoardOrder.objects.filter(
-                user=request.user
-            ).exclude(board=board).update(position=models.F('position') + 1)
+                # Обновляем позиции остальных досок пользователя
+                # Смещаем все существующие доски вниз на 1
+                UserBoardOrder.objects.filter(
+                    user=request.user
+                ).exclude(board=board).update(position=models.F('position') + 1)
 
-            return redirect('boards-page', pk=board.id)
+                return redirect('boards-page', pk=board.id)
+                
+            except IntegrityError:
+                # Обрабатываем ошибку уникальности (одинаковое название у одного владельца)
+                messages.error(request, f'У вас уже есть доска с названием "{form.cleaned_data["title"]}"')
+                # Возвращаем пользователя на форму с сохранением введённых данных
+                return render(request, 'boards/new-board-form.html', {'form': form})
     else:
         form = BoardForm()
 

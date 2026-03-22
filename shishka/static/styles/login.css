@@ -130,6 +130,7 @@
 .login-register .inner a:hover {
     color: #3d8b40;
     text-decoration: underline;
+    color: white;
 }
 
 /* ====================== */
