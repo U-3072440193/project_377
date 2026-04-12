@@ -37,17 +37,17 @@ from .views import (
 )
 
 urlpatterns = [
-    path('boards/<int:pk>/', BoardListAPIView.as_view()),
-    path('boards/<int:board_id>/columns/', ColumnCreateAPIView.as_view()),
-    path('columns/<int:pk>/', ColumnDeleteAPIView.as_view()),
-    path('columns/<int:column_id>/tasks/', TaskCreateAPIView.as_view()),
+    path('boards/<int:pk>/', BoardListAPIView.as_view(), name='board-list'),
+    path('boards/<int:board_id>/columns/', ColumnCreateAPIView.as_view(), name='column-create'),
+    path('columns/<int:pk>/', ColumnDeleteAPIView.as_view(), name='column-delete'),
+    path('columns/<int:column_id>/tasks/', TaskCreateAPIView.as_view(),name='task-create'),
 
-    path('user/', UserAPIView.as_view()),
+    path('user/', UserAPIView.as_view(), name='user-api'),
 
-    path('csrf/', get_csrf),
-    path('session/', session_view),
-    path('login/', login_view),
-    path('logout/', logout_view),
+    path('csrf/', get_csrf,name='get_csrf'),
+    path('session/', session_view,name='session_view'),
+    path('login/', login_view,name='login_view'),
+    path('logout/', logout_view,name='logout_view'),
     path('user_info/', user_info, name='api-userInfo'),
     path('kill_all_sessions/', kill_all_sessions, name='kill-all-sessions'),
 
@@ -56,7 +56,7 @@ urlpatterns = [
     path('boards/<int:pk>/rename/', BoardRenameAPIView.as_view(), name='board-rename'),
     path('columns/<int:pk>/rename/', ColumnRenameAPIView.as_view(), name='column-rename'),
     path('tasks/<int:pk>/rename/', TaskRenameAPIView.as_view(), name='task-rename'),
-    path('tasks/<int:pk>/', TaskDeleteAPIView.as_view()),
+    path('tasks/<int:pk>/', TaskDeleteAPIView.as_view(), name='task-delete'),
     path('tasks/<int:pk>/move/', TaskMoveView.as_view(), name='task-move'),
     path('tasks/<int:pk>/description/', TaskUpdateAPIView.as_view(), name='task-update-description'),
     path('tasks/<int:pk>/files/', TaskFilesListAPIView.as_view(), name='task-files-list'),  # GET список файлов

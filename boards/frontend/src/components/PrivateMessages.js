@@ -126,22 +126,34 @@ const PrivateMessages = ({ currentUser, serverUrl, csrfToken, onClose }) => {
 
     // Отправка через WebSocket
     const sendMessageViaWebSocket = () => {
-        if (!inputText.trim() || !activeDialog || !ws) return;
-        
-        // Находим получателя
-        const dialog = dialogs.find(d => d.id === activeDialog);
-        if (!dialog) return;
-        
-        const recipient_id = dialog.other_user.id;
-        
-        ws.send(JSON.stringify({
-            type: 'private_message',
-            recipient_id: recipient_id,
-            text: inputText
-        }));
-        
-        setInputText('');
+    if (!inputText.trim() || !activeDialog || !ws) return;
+
+    const dialog = dialogs.find(d => d.id === activeDialog);
+    if (!dialog) return;
+
+    const recipient_id = dialog.other_user.id;
+
+    // 🔥 создаем временное сообщение (чтобы сразу показать в UI)
+    const tempMessage = {
+        id: Date.now(),
+        text: inputText,
+        sender_id: currentUser.id,
+        sender_name: currentUser.username,
+        created: new Date().toISOString(),
+        is_read: false
     };
+
+    // 🔥 СРАЗУ добавляем в messages
+    setMessages(prev => [...prev, tempMessage]);
+
+    ws.send(JSON.stringify({
+        type: 'private_message',
+        recipient_id: recipient_id,
+        text: inputText
+    }));
+
+    setInputText('');
+};
 
     // Основная функция отправки
     const sendMessage = () => {

@@ -1,59 +1,101 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block profile %}
 <link rel="stylesheet" href="{% static 'styles/register.css' %}">
 {% endblock %}
+
 {% block content %}
-
-{%if page == 'register' %}
-<main class="login-register">
-    <div class="inner">
-        <a href="{% url 'home' %}" class="logo">
-            <img src="{% static 'images/logo.svg' %}" alt="Логотип" class="logo">
-        </a>
-        <h2>Регистрация</h2>
-        {% if form.non_field_errors %}
-        {% for error in form.non_field_errors %}
-        <p class="error">{{ error }}</p>
-        {% endfor %}
-        {% endif %}
-        <form action="{% url 'register' %}" method="post">
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="form-acc">
-                <label>{{ field.label }}</label>
-                {{ field }}
-
-                {% if field.errors %}
-                {% for error in field.errors %}
-                <p class="error">{{ error }}</p>
-                {% endfor %}
-                {% endif %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <img src="{% static 'images/logo.svg' %}" alt="Шишка">
+                </div>
+                <h1>Создать аккаунт</h1>
+                <p>Присоединяйтесь к Шишке</p>
             </div>
-            {% endfor %}
-            <input type="submit" value="Зарегистрироваться">
-        </form>
 
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {% if field.label == "Username" or field.label == "Логин" %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        {% elif field.label == "Email" or field.label == "Почта" %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        {% elif field.label == "Password" or field.label == "Пароль" %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        {% elif field.label == "Password confirmation" or field.label == "Подтверждение пароля" %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <line x1="12" y1="15" x2="12" y2="17"/>
+                        </svg>
+                        {% else %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        {% endif %}
+                        {{ field.label }}
+                        {% if field.field.required %}
+                        <span class="required-star">*</span>
+                        {% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="field-error">
+                        {% for error in field.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
 
-        <p>Войти в аккаунт <a href="{%url 'login'%}">Логин</a></p>
+                {% if form.non_field_errors %}
+                <div class="auth-error">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <button type="submit" class="auth-btn">
+                    <span>Зарегистрироваться</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+            </div>
+        </div>
     </div>
-</main>
-{%else%}
-<main class="login-register">
-    <div class="inner">
-        <a href="{% url 'home' %}" class="logo">
-            <img src="{% static 'images/logo.svg' %}" alt="Логотип" class="logo">
-        </a>
-        <h2>Вход</h2>
-        <form action="{% url 'login' %}" method="post">
-            {% csrf_token %}
-            <input type="text" name="username" placeholder="Логин" required>
-            <input type="password" name="password" placeholder="Пароль" required>
-            <input type="submit" value="Login">
-        </form>
-        <a href="{%url 'register' %}">Зарегистрироваться</a>
-    </div>
-</main>
-{%endif%}
-
+</div>
 {% endblock %}

@@ -134,8 +134,13 @@ class PrivateChat(models.Model):
         return f"Чат между {self.user1.username} и {self.user2.username}"
     
     def get_other_user(self, user):
-        """Возвращает собеседника"""
-        return self.user2 if user == self.user1 else self.user1
+        """Возвращает собеседника. Если пользователь не в чате, выбрасывает ValueError."""
+        if user == self.user1:
+            return self.user2
+        elif user == self.user2:
+            return self.user1
+        else:
+            raise ValueError("Пользователь не участвует в этом чате")
 
 class PrivateMessage(models.Model):
     """Сообщение в личном чате"""

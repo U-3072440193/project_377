@@ -5,7 +5,7 @@ from django.utils import timezone
 
 class Board(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200, blank=True)
+    title = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     hidden = models.BooleanField(default=True)

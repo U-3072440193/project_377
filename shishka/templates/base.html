@@ -1,41 +1,39 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
-
+<html lang="ru">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon" />
     <link rel="stylesheet" href="{% static 'styles/style.css' %}">
     {% block profile %}{% endblock %}
     {% block styles %}{% endblock %}
-    <title>Шишка</title>
+    <title>{% block title %}Шишка — Управляй проектами с шиком{% endblock %}</title>
 </head>
-
 <body>
-    <header class="site-header">
+
+    <!-- ========== HEADER ========== -->
+    <header class="site-header" id="siteHeader">
         <div class="container">
-            <!-- Логотип -->
             <a href="{% url 'home' %}" class="logo">
                 <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo" />
+                <span class="logo-text">Шишка</span>
             </a>
 
-            <!-- Навигация -->
             <nav class="main-nav">
                 <ul>
-                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'home' %}" class="">Главная</a></li>
                     {% if request.user.is_authenticated %}
                     <li><a href="{% url 'new-board' %}">Создать доску</a></li>
-                    <li><a href="{% url 'archive' %}">Мой архив</a></li>
-                    <li><a href="#">Мой чат</a></li>
+                    <li><a href="{% url 'archive' %}">Архив</a></li>
+                    <li><a href="#">Чат</a></li>
                     <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
-                    <li><a href="{%url 'inbox'%}">Почта</a></li>
+                    <li><a href="{% url 'inbox' %}">Почта</a></li>
                     {% endif %}
                 </ul>
             </nav>
 
-            <!-- Пользователь -->
             <div class="user-menu">
                 {% if request.user.is_authenticated %}
                 <div class="user-info">
@@ -43,18 +41,13 @@
                         <div class="avatar-container">
                             <a href="{% url 'profile' %}" class="user-link">
                                 {% if request.user.profile.avatar %}
-                                <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}"
-                                    class="avatar" />
+                                <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="avatar" />
                                 {% else %}
-                                <img src="{% static 'images/user.png' %}" alt="{{ request.user.username }}"
-                                    class="avatar" />
+                                <img src="{% static 'images/user.png' %}" alt="{{ request.user.username }}" class="avatar" />
                                 {% endif %}
                             </a>
-                            <!-- Бейдж для уведомлений -->
                             {% if unread and unread > 0 %}
-                            <div class="badge {% if unread > 9 %}large{% endif %}">
-                                {{ unread }}
-                            </div>
+                            <div class="badge {% if unread > 9 %}large{% endif %}">{{ unread }}</div>
                             {% endif %}
                         </div>
                         <span class="username">{{ request.user.username }}</span>
@@ -65,109 +58,152 @@
                 <a href="{% url 'login' %}" class="login-btn">Войти</a>
                 {% endif %}
             </div>
+
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </header>
 
-    <div class="body-list">
+    <div class="mobile-nav" id="mobileNav">
+        <ul>
+            <li><a href="{% url 'home' %}">Главная</a></li>
+            {% if request.user.is_authenticated %}
+            <li><a href="{% url 'new-board' %}">Создать доску</a></li>
+            <li><a href="{% url 'archive' %}">Архив</a></li>
+            <li><a href="#">Чат</a></li>
+            <li><a href="{% url 'my-boards' %}">Мои доски</a></li>
+            <li><a href="{% url 'inbox' %}">Почта</a></li>
+            <li><a href="{% url 'profile' %}">Профиль</a></li>
+            <li><a href="{% url 'logout' %}">Выйти</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Войти</a></li>
+            <li><a href="{% url 'register' %}">Регистрация</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
         {% if messages %}
         <div class="messages">
             {% for message in messages %}
             <div class="message {{ message.tags }}">
-                <p>{{ message }}</p>
-                <button class="alert-close">⨯</button>
+                <span>{{ message }}</span>
+                <button class="alert-close">×</button>
             </div>
             {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Main content -->
         {% block content %}
+        <!-- Контент из home.html подставится сюда -->
         {% endblock %}
-    </div>
+    </main>
 
-    <script src="{% static 'js/app.js'%}"></script>
-    
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="{% static 'images/logo.svg' %}" alt="Shishka Logo" class="footer-logo">
+                    <p>Современная платформа для управления проектами и командной работы.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><img src="/static/images/footer-12.svg" alt="файлы и вложения"></a>
+                        <a href="#" class="social-link"><img src="/static/images/footer-13.svg" alt="файлы и вложения"></a>
+                        <a href="#" class="social-link"><img src="/static/images/footer-14.svg" alt="файлы и вложения"></a>
+                        <a href="#" class="social-link"><img src="/static/images/footer-15.svg" alt="файлы и вложения"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Продукт</h4>
+                        <ul>
+                            <li><a href="#">Возможности</a></li>
+                            <li><a href="#">Цены</a></li>
+                            <li><a href="#">Блог</a></li>
+                            <li><a href="#">Поддержка</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Компания</h4>
+                        <ul>
+                            <li><a href="#">О нас</a></li>
+                            <li><a href="#">Вакансии</a></li>
+                            <li><a href="#">Контакты</a></li>
+                            <li><a href="#">Партнёрам</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Правовая информация</h4>
+                        <ul>
+                            <li><a href="#">Политика конфиденциальности</a></li>
+                            <li><a href="#">Условия использования</a></li>
+                            <li><a href="#">Cookie</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Шишка. Все права защищены.</p>
+                <div class="architect">
+                    <a href="https://github.com/U-3072440193/project_377" class="architect-link" target="_blank">🔧</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-    <!-- Контейнер для мессенджера -->
-<div id="private-chat-root"></div>
+    <!-- ========== MESSENGER ========== -->
+    <div id="private-chat-root"></div>
+    <button onclick="toggleMessenger()" id="messenger-toggle" class="messenger-toggle">💬 Мессенджер</button>
 
-<!-- Кнопка для открытия мессенджера -->
-<button onclick="toggleMessenger()" id="messenger-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 1001; 
-       padding: 12px 24px; background: #333; color: white; 
-       border: none; border-radius: 50px; cursor: pointer;
-       font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
-    <span>💬</span> Мессенджер
-</button>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        window.PRIVATE_CHAT_PROPS = {
+            currentUser: {
+                id: {{ request.user.id|default:'null' }},
+                username: "{{ request.user.username|default:'' }}",
+                isAuthenticated: {{ request.user.is_authenticated|yesno:'true,false' }}
+            },
+            serverUrl: "http://127.0.0.1:8000/",
+            csrfToken: "{{ csrf_token }}"
+        };
 
-<script>
-    // Данные для React
-    window.PRIVATE_CHAT_PROPS = {
-        currentUser: {
-            id: {{ request.user.id|default:'null' }},
-            username: "{{ request.user.username|default:'' }}",
-            isAuthenticated: {{ request.user.is_authenticated|yesno:'true,false' }}
-        },
-        serverUrl: "http://127.0.0.1:8000/",
-        csrfToken: "{{ csrf_token }}"
-    };
-
-    function toggleMessenger() {
-        const messenger = document.getElementById('private-chat-root');
-        if (messenger.style.display === 'none' || messenger.style.display === '') {
-            messenger.style.display = 'block';
-        } else {
-            messenger.style.display = 'none';
+        const toggleBtn = document.getElementById('mobileMenuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        if (toggleBtn && mobileNav) {
+            toggleBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+                document.body.classList.toggle('menu-open');
+            });
         }
-    }
 
-    // Закрытие по клику вне мессенджера
-    document.addEventListener('click', function(event) {
-        const messenger = document.getElementById('private-chat-root');
-        const button = document.getElementById('messenger-toggle');
-        
-        if (messenger && button && 
-            messenger.style.display !== 'none' &&
-            !messenger.contains(event.target) && 
-            !button.contains(event.target)) {
-            messenger.style.display = 'none';
+        const header = document.getElementById('siteHeader');
+        window.addEventListener('scroll', function() {
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        function toggleMessenger() {
+            const messenger = document.getElementById('private-chat-root');
+            if (messenger) messenger.style.display = messenger.style.display === 'none' || messenger.style.display === '' ? 'block' : 'none';
         }
-    });
 
-    // Скрыть для неавторизованных
-    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.alert-close').forEach(btn => {
+            btn.addEventListener('click', function() { this.parentElement.remove(); });
+        });
+
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }, 5000);
+
         {% if not request.user.is_authenticated %}
-        const button = document.getElementById('messenger-toggle');
-        if (button) button.style.display = 'none';
+        document.getElementById('messenger-toggle').style.display = 'none';
         {% endif %}
-    });
-</script>
-<script src="{% static 'js/main.bba65630.js' %}"></script>
-
-<!-- Стили для контейнера -->
-<style>
-    #private-chat-root {
-        position: fixed;
-        bottom: 80px;
-        right: 20px;
-        width: 800px;
-        height: 600px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        display: none;
-        z-index: 1000;
-        overflow: hidden;
-    }
-    
-    @media (max-width: 900px) {
-        #private-chat-root {
-            width: 95%;
-            height: 80vh;
-            right: 2.5%;
-            bottom: 70px;
-        }
-    }
-</style>
+    </script>
+    <script src="{% static 'js/main.ee647295.js' %}"></script>
 </body>
-
 </html>

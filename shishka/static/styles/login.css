@@ -1,179 +1,297 @@
 /* ====================== */
-/* СТИЛИ ДЛЯ ФОРМЫ ВХОДА */
+/* LOGIN PAGE STYLES */
 /* ====================== */
 
-.login-register .inner {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-    border-radius: 20px;
-    padding: 40px 50px;
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.5);
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --success: #10b981;
+    --danger: #ef4444;
+    --dark: #0f172a;
+    --dark-light: #1e293b;
+    --gray: #64748b;
+    --gray-light: #94a3b8;
+    --light: #f8fafc;
+    --white: #ffffff;
+    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+}
+
+/* ====================== */
+/* PAGE LAYOUT */
+/* ====================== */
+.auth-page {
+    min-height: calc(100vh - 200px);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+.auth-container {
     width: 100%;
-    max-width: 400px; /* Уменьшили максимальную ширину */
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    margin: 40px auto; /* Центрируем */
+    max-width: 460px;
+    margin: 0 auto;
 }
 
-/* Логотип внутри формы */
-.login-register .inner .logo {
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: center;
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
+/* ====================== */
+/* AUTH CARD */
+/* ====================== */
+.auth-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.login-register .inner .logo img {
-    width: 50px;
-    height: 50px;
-    
+.auth-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.2);
 }
 
-/* Заголовок */
-.login-register .inner h2 {
+/* ====================== */
+/* AUTH HEADER */
+/* ====================== */
+.auth-header {
     text-align: center;
-    margin-bottom: 30px;
-    color: #2c3e50;
+    padding: 40px 32px 24px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-logo {
+    margin-bottom: 20px;
+}
+
+.auth-logo img {
+    height: 56px;
+    width: auto;
+}
+
+.auth-header h1 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #2c3e50 0%, #4CAF50 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    width: 100%;
+    color: var(--dark);
+    margin-bottom: 8px;
 }
 
-/* Форма */
-.login-register .inner form {
-    width: 100%;
+.auth-header p {
+    font-size: 14px;
+    color: var(--gray);
+    margin: 0;
+}
+
+/* ====================== */
+/* AUTH FORM */
+/* ====================== */
+.auth-form {
+    padding: 32px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
     display: flex;
-    flex-direction: column;
-    gap: 20px; /* Отступы между полями */
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
 }
 
-/* Поля ввода */
-.login-register .inner input[type="text"],
-.login-register .inner input[type="password"],
-.login-register .inner input[type="email"] {
+.form-group label svg {
+    color: var(--primary);
+    stroke: var(--primary);
+}
+
+.form-group input {
     width: 100%;
     padding: 14px 16px;
-    border-radius: 12px;
-    border: 2px solid #e0e0e0;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
+    font-size: 15px;
     font-family: inherit;
-    box-sizing: border-box;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    background: var(--white);
+    color: var(--dark);
+    transition: all 0.3s ease;
 }
 
-.login-register .inner input[type="text"]:focus,
-.login-register .inner input[type="password"]:focus,
-.login-register .inner input[type="email"]:focus {
+.form-group input:focus {
     outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-    background: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-/* Плейсхолдеры */
-.login-register .inner input::placeholder {
-    color: #95a5a6;
-    opacity: 0.8;
+.form-group input::placeholder {
+    color: var(--gray-light);
 }
 
-/* Кнопка отправки */
-.login-register .inner input[type="submit"] {
+/* ====================== */
+/* ERROR MESSAGE */
+/* ====================== */
+.auth-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fee2e2;
+    border-radius: var(--radius-md);
+    color: var(--danger);
+    font-size: 14px;
+    margin-bottom: 24px;
+    border-left: 3px solid var(--danger);
+}
+
+.auth-error svg {
+    stroke: var(--danger);
+    flex-shrink: 0;
+}
+
+/* ====================== */
+/* AUTH BUTTON */
+/* ====================== */
+.auth-btn {
     width: 100%;
-    padding: 16px;
-    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 14px 24px;
+    background: var(--gradient-primary);
+    color: var(--white);
     border: none;
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    font-size: 17px;
+    border-radius: var(--radius-full);
     font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 10px;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
 }
 
-.login-register .inner input[type="submit"]:hover {
-    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+.auth-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
-.login-register .inner input[type="submit"]:active {
+.auth-btn:active {
     transform: translateY(0);
 }
 
-/* Ссылка на регистрацию */
-.login-register .inner a {
-    display: block;
+/* ====================== */
+/* AUTH FOOTER */
+/* ====================== */
+.auth-footer {
     text-align: center;
-    margin-top: 20px;
-    color: #4CAF50;
+    padding: 20px 32px 32px;
+    border-top: 1px solid #e2e8f0;
+    background: var(--white);
+}
+
+.auth-footer p {
+    font-size: 14px;
+    color: var(--gray);
+    margin: 0;
+}
+
+.auth-footer a {
+    color: var(--primary);
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s ease;
-    width: 100%;
 }
 
-.login-register .inner a:hover {
-    color: #3d8b40;
+.auth-footer a:hover {
+    color: var(--primary-dark);
     text-decoration: underline;
-    color: white;
 }
 
 /* ====================== */
-/* АДАПТИВНОСТЬ ДЛЯ ФОРМЫ */
+/* ANIMATIONS */
 /* ====================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-@media (max-width: 768px) {
-    .login-register .inner {
-        padding: 30px;
-        margin: 20px;
-        max-width: 90%;
+.auth-card {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* ====================== */
+/* RESPONSIVE */
+/* ====================== */
+@media (max-width: 640px) {
+    .auth-container {
+        max-width: 100%;
     }
     
-    .login-register .inner h2 {
+    .auth-header {
+        padding: 32px 24px 20px;
+    }
+    
+    .auth-header h1 {
         font-size: 24px;
     }
     
-    .login-register .inner input[type="text"],
-    .login-register .inner input[type="password"],
-    .login-register .inner input[type="email"] {
-        padding: 12px 14px;
-        font-size: 15px;
+    .auth-form {
+        padding: 24px;
     }
     
-    .login-register .inner input[type="submit"] {
-        padding: 14px;
-        font-size: 16px;
+    .auth-footer {
+        padding: 16px 24px 24px;
+    }
+    
+    .form-group input {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+    
+    .auth-btn {
+        padding: 12px 20px;
+        font-size: 15px;
     }
 }
 
 @media (max-width: 480px) {
-    .login-register .inner {
-        padding: 25px 20px;
-        margin: 15px;
-        border-radius: 15px;
+    .auth-header {
+        padding: 24px 20px 16px;
     }
     
-    .login-register .inner h2 {
+    .auth-logo img {
+        height: 48px;
+    }
+    
+    .auth-header h1 {
         font-size: 22px;
-        margin-bottom: 20px;
     }
     
-    .login-register .inner form {
-        gap: 15px;
+    .auth-form {
+        padding: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 18px;
+    }
+    
+    .auth-footer {
+        padding: 16px 20px 20px;
     }
 }

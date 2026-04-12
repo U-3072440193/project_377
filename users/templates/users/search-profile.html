@@ -6,21 +6,36 @@
 {% endblock %}
 
 {% block content %}
-<main class="search-profile">
-    <div class="container">
-        <h1>Поиск пользователей</h1>
-        
+<div class="search-page">
+    <div class="search-container">
+        <div class="search-header">
+            <div class="header-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>Поиск пользователей</h1>
+                <p>Найдите коллег и друзей в Шишке</p>
+            </div>
+        </div>
+
         <!-- Форма поиска -->
         <div class="search-form">
             <form method="get" action="{% url 'search-profile' %}">
-                <div class="search-input-group">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
                     <input type="text" 
                            name="search" 
                            placeholder="Введите имя пользователя..."
                            value="{{ search_query }}"
                            autocomplete="off">
-                    <button type="submit" class="btn search-btn">
-                        Поиск
+                    <button type="submit" class="search-btn">
+                        Найти
                     </button>
                 </div>
             </form>
@@ -29,58 +44,12 @@
         <!-- Результаты поиска -->
         <div class="search-results">
             {% if search_query %}
-                <h2>Результаты поиска по запросу: "{{ search_query }}"</h2>
+                <div class="results-header">
+                    <h2>Результаты поиска</h2>
+                    <span class="query-badge">"{{ search_query }}"</span>
+                </div>
+                
                 {% if users %}
-                    <div class="users-grid">
-                        {% for user in users %}
-                        <div class="user-card">
-                            <div class="user-avatar">
-                                {% if user.profile.avatar %}
-                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
-                                {% else %}
-                                    <div class="default-avatar">
-                                        <img src="{{ profile.avatar.url }}" alt="Аватар">
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="user-info">
-                                <h3>{{ user.username }}</h3>
-                                <p class="user-fullname">
-                                    {% if user.profile.first_name or user.profile.last_name %}
-                                        {{ user.profile.first_name }} {{ user.profile.last_name }}
-                                    {% else %}
-                                        Имя не указано
-                                    {% endif %}
-                                </p>
-                                {% if user.profile.bio %}
-                                <p class="user-bio">{{ user.profile.bio|truncatechars:80 }}</p>
-                                {% endif %}
-                            </div>
-                            <div class="user-actions">
-                                <a href="{% url 'profile-public' user.id %}" class="btn view-profile">
-                                    Профиль
-                                </a>
-                                {% if user != request.user %}
-                                <a href="{% url 'new-message' %}?recipient_id={{ user.id }}&recipient_name={{ user.username|urlencode }}" 
-                                   class="btn send-message">
-                                    Сообщение
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="no-results">
-                        <p>Пользователи не найдены</p>
-                    </div>
-                {% endif %}
-            {% else %}
-                <!-- Показываем всех пользователей или инструкцию -->
-                <div class="search-instruction">
-                    <p>Введите имя пользователя в поле поиска выше</p>
-                    {% if users %}
-                    <h3>Все пользователи:</h3>
                     <div class="users-grid">
                         {% for user in users %}
                         <div class="user-card">
@@ -92,6 +61,7 @@
                                         {{ user.username|slice:":1"|upper }}
                                     </div>
                                 {% endif %}
+                                <div class="avatar-status online"></div>
                             </div>
                             <div class="user-info">
                                 <h3>{{ user.username }}</h3>
@@ -99,22 +69,80 @@
                                     {% if user.profile.first_name or user.profile.last_name %}
                                         {{ user.profile.first_name }} {{ user.profile.last_name }}
                                     {% else %}
-                                        Имя не указано
+                                        <span class="not-specified">Имя не указано</span>
                                     {% endif %}
                                 </p>
+                                {% if user.profile.bio %}
+                                <p class="user-bio">{{ user.profile.bio|truncatechars:60 }}</p>
+                                {% endif %}
                             </div>
                             <div class="user-actions">
-                                <a href="{% url 'profile-public' user.id %}" class="btn view-profile">
+                                <a href="{% url 'profile-public' user.id %}" class="btn-profile">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
                                     Профиль
                                 </a>
+                                {% if user != request.user %}
+                                <a href="{% url 'new-message' %}?recipient_id={{ user.id }}&recipient_name={{ user.username|urlencode }}" 
+                                   class="btn-message">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                    Сообщение
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Пользователи с именем "{{ search_query }}" не найдены</p>
+                        <p class="empty-hint">Попробуйте изменить запрос поиска</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="search-instruction">
+                    <div class="instruction-icon"><img src="/static/images/icon-profile-19.svg" alt="поиск"></div>
+                    <h3>Начните поиск</h3>
+                    <p>Введите имя пользователя в поле выше, чтобы найти коллег и друзей</p>
+                    
+                    {% if users %}
+                    <div class="all-users-section">
+                        <h4>Все пользователи</h4>
+                        <div class="users-grid">
+                            {% for user in users|slice:":6" %}
+                            <div class="user-card compact">
+                                <div class="user-avatar small">
+                                    {% if user.profile.avatar %}
+                                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                    {% else %}
+                                        <div class="default-avatar small">
+                                            {{ user.username|slice:":1"|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="user-info">
+                                    <h3>{{ user.username }}</h3>
+                                    <a href="{% url 'profile-public' user.id %}" class="btn-profile small">Профиль</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if users|length > 6 %}
+                        <div class="more-users">
+                            <p>И еще {{ users|length|add:"-6" }} пользователей...</p>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
             {% endif %}
         </div>
     </div>
-</main>
+</div>
 {% endblock %}

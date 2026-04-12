@@ -23,7 +23,7 @@ body {
 
 /* Header */
 .site-header {
-    background-color: #333;
+   
     color: white;
     padding: 15px 0;
 }
@@ -53,6 +53,7 @@ body {
 }
 
 /* Навигация */
+
 .main-nav ul {
     list-style: none;
     display: flex;
@@ -61,24 +62,25 @@ body {
 
 .main-nav ul li a {
     text-decoration: none;
-    color: white;
+    color: rgb(0, 0, 0);
     font-weight: bold;
 }
 
 .main-nav ul li a:hover {
-    color: #4CAF50;
+    background: rgba(99, 102, 241, 0.1);
+    color:#6366f1;
 }
 
 /* Пользовательский блок */
 .user-menu a {
     margin-left: 15px;
     text-decoration: none;
-    color: white;
+    color: rgb(0, 0, 0);
     font-weight: bold;
 }
 
 .user-menu a:hover {
-    color: #4CAF50;
+    color: linear-gradient(135deg,#6366f1,#8b5cf6);
 }
 
 /* Основной контент */
@@ -97,7 +99,7 @@ main.home, .login-register {
 
 /* Footer */
 .site-footer {
-    background-color: #333;
+    background-color:#0f172a;
     color: white;
     text-align: center;
     padding: 15px 0;

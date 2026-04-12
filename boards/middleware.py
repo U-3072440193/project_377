@@ -1,4 +1,3 @@
-# boards/middleware.py
 import re
 from django.http import HttpResponseRedirect
 

@@ -1,103 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<div class="body-list">
-    <div class="banner">
-        <img src="{% static 'images/kanban-main.webp'%}" alt="" class="home-banner">
-        <div class="banner-text">
-            <span class="text-main">ВАШ ПРОЕКТ — ПОД ПОЛНЫМ КОНТРОЛЕМ ВМЕСТЕ С</span>
-            <span class="text-brand"> ШИШКОЙ</span>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-bg-blob"></div>
+    <div class="hero-bg-blob-2"></div>
+    
+    <div class="hero-content">
+        <div class="hero-text">
+            <span class="hero-badge"> <span>Новая версия</span></span>
+            <h1 class="hero-title">
+                Управляй проектами<br>
+                <span class="gradient-text">с шишкой</span>
+            </h1>
+            <p class="hero-description">
+                Шишка — современная платформа для управления задачами, 
+                совместной работы и достижения целей. Интуитивно понятно, 
+                мощно и красиво.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">10K+</span>
+                    <span class="stat-label">Активных команд</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50K+</span>
+                    <span class="stat-label">Завершённых задач</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">99%</span>
+                    <span class="stat-label">Довольных пользователей</span>
+                </div>
+            </div>
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                <a href="{% url 'my-boards' %}" class="btn-primary">
+                    <span>Мои доски</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn-primary">
+                    <span>Начать бесплатно</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="{% url 'login' %}" class="btn-outline">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'images/kanban-main.webp' %}" alt="Dashboard Preview" class="hero-image-main" onerror="this.src='https://placehold.co/600x500/6366f1/white?text=Shishka'">
+            <div class="hero-image-card">
+                <div class="card-icon"></div>
+                <div class="card-text">
+                    <strong>12 задач выполнено</strong>
+                    <span>На этой неделе</span>
+                </div>
+            </div>
         </div>
     </div>
-    
-    {% block profile %}
-    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
-    {% endblock %}
-    
-    <main class="home-page">
-        <section class="hero">
-            <div class="hero-content">
-                <div class="hero-image">
-                    <img src="{% static 'images/kanban-illustration.png' %}" alt="Kanban Доска" style="max-width: 400px;">
-                </div>
-                <div class="hero-text">
-                    <p class="tagline">Управляй проектами вместе с командой.<br>Интуитивные доски, живые задачи, простое общение.</p>
-                    <div class="hero-buttons">
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'profile' %}" class="btn btn-primary">Мой профиль</a>
-                        {% else %}
-                            <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
-                            <a href="{% url 'register' %}" class="btn btn-outline">Зарегистрироваться</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </section>
+</section>
 
-        <section class="features">
-            <div class="container">
-                <h2 class="section-title">Почему команды выбирают Шишку</h2>
-                
-                <div class="feature-zigzag">
-                    <div class="feature-row">
-                        <div class="feature-image-wrapper">
-                            <img src="{% static 'images/kanban-board-with-team.jpg' %}" alt="Kanban доска" class="feature-img">
-                        </div>
-                        <div class="feature-text">
-                            <span class="feature-number"></span>
-                            <h3>Умные Kanban-доски</h3>
-                            <p>Создавайте, перетаскивайте и отслеживайте задачи интуитивно. Каждый участник видит общую картину проекта.</p>
-                            <ul class="feature-list">
-                                <li>Перетаскивание карточек</li>
-                                <li>Неограниченные колонки</li>
-                                <li>Настраиваемые статусы</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-row reverse">
-                        <div class="feature-image-wrapper">
-                            <img src="{% static 'images/email-pic.png' %}" alt="Внутренняя почта" class="feature-img">
-                        </div>
-                        <div class="feature-text">
-                            <span class="feature-number"></span>
-                            <h3>Встроенная коммуникация</h3>
-                            <p>Почта и чат в одном интерфейсе. Отправляйте файлы, создавайте групповые беседы.</p>
-                            <ul class="feature-list">
-                                <li>Личные сообщения</li>
-                                <li>Прикрепление файлов</li>
-                                <li>Уведомления в реальном времени</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-row">
-                        <div class="feature-image-wrapper">
-                            <img src="{% static 'images/chat.webp' %}" alt="Чат" class="feature-img">
-                        </div>
-                        <div class="feature-text">
-                            <span class="feature-number"></span>
-                            <h3>Обсуждение в контексте</h3>
-                            <p>Комментируйте конкретные задачи, отмечайте коллег и получайте мгновенные ответы — без лишних совещаний.</p>
-                            <ul class="feature-list">
-                                <li>Комментарии к задачам</li>
-                                <li>Упоминания участников</li>
-                                <li>История обсуждений</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    
-    
-    <footer class="site-footer">
-        <div class="architect">
-            <a href="https://github.com/U-3072440193/project_377" class="architect-link" target="_blank">
-                <img src="{% static 'images/GitHub__Logo_w.svg' %}" alt="Чат" class="git-img">
-            </a>
+<!-- Features Section -->
+<section class="features-section">
+    <div class="features-container">
+        <div class="section-header">
+            <span class="section-tag">Возможности</span>
+            <h2 class="section-title">Всё, что нужно для<br>эффективной работы</h2>
+            <p class="section-subtitle">Инструменты, которые помогут вашей команде достигать большего</p>
         </div>
-    </footer>
-</div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-02.svg" alt="доска"></div>
+                <h3 class="feature-title">Канбан-доски</h3>
+                <p class="feature-description">Визуализируйте рабочий процесс с помощью гибких досок.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-11.svg" alt="чат"></div>
+                <h3 class="feature-title">Командный чат</h3>
+                <p class="feature-description">Общайтесь в реальном времени, обсуждайте задачи.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-08.svg" alt="файлы и вложения"></div>
+                <h3 class="feature-title">Файлы и вложения</h3>
+                <p class="feature-description">Прикрепляйте файлы к задачам, делитесь документами.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-07.svg" alt="дедлайн"></div>
+                <h3 class="feature-title">Дедлайны</h3>
+                <p class="feature-description">Устанавливайте сроки, получайте уведомления.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-09.svg" alt="аналитика"></div>
+                <h3 class="feature-title">Аналитика</h3>
+                <p class="feature-description">Отслеживайте прогресс команды с помощью аналитики.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><img src="/static/images/icon-profile-14.svg" alt="безопасность"></div>
+                <h3 class="feature-title">Безопасность</h3>
+                <p class="feature-description">Ваши данные под надёжной защитой.</p>
+                <a href="#" class="feature-link">Узнать больше →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Готовы начать?</h2>
+        <p>Присоединяйтесь к тысячам команд, которые уже используют Шишку</p>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn-cta">Создать аккаунт бесплатно</a>
+        {% else %}
+        <a href="{% url 'new-board' %}" class="btn-cta">Создать первую доску</a>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

@@ -1,64 +1,194 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block profile %}
 <link rel="stylesheet" href="{% static 'styles/profile.css' %}">
 {% endblock %}
-{% block content %}
-<main class="profile">
 
-    <div class="container-prof">
-        <div class="profile-left">
-            <div class="profile-window">
-                <h1>{{ profile.user.username }}</h1>
-                <img src="{{ profile.avatar.url }}" alt="Аватар">
-                <a href="{%url 'edit-profile'%}" class="btn edit">Редактировать профиль</a>
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <!-- Левая колонка -->
+        <div class="profile-sidebar">
+            <!-- Аватар и имя -->
+            <div class="profile-avatar-card">
+                <div class="avatar-wrapper">
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}" class="profile-avatar">
+                    <div class="avatar-overlay">
+                        <a href="{% url 'edit-profile' %}" class="edit-avatar-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <h2 class="profile-username">{{ profile.user.username }}</h2>
+                <p class="profile-joined">Присоединился: {{ profile.user.date_joined|date:"d.m.Y" }}</p>
+                <a href="{% url 'edit-profile' %}" class="btn-edit-profile">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Редактировать
+                </a>
             </div>
-            <div class="profile-info">
-                <h1>Мой профиль</h1>
-                <p><span class="label"> Имя пользователя:</span> {{ profile.user.username }}</p>
-                <p><span class="label">Имя:</span> {{ profile.first_name }}</p>
-                <p><span class="label">Фамилия:</span> {{ profile.last_name }}</p>
-                <p><span class="label">Email:</span> {{ profile.email }}</p>
-                <p><span class="label">О себе:</span> {{ profile.bio }}</p>
-                <p>Ссылка соцсети: {{ profile.social_media_link }}</p>
+
+            <!-- Информация о пользователе -->
+            <div class="profile-info-card">
+                <h3 class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    О пользователе
+                </h3>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Имя</span>
+                        <span class="info-value">{{ profile.first_name|default:"Не указано" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Фамилия</span>
+                        <span class="info-value">{{ profile.last_name|default:"Не указано" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ profile.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Соцсеть</span>
+                        <span class="info-value">
+                            {% if profile.social_media_link %}
+                            <a href="{{ profile.social_media_link }}" target="_blank" class="social-link">{{ profile.social_media_link|truncatechars:30 }}</a>
+                            {% else %}
+                            Не указано
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">О себе</span>
+                        <p class="info-bio">{{ profile.bio|default:"Пользователь пока ничего не рассказал о себе" }}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- Правая колонка -->
+        <div class="profile-main">
+            <!-- Быстрые действия -->
+            <div class="quick-actions">
+                <h3 class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    Быстрые действия
+                </h3>
+                <div class="actions-grid">
+                    <a href="{% url 'inbox' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-01.svg" alt="почта"></div>
+                        <div class="action-info">
+                            <h4>Почта</h4>
+                            <p>Личные сообщения</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                    <a href="{% url 'my-boards' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-02.svg" alt="доски"></div>
+                        <div class="action-info">
+                            <h4>Мои доски</h4>
+                            <p>Все проекты</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                    <a href="{% url 'archive' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-04.svg" alt="архив"></div>
+                        <div class="action-info">
+                            <h4>Архив</h4>
+                            <p>Завершённые проекты</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                    <a href="{% url 'search-profile' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-03.svg" alt="поиск"></div>
+                        <div class="action-info">
+                            <h4>Поиск</h4>
+                            <p>Найти пользователей</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                    <a href="{% url 'settings' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-06.svg" alt="настройки"></div>
+                        <div class="action-info">
+                            <h4>Настройки</h4>
+                            <p>Изменить параметры</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                    <a href="{% url 'new-board' %}" class="action-card">
+                        <div class="action-icon"><img src="/static/images/icon-profile-05.svg" alt="создать доску"></div>
+                        <div class="action-info">
+                            <h4>Создать доску</h4>
+                            <p>Новый проект</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </a>
+                </div>
+            </div>
 
-        <div class="profile-right">
-            <table class="icon-table">
-                <tr>
-                    <td><a href="{%url 'inbox'%}"><img src="{% static 'images/post.svg' %}" alt=""
-                                                       class="icon"></a></td>
-                    <td><a href="{%url 'my-boards'%}"><img src="{% static 'images/kanban.svg' %}" class="icon"></a></td>
-                    <td><a href="{%url 'archive'%}"><img src="{% static 'images/archive.svg' %}" class="icon"></a></td>
-                    <td><a href="{%url 'search-profile'%}"><img src="{% static 'images/search_green.svg' %}" class="icon"></a></td>
-                </tr>
-                <tr>
-                    <td><a href="{%url 'settings'%}"><img src="{% static 'images/settings.svg' %}" alt="" class="icon"></a></td>
+            <!-- Мои доски -->
+            {% if boards %}
+            <div class="my-boards">
+                <h3 class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16v16H4z"/>
+                        <line x1="8" y1="4" x2="8" y2="20"/>
+                        <line x1="16" y1="4" x2="16" y2="20"/>
+                        <line x1="4" y1="8" x2="20" y2="8"/>
+                    </svg>
+                    Мои доски
+                </h3>
+                <div class="boards-grid">
+                    {% for board in boards %}
+                    <div class="board-card">
+                        <div class="board-card-header">
+                            <a href="{% url 'boards-page' board.id %}" class="board-title">{{ board.title }}</a>
+                            <div class="board-date">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ board.created|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'delete_board' board.id %}" class="delete-board-form">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-board-btn" onclick="return confirm('Удалить доску?')">×</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
-                </tr>
-            </table>
-<!--            <div class="boards">-->
-<!--                <h2>Мои доски</h2>-->
-<!--                {% for board in boards %}-->
-<!--                <div class="board-container">-->
-<!--                    <a href="{% url 'boards-page' board.id %}" class="board">{{board.title}}</a>-->
-<!--                    <div class="board">{{board.created}}</div>-->
-<!--                    <form method="post" action="{% url 'delete_board' board.id %}" style="display:inline;" class="delete-board">-->
-<!--                        {% csrf_token %}-->
-<!--                        <button type="submit" class="delete-message">x</button>-->
-<!--                    </form>-->
-<!--                </div>-->
-
-<!--                {% endfor %}-->
-<!--            </div>-->
+            <!-- Статистика -->
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ boards|length|default:0 }}</div>
+                    <div class="stat-label">Досок создано</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ tasks_count|default:0 }}</div>
+                    <div class="stat-label">Задач выполнено</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ projects_count|default:0 }}</div>
+                    <div class="stat-label">Активных проектов</div>
+                </div>
+            </div>
         </div>
     </div>
-
-
-</main>
-
-
+</div>
 {% endblock %}
-

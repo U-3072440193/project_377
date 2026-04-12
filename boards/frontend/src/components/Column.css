@@ -1,208 +1,339 @@
-.column {
-  background-color: #808080;
-  border-radius: 8px;
-  width: 300px;
-  min-width: 300px;
-  max-height: calc(100vh - 250px);
-  overflow-y: auto;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
+/* ====================== */
+/* ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ КОЛОНКИ (СОВРЕМЕННЫЙ ДИЗАЙН) */
+/* ====================== */
+
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --success: #10b981;
+    --danger: #ef4444;
+    --gray: #64748b;
+    --gray-light: #94a3b8;
+    --light: #f8fafc;
+    --white: #ffffff;
+    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
 }
 
+/* Улучшенная колонка */
+.column {
+    background: var(--light);
+    border-radius: var(--radius-lg);
+    width: 320px;
+    min-width: 320px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.column:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Скроллбар колонки */
 .column::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 .column::-webkit-scrollbar-track {
-  background: transparent;
+    background: #e2e8f0;
+    border-radius: 10px;
 }
 
 .column::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+    background: var(--gradient-primary);
+    border-radius: 10px;
 }
 
+/* Хедер колонки */
 .column-header {
-  padding: 12px;
-  border-bottom: 2px solid #f0f0f0;
-  background: #333;
-  border-radius: 8px 8px 0 0;
+    padding: 14px 16px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .column-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 40px;
 }
 
 .col-name {
-  font-weight: 600;
-  color: white;
-  font-size: 16px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  flex-grow: 1;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  max-width: calc(100% - 72px);
+    font-weight: 600;
+    color: white;
+    font-size: 16px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    flex-grow: 1;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: calc(100% - 72px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* ОБЩИЙ КОНТЕЙНЕР ДЛЯ КНОПОК КОЛОНКИ */
+/* Кнопки колонки */
 .column-header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
 }
 
 .remove-column-btn,
 .rename-column-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  padding: 0;
-  flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 .remove-column-btn:hover,
 .rename-column-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05);
 }
 
 .remove-column-btn {
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .renameIcon {
-  width: 16px;
-  height: 16px;
-  display: block;
+    width: 16px;
+    height: 16px;
+    display: block;
+    filter: brightness(0) invert(1);
 }
 
-.renameIcon path {
-  fill: white;
-}
-
+/* Контейнер задач */
 .tasks {
-  padding: 12px;
-  flex-grow: 1;
-  min-height: 100px;
-  overflow-y: auto;
+    padding: 12px;
+    flex-grow: 1;
+    min-height: 150px;
+    overflow-y: auto;
+    background: var(--light);
 }
 
+.tasks::-webkit-scrollbar {
+    width: 4px;
+}
+
+.tasks::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.tasks::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
+/* Блок добавления задачи */
 .add-task {
-  padding: 12px;
-  border-top: 2px solid #f0f0f0;
-  background: #fafafa;
-  border-radius: 0 0 8px 8px;
+    padding: 12px;
+    border-top: 1px solid #e2e8f0;
+    background: var(--white);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .add-task button {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: 2px solid #ddd;
-  color: #4CAF50;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 2px dashed #cbd5e1;
+    color: var(--primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .add-task button:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
-  color: #333;
+    background: rgba(99, 102, 241, 0.05);
+    border-color: var(--primary);
+    color: var(--primary-dark);
 }
 
 .add-task input {
-  width: 90%;
-  padding: 10px;
-  margin-bottom: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .add-task input:focus {
-  outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-/* Стили для состояния перетаскивания */
+.add-task input:first-of-type {
+    margin-top: 0;
+}
+
+/* Кнопки внутри формы добавления */
+.add-task > div {
+    display: flex;
+    gap: 8px;
+}
+
+.add-task > div button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.add-task > div button:first-child {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+}
+
+.add-task > div button:first-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.add-task > div button:last-child {
+    background: #e2e8f0;
+    color: var(--gray);
+    border: none;
+}
+
+.add-task > div button:last-child:hover {
+    background: #cbd5e1;
+    color: var(--dark);
+}
+
+/* Состояние перетаскивания */
 .column-over {
-  background-color: #f0f7ff !important;
-  border: 2px solid #4CAF50 !important;
-}
-
-.task-ghost {
-  opacity: 0.4;
+    background-color: rgba(99, 102, 241, 0.05) !important;
+    border: 2px solid var(--primary) !important;
+    transform: scale(1.02);
 }
 
 /* Стили для переименования колонки */
 .rename-input-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
 }
 
 .rename-input {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  background: white;
-  color: #333;
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    color: var(--dark);
 }
 
 .rename-input:focus {
-  outline: none;
-  border-color: #4CAF50;
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 .rename-confirm-btn,
 .rename-cancel-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .rename-confirm-btn {
-  background: #28a745;
-  color: white;
+    background: var(--gradient-success);
+    color: white;
 }
 
 .rename-confirm-btn:hover {
-  background: #218838;
+    transform: scale(1.05);
 }
 
 .rename-cancel-btn {
-  background: #dc3545;
-  color: white;
+    background: #e2e8f0;
+    color: var(--gray);
 }
 
 .rename-cancel-btn:hover {
-  background: #c82333;
+    background: #cbd5e1;
+    transform: scale(1.05);
+}
+
+/* Анимация появления колонки */
+@keyframes columnAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.column {
+    animation: columnAppear 0.3s ease forwards;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .column {
+        width: 280px;
+        min-width: 280px;
+        max-height: calc(100vh - 180px);
+    }
+    
+    .col-name {
+        font-size: 14px;
+        max-width: calc(100% - 60px);
+    }
+    
+    .remove-column-btn,
+    .rename-column-btn {
+        width: 28px;
+        height: 28px;
+    }
 }

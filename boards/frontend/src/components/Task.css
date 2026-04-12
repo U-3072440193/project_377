@@ -1305,3 +1305,454 @@
     height: 16px;
   }
 }
+
+/* ====================== */
+/* ФИКСЫ ДЛЯ TASK КОМПОНЕНТА */
+/* ====================== */
+
+/* Шапка таска - закругления и стиль */
+.task-header {
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    min-height: 50px;
+    background-color: #6366f1;
+    user-select: none;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s ease;
+}
+
+/* Разные цвета для разных приоритетов */
+.task-header[style*="background-color: #4CAF50"] {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.task-header[style*="background-color: #FFC107"] {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.task-header[style*="background-color: #FF9800"] {
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+}
+
+.task-header[style*="background-color: #F44336"] {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+/* Контейнер задачи - общий стиль */
+.task-container {
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.task-container:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Контент задачи */
+.task-content {
+    background: white;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Название задачи */
+.task-name {
+    font-weight: 600;
+    word-break: break-word;
+    font-size: 14px;
+    cursor: inherit;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Кнопки в шапке */
+.remove-task-btn,
+.rename-task-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.remove-task-btn:hover,
+.rename-task-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05);
+}
+
+/* ====================== */
+/* ФИКС ДЛЯ ВЫПАДАЮЩЕГО МЕНЮ (чтобы не обрезалось) */
+/* ====================== */
+
+/* Обертка для колонки - важно для z-index */
+.column {
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Контейнер колонок - чтобы не обрезать */
+.columns-container {
+    overflow: visible !important;
+}
+
+/* Выпадающее меню ответственных - исправлено позиционирование */
+.members-dropdown {
+    position: fixed;
+    z-index: 99999;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    padding: 0;
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+    animation: slideDownFade 0.2s ease-out;
+}
+
+/* Стрелочка у выпадающего меню */
+.members-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #e2e8f0;
+    z-index: 1;
+}
+
+.members-dropdown::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid white;
+    z-index: 2;
+}
+
+/* Контент выпадающего меню */
+.members-dropdown-content {
+    padding: 16px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+/* Скроллбар для выпадающего меню */
+.members-dropdown-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.members-dropdown-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.members-dropdown-content::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 10px;
+}
+
+/* Стили для элементов в выпадающем меню */
+.task-member-item,
+.available-member-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+}
+
+.task-member-item:last-child,
+.available-member-item:last-child {
+    margin-bottom: 0;
+}
+
+.task-member-item:hover,
+.available-member-item:hover {
+    background: #f1f5f9;
+    transform: translateX(4px);
+}
+
+/* Кнопки добавления/удаления */
+.remove-task-member-btn,
+.add-task-member-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    color: white;
+    font-weight: bold;
+}
+
+.remove-task-member-btn {
+    background: #ef4444 !important;
+}
+
+.remove-task-member-btn:hover {
+    background: #dc2626 !important;
+    transform: scale(1.1);
+}
+
+.add-task-member-btn {
+    background: #10b981 !important;
+}
+
+.add-task-member-btn:hover {
+    background: #059669 !important;
+    transform: scale(1.1);
+}
+
+/* Заголовки секций */
+.members-dropdown-content h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Разделитель между секциями */
+.available-members {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Аватарки в меню */
+.task-member-item img,
+.available-member-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+/* Имена пользователей */
+.task-member-item span,
+.available-member-item span {
+    flex-grow: 1;
+    font-size: 14px;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    font-weight: 500;
+}
+
+/* Сообщение "Нет ответственных" */
+.no-members {
+    text-align: center;
+    padding: 16px;
+    color: #64748b;
+    font-size: 13px;
+    font-style: italic;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+}
+
+/* ====================== */
+/* ВЫПАДАЮЩЕЕ МЕНЮ ПРИОРИТЕТОВ */
+/* ====================== */
+.priority-dropdown {
+    position: fixed;
+    z-index: 99999;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: slideDownFade 0.2s ease-out;
+    min-width: 130px;
+}
+
+/* Элементы приоритетов */
+.priority-item {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.2s ease;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.priority-item:hover {
+    transform: translateX(4px);
+    filter: brightness(105%);
+}
+
+/* Цвета приоритетов */
+.priority-item.low { background-color: #10b981 !important; }
+.priority-item.average { background-color: #f59e0b !important; color: #0f172a !important; text-shadow: none; }
+.priority-item.high { background-color: #f97316 !important; }
+.priority-item.maximal { background-color: #ef4444 !important; }
+
+/* Активный приоритет */
+.priority-item.active::after {
+    content: "✓";
+    opacity: 1;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.priority-item::after {
+    content: "✓";
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* ====================== */
+/* ВЫПАДАЮЩЕЕ МЕНЮ ФАЙЛОВ */
+/* ====================== */
+.files-dropdown {
+    position: fixed;
+    z-index: 99999;
+    margin-top: 4px;
+}
+
+.files-dropdown-content {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 280px;
+}
+
+/* Кнопка загрузки файла */
+.upload-file-btn {
+    display: block;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.upload-file-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* ====================== */
+/* АНИМАЦИИ */
+/* ====================== */
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ====================== */
+/* МЕДИА-ЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ */
+/* ====================== */
+@media (max-width: 768px) {
+    .members-dropdown {
+        width: 280px;
+        max-height: 350px;
+    }
+    
+    .members-dropdown-content {
+        padding: 12px;
+    }
+    
+    .task-member-item,
+    .available-member-item {
+        padding: 8px 10px;
+    }
+    
+    .task-member-item img,
+    .available-member-item img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .priority-dropdown {
+        min-width: 120px;
+    }
+    
+    .files-dropdown-content {
+        width: 260px;
+    }
+}
+
+@media (max-width: 480px) {
+    .members-dropdown {
+        width: 260px;
+        max-height: 300px;
+    }
+    
+    .priority-dropdown {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 250px;
+    }
+}

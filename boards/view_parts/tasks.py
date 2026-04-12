@@ -84,22 +84,15 @@ class TaskMoveView(APIView):
     def patch(self, request, pk):
         print(f"\n=== MOVE TASK {pk} ===")
         print(f"Request data: {request.data}")
-    
-        task = Task.objects.select_for_update().get(pk=pk)
-        print(f"BEFORE - Task {pk}: position={task.position}, column={task.column.id}")
-        """
-        Перемещает задачу в другую колонку и/или меняет её позицию.
-        Пример JSON тела запроса:
-        {
-            "column": 2,       ID новой колонки (обязательно)
-            "position": 0      Новая позиция в колонке (0-based, опционально)
-        }
-        """
+        
         try:
+            # ТОЛЬКО ОДИН РАЗ получаем задачу
             task = Task.objects.select_for_update().get(pk=pk)
+            print(f"BEFORE - Task {pk}: position={task.position}, column={task.column.id}")
+            
             board = task.column.board
 
-            # Проверяем права пользователя!Временно! Права будут разделегированы между мемберами
+            # Проверяем права пользователя
             if board.owner != request.user and not BoardPermit.objects.filter(board=board, user=request.user).exists():
                 return Response(
                     {"error": "У вас нет прав для перемещения этой задачи"},
@@ -130,13 +123,13 @@ class TaskMoveView(APIView):
             with transaction.atomic():
                 # Если задача перемещается в другую колонку
                 if old_column.id != new_column.id:
-                    #  Удаляем задачу из старой колонки и корректируем позиции
+                    # Удаляем задачу из старой колонки и корректируем позиции
                     Task.objects.filter(
                         column=old_column,
                         position__gt=task.position
                     ).update(position=F('position') - 1)
 
-                    #  Добавляем задачу в новую колонку
+                    # Добавляем задачу в новую колонку
                     task.column = new_column
                     if position is not None:
                         # Освобождаем место для новой задачи в новой колонке
@@ -176,9 +169,6 @@ class TaskMoveView(APIView):
                 print(f"AFTER  - Task {pk}: position={task.position}, column={task.column.id}")
     
                 serializer = TaskSerializer(task)
-                print(f"Response data size: {len(str(serializer.data))} bytes")
-                print("=== END ===\n")
-    
                 return Response(serializer.data)
 
         except Task.DoesNotExist:

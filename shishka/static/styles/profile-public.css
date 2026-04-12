@@ -253,3 +253,184 @@ main.profile {
 .user-boards {
     animation: fadeIn 0.5s ease-out;
 }
+
+/* ====================== */
+/* ФИКС СТИЛЕЙ - ДОБАВИТЬ В КОНЕЦ ФАЙЛА */
+/* ====================== */
+
+/* Исправляем основной контейнер */
+.container-prof {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+}
+
+/* Левая колонка */
+.profile-left {
+    flex: 1;
+    max-width: 350px;
+}
+
+/* Правая колонка */
+.profile-right {
+    flex: 2;
+}
+
+/* Карточка профиля */
+.profile-window {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.profile-window h1 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #0f172a;
+}
+
+.profile-window img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #6366f1;
+}
+
+/* Кнопка сообщения */
+.profile-actions {
+    margin-top: 15px;
+}
+
+.profile-actions .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.profile-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+/* Информационная карточка */
+.profile-info {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.profile-info h1 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+    color: #0f172a;
+}
+
+.profile-info p {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #334155;
+}
+
+.label {
+    font-weight: 600;
+    color: #64748b;
+    min-width: 130px;
+    display: inline-block;
+}
+
+/* Доски пользователя */
+.user-boards {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.user-boards h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+    color: #0f172a;
+}
+
+.boards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.board-card {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.board-card:hover {
+    transform: translateY(-3px);
+    border-color: #6366f1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.board-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #0f172a;
+}
+
+.board-card p {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.board-card small {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.no-boards {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+    .container-prof {
+        flex-direction: column;
+    }
+    
+    .profile-left {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .boards-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-window img {
+        width: 100px;
+        height: 100px;
+    }
+}

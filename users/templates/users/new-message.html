@@ -10,7 +10,7 @@
     <form method="post" class="email-compose" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <label for="recipient">Кому:</label>
+        <label for="recipient">Кому</label>
         <input type="text" id="recipient" autocomplete="off" placeholder="Начните вводить имя..." required
                {% if preselected_recipient_name %}value="{{ preselected_recipient_name }}"{% endif %}>
         <input type="hidden" name="recipient_id" id="recipient_id"
@@ -20,7 +20,7 @@
         <input type="text" name="subject" placeholder="Тема" required>
         <textarea name="body" placeholder="Сообщение" rows="5" required></textarea>
 
-        <label for="file">Прикрепить файл:</label>
+        <label for="file">Прикрепить файл</label>
         <input type="file" name="file" id="file">
 
         <button type="submit" class="btn compose">Отправить</button>

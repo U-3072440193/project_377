@@ -306,7 +306,7 @@ h3 {
 
 #reply form input[type="text"]:focus,
 #reply form textarea:focus {
-    border-color: #4CAF50;
+    border-color: linear-gradient(135deg, #10b981, #14b8a6);
     outline: none;
 }
 
@@ -412,7 +412,7 @@ h3 {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #4CAF50, #2E7D32);
+    background: linear-gradient(135deg, #10b981, #14b8a6);
     animation: loading 1s infinite;
 }
 
@@ -448,7 +448,7 @@ h3 {
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #4CAF50);
+    
 }
 
 .email-compose label {
@@ -807,11 +807,7 @@ h3 {
     background: #e6e6e6;
 }
 
-.email-compose input:valid:not(:placeholder-shown),
-.email-compose textarea:valid:not(:placeholder-shown) {
-    border-color: #4CAF50;
-    background: #f5fff5;
-}
+
 
 /* Контроль длины сообщения */
 .char-counter {
@@ -828,4 +824,165 @@ h3 {
 .char-counter.error {
     color: #e74c3c;
     font-weight: bold;
+}
+
+/* ====================== */
+/* ФИКС СТИЛЕЙ - ДОБАВИТЬ В КОНЕЦ ФАЙЛА */
+/* ====================== */
+
+/* Восстанавливаем базовые стили для контейнера */
+.container-prof {
+    display: flex;
+    gap: 30px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Левый блок */
+.profile-left {
+    flex: 0 0 300px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 40px 20px;
+}
+
+.profile-window {
+    text-align: center;
+}
+
+.profile-window h1 {
+    color: white;
+    margin-bottom: 20px;
+}
+
+.profile-window img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    margin-bottom: 20px;
+}
+
+/* Правый блок */
+.profile-right.inbox {
+    flex: 1;
+    padding: 30px;
+    background: white;
+}
+
+/* Кнопки */
+.btn.edit, .btn.compose {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn.edit {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+}
+
+.btn.compose {
+    background: linear-gradient(135deg, #10b981, #14b8a6);
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* Список писем */
+.emails-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.email {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.email--unread {
+    background: #eef2ff;
+    border-left: 4px solid #6366f1;
+}
+
+.email a {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    text-decoration: none;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.email-name {
+    font-weight: 600;
+    color: #1e293b;
+    min-width: 150px;
+}
+
+.email-subject {
+    flex: 1;
+    color: #64748b;
+}
+
+.email-date {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.delete-message {
+    background: #fee2e2;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: #ef4444;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-message:hover {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .container-prof {
+        flex-direction: column;
+        width: 95%;
+    }
+    
+    .profile-left {
+        flex: auto;
+    }
+    
+    .email a {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .email-name, .email-subject, .email-date {
+        width: 100%;
+    }
+}
+
+.profile-right h3{
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    margin-bottom: 20px;
+    border-radius: 30px;
+
 }

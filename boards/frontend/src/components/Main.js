@@ -572,7 +572,7 @@ function Main({ user, board, csrfToken, members, removeMember, serverUrl, userna
               className="chat-toggle-button"
               onClick={() => setShowChat(!showChat)}
             >
-              💬 Чат ({showChat ? 'скрыть' : 'показать'})
+              Чат ({showChat ? 'скрыть' : 'показать'})
             </button>
           )}
 

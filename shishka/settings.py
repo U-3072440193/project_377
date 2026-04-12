@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -207,3 +207,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+
+if 'test' in sys.argv:
+    CAPTCHA_TEST_MODE = True # отключает капчу в тестах
+    CAPTCHA_TEST_ACCEPTED_VALUE = 'PASSED' # значение, которое будет принято 
